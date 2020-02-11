@@ -1,0 +1,22 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <Import Project="..\..\netfx.props" />
+  <PropertyGroup>
+    <TargetFrameworks>netcoreapp3.1;net461</TargetFrameworks>
+    <DisableImplicitFSharpCoreReference>true</DisableImplicitFSharpCoreReference>
+    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="..\FSharp.Data.WsdlProvider.Tests\Weather.wsdl" Link="Weather.wsdl">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="paket.references" />
+    <Compile Include="..\..\src\FSharp.Data.WsdlProvider.DesignTime\Wsdl.fs" Link="Wsdl.fs" />
+    <Compile Include="Tests.fs" />
+  </ItemGroup>
+
+
+  <Import Project="..\..\.paket\Paket.Restore.targets" />
+
+</Project>

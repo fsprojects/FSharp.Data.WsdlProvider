@@ -1,0 +1,27 @@
+storage: packages
+source https://api.nuget.org/v3/index.json
+
+frameworks: net45, netcoreapp3.1, netstandard2.0
+
+# Add the nuget packages you use here
+nuget FSharp.Core 4.3.4
+nuget System.ServiceModel.Duplex
+nuget System.ServiceModel.Http
+
+nuget NETStandard.Library.NETFramework
+
+# THis lines are used by Paket to get the latest version of the Type Provider SDK files
+#github fsprojects/FSharp.TypeProviders.SDK src/ProvidedTypes.fsi
+#github fsprojects/FSharp.TypeProviders.SDK src/ProvidedTypes.fs
+github thinkbeforecoding/FSharp.TypeProviders.SDK:fix-interfaces src/ProvidedTypes.fsi
+github thinkbeforecoding/FSharp.TypeProviders.SDK:fix-interfaces src/ProvidedTypes.fs
+
+group Test
+  source https://api.nuget.org/v3/index.json
+  frameworks: net461, netcoreapp3.1
+
+  nuget NUnit
+  nuget NUnit.Console
+  nuget NUnit3TestAdapter version_in_path: true
+  nuget FSharp.Core
+  nuget Microsoft.NET.Test.Sdk

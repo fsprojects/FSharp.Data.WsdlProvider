@@ -1,0 +1,32 @@
+type file
+id FSharp.Data.WsdlProvider
+authors
+    Jeremie Chassaing
+owners
+    Jeremie Chassaing
+projectUrl
+    https://github.com/thinkbeforecoding/FSharp.Data.WsdlProvider
+iconUrl
+    https://raw.githubusercontent.com/thinkbeforecoding/FSharp.Data.WsdlProvider/master/docs/img/logo.png
+licenseUrl
+    https://github.com/thinkbeforecoding/FSharp.Data.WsdlProvider/blob/master/LICENSE.md
+requireLicenseAcceptance
+    false
+tags
+    F# fsharp typeproviders FSharp.Data.WsdlProvider wsdl
+summary
+    This is a type provider to generate clients for soap services from wsdl
+description
+    This is a type provider to generate clients for soap services from wsdl.
+files
+    bin/Release/net45/FSharp.Data.WsdlProvider.Runtime.* ==> lib/net45
+    bin/Release/netstandard2.0/FSharp.Data.WsdlProvider.Runtime.* ==> lib/netstandard2.0
+    bin/Release/typeproviders/fsharp41/netstandard2.0/*.dll ==> typeproviders/fsharp41/netstandard2.0
+    bin/Release/typeproviders/fsharp41/netcoreapp3.1/*.dll ==> typeproviders/fsharp41/netcoreapp3.1
+    bin/Release/typeproviders/fsharp41/net45/*.dll ==> typeproviders/fsharp41/net45
+references
+    FSharp.Data.WsdlProvider.Runtime.dll
+dependencies
+  FSharp.Core >= LOCKEDVERSION
+  System.ServiceModel.Duplex >= LOCKEDVERSION
+  System.ServiceModel.Http >= LOCKEDVERSION
