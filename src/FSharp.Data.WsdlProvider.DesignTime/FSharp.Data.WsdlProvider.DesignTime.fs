@@ -291,7 +291,7 @@ module Provided =
 type WsdlProvider (config : TypeProviderConfig) as this =
     inherit TypeProviderForNamespaces (config, assemblyReplacementMap=[("FSharp.Data.WsdlProvider.DesignTime", "FSharp.Data.WsdlProvider.Runtime")])
 
-    let ns = "FSharp.Data.WsdlProvider"
+    let ns = "FSharp.Data"
     let selfAsm = Assembly.GetExecutingAssembly()
 
     // check we contain a copy of runtime files, and are not referencing the runtime DLL
@@ -299,7 +299,7 @@ type WsdlProvider (config : TypeProviderConfig) as this =
 
 
     let asm = ProvidedAssembly()
-    let service = ProvidedTypeDefinition(selfAsm, ns, "WsdlService", Some typeof<obj>, isErased = false )
+    let service = ProvidedTypeDefinition(selfAsm, ns, "WsdlProvider", Some typeof<obj>, isErased = false )
 
     do service.DefineStaticParameters(
 

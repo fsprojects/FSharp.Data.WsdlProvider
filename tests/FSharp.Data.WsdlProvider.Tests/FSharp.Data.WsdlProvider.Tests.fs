@@ -1,12 +1,12 @@
 module FSharp.Data.WsdlProviderTests
 
 
-open FSharp.Data.WsdlProvider
+open FSharp.Data
 open NUnit.Framework
 open System
 open System.ServiceModel
 
-type Weather = WsdlService<const(__SOURCE_DIRECTORY__ + "/Weather.wsdl")>
+type Weather = WsdlProvider<const(__SOURCE_DIRECTORY__ + "/Weather.wsdl")>
 
 [<Test>]
 let ``Client can be instanciated with binding and EndPoint Address `` () =
