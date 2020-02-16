@@ -11,6 +11,7 @@ open ProviderImplementation
 open ProviderImplementation.ProvidedTypes
 open System.ServiceModel
 open FSharp.Data.Wsdl
+open System.Threading.Tasks
 
 module String =
     let camlCase (s: string) =
@@ -48,6 +49,156 @@ module Provided =
     let mkOperationContractAttribute (action: string) (replyAction: string) =
         mkProvidedAttribute<OperationContractAttribute> [] [ "Action", box action; "ReplyAction", box replyAction]
     
+    let defineCtors (client: ProvidedTypeDefinition) location =
+            let parentCtor =
+                client.BaseType.GetConstructor(
+                    BindingFlags.NonPublic ||| BindingFlags.Instance, 
+                    null,
+                    [| typeof<System.ServiceModel.Channels.Binding>
+                       typeof<System.ServiceModel.EndpointAddress> |],
+                    null)
+            
+            let defaultCtor =
+                // this is the constructor with no parameters (default remote address)
+                let args = []
+                let c = ProvidedConstructor(args, (fun _ -> <@@ () @@>))
+                let location = location
+                let parentCtorCall (args: Expr list) = 
+                    [ args.[0] 
+                      <@@ BasicHttpBinding() @@>
+                      <@@ EndpointAddress(location) @@> ]
+
+                c.BaseConstructorCall <- (fun args -> parentCtor, parentCtorCall args )
+                c
+ 
+            let addressCtor =
+                // this is the constructor with only the remote address
+                let args = [ ProvidedParameter("remoteAddress", typeof<string>) ]
+                let c = ProvidedConstructor(args, (fun _ -> <@@ () @@>))
+                let parentCtorCall (args: Expr list) = 
+                    [ args.[0]
+                      <@@ BasicHttpBinding() @@>
+                      <@@ EndpointAddress( %%(args.[1]) ) @@> ]
+
+                c.BaseConstructorCall <- (fun args -> parentCtor, parentCtorCall args )
+
+                c
+
+            let fullCtor = 
+                // this is the full constructor
+                let args = 
+                    [ ProvidedParameter("binding", typeof<System.ServiceModel.Channels.Binding>)
+                      ProvidedParameter("remoteAddress", typeof<EndpointAddress>) ]
+                let c = ProvidedConstructor( args, (fun _ -> <@@ () @@>))
+                c.BaseConstructorCall <- (fun args -> parentCtor, args)
+                c
+
+            client.AddMembers([defaultCtor; addressCtor; fullCtor ])
+
+
+    let defineLocation (client: ProvidedTypeDefinition) (location: string)=
+    
+        let location =
+            ProvidedProperty("Location", typeof<string>, (fun _ -> Expr.Value(location) ), isStatic = true)
+
+        client.AddMember(location)
+
+    let defineOperationMethod (op: Operation,input, output) channel (itf: ProvidedTypeDefinition) (soapItf: ProvidedTypeDefinition) (client: ProvidedTypeDefinition)  =
+        let name = op.Name
+
+        // method on the soap interface including soap attributes
+        let soapItfMeth = ProvidedMethod(name, input , output)
+        soapItfMeth.AddCustomAttribute (mkOperationContractAttribute op.SoapAction "*")
+        soapItfMeth.AddCustomAttribute(mkXmlSerializerFormatAttribute())
+       
+        soapItf.AddMember(soapItfMeth)
+
+        // method on the user facing interface
+        let itfMeth = ProvidedMethod(name, input , output)
+        itf.AddMember(itfMeth)
+
+        let code = 
+            fun (args: Expr list) ->
+                Expr.Call(channel args.[0], soapItfMeth, args.[1..])
+
+        // method implementation
+        let clientMeth = ProvidedMethod(name, input, output, code)
+
+        client.AddMember(clientMeth)
+        let itfImpl = ProvidedMethod(itf.FullName + "." + name, input , output, invokeCode = ( fun args -> Expr.Call(args.[0], clientMeth, args.[1..])))
+        itfImpl.SetMethodAttrs(MethodAttributes.Private ||| MethodAttributes.HideBySig ||| MethodAttributes.NewSlot ||| MethodAttributes.Virtual ||| MethodAttributes.Final)
+        client.DefineMethodOverride(itfImpl, itfMeth)
+        client.AddMember(itfImpl)
+
+    let defineAsyncOperationMethod (op: Operation,input, output) channel (itf: ProvidedTypeDefinition) (soapItf: ProvidedTypeDefinition) (client: ProvidedTypeDefinition)  =
+        let name = op.Name + "Async"
+
+        // method on soap interface alwasy use tasks (include soap attributes)
+        let taskOutput = ProvidedTypeBuilder.MakeGenericType(typedefof<Task<_>>, [ output ])
+        let soapItfMeth = ProvidedMethod(name, input , taskOutput)
+        soapItfMeth.AddCustomAttribute (mkOperationContractAttribute op.SoapAction "*")
+        soapItfMeth.AddCustomAttribute(mkXmlSerializerFormatAttribute())
+
+        soapItf.AddMember(soapItfMeth)
+
+        // method on front facing interface using task
+        let itfTaskMeth = ProvidedMethod(name, input , taskOutput)
+        itf.AddMember(itfTaskMeth)
+
+        // implementation of the task method
+        let code = 
+            fun (args: Expr list) ->
+                Expr.Call(channel args.[0], soapItfMeth, args.[1..])
+
+        let clientMeth = ProvidedMethod(name, input, taskOutput, code)
+
+        client.AddMember(clientMeth)
+        let itfImpl = ProvidedMethod(itf.FullName + "." + name, input , taskOutput, invokeCode = ( fun args -> Expr.Call(args.[0], clientMeth, args.[1..])))
+        itfImpl.SetMethodAttrs(MethodAttributes.Private ||| MethodAttributes.HideBySig ||| MethodAttributes.NewSlot ||| MethodAttributes.Virtual ||| MethodAttributes.Final)
+        client.DefineMethodOverride(itfImpl, itfTaskMeth)
+        client.AddMember(itfImpl)
+
+        // method on front facing interface using Async
+        let asyncName = "Async" + op.Name
+        let asyncOutput = ProvidedTypeBuilder.MakeGenericType(typedefof<Async<_>>, [ output ])
+        let itfAsyncMeth = ProvidedMethod(asyncName, input , asyncOutput)
+        itf.AddMember(itfAsyncMeth)
+
+        let code = 
+            let awaitTaskGen = 
+                typeof<Async>.GetMethods()
+                |> Seq.find(fun m -> 
+                    m.Name = "AwaitTask" 
+                    && m.IsGenericMethod 
+                    && (let ps = m.GetParameters() 
+                        ps.Length = 1
+                        && ps.[0].ParameterType.IsGenericType
+                        && ps.[0].ParameterType.GetGenericTypeDefinition() = typedefof<Task<_>>) )
+
+            let awaitTask = ProvidedTypeBuilder.MakeGenericMethod(awaitTaskGen, [output])
+
+            let t = awaitTask.ReturnType.GetGenericArguments().[0]
+            
+
+            fun (args: Expr list) ->
+                  Expr.Call(awaitTask, [ Expr.Call(channel args.[0], soapItfMeth, args.[1..] )])
+
+        let clientMeth = ProvidedMethod(asyncName, input, asyncOutput, code)
+
+        client.AddMember(clientMeth)
+        let itfImpl = ProvidedMethod(itf.FullName + "." + asyncName, input , asyncOutput, invokeCode = ( fun args -> Expr.Call(args.[0], clientMeth, args.[1..])))
+        itfImpl.SetMethodAttrs(MethodAttributes.Private ||| MethodAttributes.HideBySig ||| MethodAttributes.NewSlot ||| MethodAttributes.Virtual ||| MethodAttributes.Final)
+        client.DefineMethodOverride(itfImpl, itfAsyncMeth)
+        client.AddMember(itfImpl)
+
+
+
+
+
+
+
+
+
 
     let buildWsdlTypes nsp (asm: ProvidedAssembly) name wsdl =
         let p = ProvidedTypeDefinition(asm, nsp, name, Some typeof<obj>, isSealed = false, isErased = false)
@@ -167,74 +318,36 @@ module Provided =
             
         let buildPort serviceName (port: Port) = 
             try
-            let itf = ProvidedTypeDefinition(asm, nsp, port.Name, None, isErased = false, isInterface = true)
-            itf.AddCustomAttribute(mkServiceContractAttribute wsdl.TargetNamespace (nsp + "." + serviceName))
-
-            let def = typedefof<System.ServiceModel.ClientBase<_>>
-            let clientBase = ProvidedTypeBuilder.MakeGenericType(def, [ itf ])
-            let client =
-                ProvidedTypeDefinition(asm, nsp, port.Name + "Client", Some clientBase, isErased = false, isSealed = false)
-
-            let parentCtor =
-                clientBase.GetConstructors(BindingFlags.NonPublic ||| BindingFlags.CreateInstance ||| BindingFlags.Instance)
-                |> Seq.find (fun c -> match c.GetParameters() with 
-                                      | [| p1;p2 |] 
-                                            when p1.ParameterType = typeof<System.ServiceModel.Channels.Binding>
-                                                 && p2.ParameterType = typeof<EndpointAddress>  -> true | _ -> false) 
-            let ctor = 
-                let args = 
-                    [ ProvidedParameter("binding", typeof<System.ServiceModel.Channels.Binding>)
-                      ProvidedParameter("remoteAddress", typeof<EndpointAddress>) ]
-                let c = ProvidedConstructor( args, (fun _ -> <@@ () @@>))
-                c.BaseConstructorCall <- (fun args -> parentCtor, args)
-                c
-
-            client.AddMember(ctor)
-
-            let ctor' =
-                let args = [ ProvidedParameter("remoteAddress", typeof<string>) ]
-                let c = ProvidedConstructor(args, (fun _ -> <@@ () @@>))
-                let parentCtorCall (args: Expr list) = 
-                    [ args.[0]
-                      <@@ BasicHttpBinding() @@>
-                      <@@ EndpointAddress( %%(args.[1]) ) @@> ]
-
-                c.BaseConstructorCall <- (fun args -> parentCtor, parentCtorCall args )
-
-                c
-            client.AddMember(ctor')
-
-            let ctor'' =
-                let args = []
-                let c = ProvidedConstructor(args, (fun _ -> <@@ () @@>))
-                let location = port.Location
-                let parentCtorCall (args: Expr list) = 
-                    [ args.[0] 
-                      <@@ BasicHttpBinding() @@>
-                      <@@ EndpointAddress(location) @@> ]
-
-                c.BaseConstructorCall <- (fun args -> parentCtor, parentCtorCall args )
-
-                c
-            client.AddMember(ctor'')
 
 
-            let location =
-                let loc = port.Location
-                ProvidedProperty("Location", typeof<string>, (fun _ -> Expr.Value(loc) ), isStatic = true)
+            let soapItf = ProvidedTypeDefinition(asm, nsp, "I" + port.Name , None, isErased = false, isInterface = true)
+            soapItf.AddCustomAttribute(mkServiceContractAttribute wsdl.TargetNamespace (nsp + "." + serviceName))
 
-            client.AddMember(location)
+            let itf = ProvidedTypeDefinition(asm, nsp, port.Name , None, isErased = false, isInterface = true)
 
+            let clientBase =
+                let def = typedefof<System.ServiceModel.ClientBase<_>>
+                ProvidedTypeBuilder.MakeGenericType(def, [ soapItf ])
+
+            let client = 
+                ProvidedTypeDefinition(
+                        asm,
+                        nsp,
+                        port.Name + "Client",
+                        Some clientBase,
+                        isErased = false,
+                        isSealed = false)
+
+            defineCtors client port.Location
+            defineLocation client port.Location
 
             client.AddInterfaceImplementation(itf)
 
             let channelProp = clientBase.GetProperty("Channel", BindingFlags.NonPublic ||| BindingFlags.Instance ||| BindingFlags.GetProperty)
-            if isNull channelProp then
-                failwith "Cannot find channel property"
-            elif isNull channelProp.GetMethod then
-                failwith "Channel property has no get"
+
             let channel this = 
                 Expr.PropertyGet(this, channelProp)
+
             for op in port.Binding.Operations do
                 let input = 
                     match op.Input.Type with
@@ -246,27 +359,16 @@ module Provided =
                     
                 let output = buildElement op.Output
 
-                let meth = ProvidedMethod(op.Name, input , output)
-                meth.AddCustomAttribute (mkOperationContractAttribute op.SoapAction "*")
-                meth.AddCustomAttribute(mkXmlSerializerFormatAttribute())
-               
-                itf.AddMember(meth)
+                // synchronous method
+                defineOperationMethod (op,input,output) channel itf soapItf client  
 
-                let code = 
-                    fun (args: Expr list) ->
-                        Expr.Call(channel args.[0], meth, args.[1..])
+                // task method
+                defineAsyncOperationMethod (op,input, output) channel itf soapItf client  
 
-                let clientMeth = ProvidedMethod(op.Name, input, output, code)
-
-                client.AddMember(clientMeth)
-                let itfImpl = ProvidedMethod(itf.FullName + "." + meth.Name, input , output, invokeCode = ( fun args -> Expr.Call(args.[0], clientMeth, args.[1..])))
-                itfImpl.SetMethodAttrs(MethodAttributes.Private ||| MethodAttributes.HideBySig ||| MethodAttributes.NewSlot ||| MethodAttributes.Virtual ||| MethodAttributes.Final)
-                client.DefineMethodOverride(itfImpl, meth)
-                client.AddMember(itfImpl)
                 ()
 
             
-            [itf; client]
+            [itf; soapItf ; client]
             with
             | ex -> failwithf "Failed while building ctor: %O" ex 
 

@@ -49,8 +49,8 @@ NUGET
       System.Drawing.Common (>= 4.7) - restriction: || (&& (== net45) (>= netcoreapp3.0)) (== netcoreapp3.1) (&& (== netstandard2.0) (>= netcoreapp3.0))
 GITHUB
   remote: thinkbeforecoding/FSharp.TypeProviders.SDK
-    src/ProvidedTypes.fs (e75e1cb0903950a5bab21f746904a053f94c2b36)
-    src/ProvidedTypes.fsi (e75e1cb0903950a5bab21f746904a053f94c2b36)
+    src/ProvidedTypes.fs (c01bcea76ed31ee5334af1a1035206e377b8f4e5)
+    src/ProvidedTypes.fsi (c01bcea76ed31ee5334af1a1035206e377b8f4e5)
 GROUP Test
 RESTRICTION: || (== net461) (== netcoreapp3.1)
 NUGET
