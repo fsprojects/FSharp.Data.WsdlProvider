@@ -8,6 +8,8 @@ nuget Fake.DotNet.Cli
 nuget Fake.DotNet.Paket //"
 
 #load ".fake/build.fsx/intellisense.fsx"
+open System
+open System.Numerics
 open Fake.Core
 open Fake.Core.TargetOperators
 open Fake.IO
@@ -28,7 +30,17 @@ module BuildPath =
 let releaseNotes = ReleaseNotes.load BuildPath.releaseNotes
 
 let version =
-    releaseNotes.SemVer
+    let semver = releaseNotes.SemVer
+    let build = 
+        Environment.environVarOrNone "GITHUB_RUN_ID"
+        |> Option.bind (fun v ->
+            match BigInteger.TryParse v with
+            | true, n -> Some n
+            | false, _ -> None) 
+        |> Option.defaultValue 0I
+
+    { semver with Original = None
+                  Build = build }
     
 
 
