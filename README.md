@@ -4,10 +4,11 @@ This is an implementation of the Wsdl type provider that is compatible with netc
 It does all the wsdl parsing internally and doesn't require an external tool.
 
 
-Building:
+Building on Windows:
+    .\build.cmd
 
-    dotnet tool restore
-    dotnet paket update
-    dotnet build -c release
+Binding on Minux/MacOS:
+    
+    ./build.sh
 
-    dotnet paket pack nuget --version 0.0.1
+

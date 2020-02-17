@@ -57,7 +57,8 @@ Target.create "Nuget" <| fun _ ->
         { p with 
             BuildConfig = "Release"
             OutputPath = BuildPath.nuget
-            Version = version.AsString }
+            Version = version.AsString
+            ToolType = ToolType.CreateLocalTool() }
     )
 Target.create "All" ignore
 
