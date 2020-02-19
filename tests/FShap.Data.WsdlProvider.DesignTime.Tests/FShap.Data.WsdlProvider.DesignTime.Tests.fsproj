@@ -8,6 +8,9 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Include="..\FSharp.Data.WsdlProvider.Tests\Translator.wsdl" Link="Translator.wsdl" >
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Include="..\FSharp.Data.WsdlProvider.Tests\Weather.wsdl" Link="Weather.wsdl">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>

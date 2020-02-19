@@ -10,18 +10,10 @@ System.Environment.CurrentDirectory <- __SOURCE_DIRECTORY__ + "/../FSharp.Data.W
 open System
 
 open FSharp.Data.Wsdl
+open System.Xml
+open System.Xml.Schema
 open System.Xml.Linq
 open NUnit.Framework
-
-let findElement name typ =
-    match typ with
-    | Element e when e.Name = name -> Some e
-    | _ -> None
-
-let findComplexType name typ =
-    match typ with
-    | ComplexType ct when ct.Name = Some name -> Some ct
-    | _ -> None
 
 let loadWsdl name = 
     XDocument.Load(name: string)
@@ -35,59 +27,75 @@ let setup() =
     Environment.CurrentDirectory <- execDir
 
 [<Test>]
-let ``Wsld loading should succeed`` () =
+let ``Weather Wsld loading should succeed`` () =
     let wsdl = loadWsdl "./Weather.wsdl"
     
     Assert.NotNull(wsdl)
 
+
 [<Test>]
-let ``Target namespace should be read from file`` () =
-    let wsdl = loadWsdl "./Weather.wsdl"
+let ``Translator Wsld loading should succeed`` () =
+    let wsdl = loadWsdl "./Translator.wsdl"
+    //let wsdl = loadWsdl "http://api.microsofttranslator.com/V2/soap.svc"
     
-    Assert.AreEqual("http://ws.cdyne.com/WeatherWS/", wsdl.TargetNamespace)
+    Assert.NotNull(wsdl)
 
 
 [<Test>]
 let ``Element can be lists (with min=0 and max=unbounded)`` () =
     let wsdl = loadWsdl "./Weather.wsdl"
+    let ns = "http://ws.cdyne.com/WeatherWS/"
 
-    let element = 
-        wsdl.Types
-        |> List.pick (findElement "GetWeatherInformation")
+    let t = 
+        wsdl.Schemas.GlobalTypes.[XmlQualifiedName("ArrayOfWeatherDescription", ns)]
+        :?> XmlSchemaComplexType
 
+    match t.Particle with
+    | XsdSequence [ XsdElement e] -> 
+        Assert.AreEqual(0m, e.MinOccurs)
+        Assert.AreEqual(Decimal.MaxValue, e.MaxOccurs)
 
-    Assert.AreEqual(Occurs 0, element.MinOccurs)
-    Assert.AreEqual(Unbounded, element.MaxOccurs)
+    | _ -> Assert.Fail("Cannot find element")
+
 
 
 [<Test>]
 let ``Element can have empty complex type`` () =
     // this is used for actions that take no inupt parameters
     let wsdl = loadWsdl "./Weather.wsdl"
-    
+    let ns = "http://ws.cdyne.com/WeatherWS/"
+
     let element = 
-        wsdl.Types
-        |> List.pick (findElement "GetWeatherInformation")
+        wsdl.Schemas.GlobalElements.[XmlQualifiedName("GetWeatherInformation", ns)]
+        :?> XmlSchemaElement
 
-    Assert.AreEqual(ComplexType { Name = None; Elements = [] }, element.Type)
+    match element.SchemaType with
+    | XsdComplexType t -> 
+        Assert.AreEqual(XmlSchemaContentType.Empty, t.ContentType)
+     
+    | _ -> Assert.Fail("Unexpected schema type")
 
+[<Test>]
 let ``ComplexType contains elements``() =
     let wsdl = loadWsdl "./Weather.wsdl"
        
+    let ns = "http://ws.cdyne.com/WeatherWS/"
     let complexType = 
-        wsdl.Types
-        |> List.pick (findComplexType "temp")
+        wsdl.Schemas.GlobalTypes.[XmlQualifiedName("temp", ns)]
+        :?> XmlSchemaComplexType
+    let elements = 
+        match complexType.Particle with
+        | XsdSequence s ->
+            s
+            |> List.choose (function 
+                | XsdElement e -> Some (e.Name, e.MinOccurs, e.MaxOccurs, e.ElementSchemaType.TypeCode)
+                | _ -> None
+                )
+        | _ -> []
 
-    Assert.AreEqual([{ MinOccurs = Occurs 0
-                       MaxOccurs = Occurs 1
-                       Name = "MorningLow"
-                       Type = Primitive XsdString }
-                     { MinOccurs = Occurs 0
-                       MaxOccurs = Occurs 1
-                       Name = "DaytimeHigh"
-                       Type = Primitive XsdString } 
-                       ], complexType.Elements)
-    
+    Assert.AreEqual([ "MorningLow" , 0m, 1m, XmlTypeCode.String
+                      "DaytimeHigh", 0m, 1m, XmlTypeCode.String ] , elements)
+     
 
 [<Test>]
 let ``Services contains declares services`` () =
@@ -105,6 +113,6 @@ let ``Services contains Soap ports `` () =
     
     let service = wsdl.Services.[0]
     Assert.AreEqual(1, service.Ports.Length)
-    Assert.AreEqual("WeatherSoap", service.Ports.[0].Name )
+    Assert.AreEqual("WeatherSoap", service.Ports.[0].Name.LocalName )
     Assert.AreEqual("http://wsf.cdyne.com/WeatherWS/Weather.asmx", service.Ports.[0].Location )
 

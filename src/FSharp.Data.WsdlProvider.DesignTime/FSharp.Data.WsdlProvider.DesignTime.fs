@@ -12,6 +12,8 @@ open ProviderImplementation.ProvidedTypes
 open System.ServiceModel
 open FSharp.Data.Wsdl
 open System.Threading.Tasks
+open System.Xml.Linq
+open System.Xml.Schema
 
 module String =
     let camlCase (s: string) =
@@ -104,7 +106,7 @@ module Provided =
         client.AddMember(location)
 
     let defineOperationMethod (op: Operation,input, output) channel (itf: ProvidedTypeDefinition) (soapItf: ProvidedTypeDefinition) (client: ProvidedTypeDefinition)  =
-        let name = op.Name
+        let name = op.PortOperation.Name
 
         // method on the soap interface including soap attributes
         let soapItfMeth = ProvidedMethod(name, input , output)
@@ -131,7 +133,7 @@ module Provided =
         client.AddMember(itfImpl)
 
     let defineAsyncOperationMethod (op: Operation,input, output) channel (itf: ProvidedTypeDefinition) (soapItf: ProvidedTypeDefinition) (client: ProvidedTypeDefinition)  =
-        let name = op.Name + "Async"
+        let name = op.PortOperation.Name + "Async"
 
         // method on soap interface alwasy use tasks (include soap attributes)
         let taskOutput = ProvidedTypeBuilder.MakeGenericType(typedefof<Task<_>>, [ output ])
@@ -159,7 +161,7 @@ module Provided =
         client.AddMember(itfImpl)
 
         // method on front facing interface using Async
-        let asyncName = "Async" + op.Name
+        let asyncName = "Async" + op.PortOperation.Name
         let asyncOutput = ProvidedTypeBuilder.MakeGenericType(typedefof<Async<_>>, [ output ])
         let itfAsyncMeth = ProvidedMethod(asyncName, input , asyncOutput)
         itf.AddMember(itfAsyncMeth)
@@ -204,23 +206,30 @@ module Provided =
         let p = ProvidedTypeDefinition(asm, nsp, name, Some typeof<obj>, isSealed = false, isErased = false)
         asm.AddTypes([p])
 
-        let types = Dictionary<string,ProvidedTypeDefinition>()
+        let types = Dictionary<XName,ProvidedTypeDefinition>()
 
 
-        let rec buildComplexType name (t: ComplexType) = 
+        let rec buildComplexType (name: XName) (t: XmlSchemaComplexType) = 
             match types.TryGetValue(name) with
-            | true, t -> Some (t :> Type)
-            | _ ->
-                let pt = ProvidedTypeDefinition(asm, nsp , name, Some typeof<obj>, isErased = false)
-                pt.AddCustomAttribute(mkXmlTypeAttribute wsdl.TargetNamespace)
+            | true, t -> t :> Type
+            | false, _ ->
+                let pt = ProvidedTypeDefinition(asm, nsp , name.LocalName, Some typeof<obj>, isErased = false)
+                pt.AddCustomAttribute(mkXmlTypeAttribute name.NamespaceName)
 
                 types.Add(name, pt)
+                p.AddMember(pt)
 
                 let elements = 
-                    [ for e in t.Elements do
-                       let propType = typeRef e.Type
-                          
-                       e.Name, propType ]
+                    match t.Particle with
+                    | XsdSequence elts ->
+                        [ for e in elts do
+                           let propType = typeRef e.ElementSchemaType
+                              
+                           e.Name, propType ]
+                    | _ -> failwithf "Cannot build type with Particle of type %s" (t.Particle.GetType().FullName)
+
+                if elements = [] then
+                    failwith "Empty ComplexType"
 
                 let fields =
                     [ for name, t in elements -> 
@@ -246,6 +255,7 @@ module Provided =
                             fields |> List.mapi (fun i field ->
                                 Expr.FieldSet(this, field, args.[i+1] ))
                         List.fold (fun x y -> Expr.Sequential(x,y)) sets.[0] (List.tail sets)
+                        
                     )
 
                 pt.AddMembers(fields)
@@ -253,77 +263,40 @@ module Provided =
                 pt.AddMember(ctor)
                 pt.AddMember(ProvidedConstructor([], fun _ -> <@@ () @@>))
 
-                Some (pt :> Type)
+                (pt :> Type)
 
 
             
-        and buildType = function
-            | ComplexType { Elements = [ { MaxOccurs = Unbounded; Type = t } ]  } ->
-                (typeRef t).MakeArrayType() |> Some
-            | ComplexType t when 
-                t.Name 
-                |> Option.map (fun n -> n.StartsWith("ArrayOf")) 
-                |> Option.defaultValue false  -> 
-                    buildComplexType (Option.get t.Name ) t
-
-            | ComplexType t ->
-                buildComplexType (defaultArg t.Name "") t
-            | _ -> None
-        and typeRef t =
+        and typeRef (t: XmlSchemaType) =
             match t with
-            | Primitive XsdByte -> typeof<byte>
-            | Primitive XsdShort -> typeof<int16>
-            | Primitive XsdInt -> typeof<int>
-            | Primitive XsdLong -> typeof<int64>
-            | Primitive XsdDecimal -> typeof<decimal>
-            | Primitive XsdDouble -> typeof<double>
-            | Primitive XsdFloat -> typeof<float>
-            | Primitive XsdString -> typeof<string>
-            | Primitive XsdDate -> typeof<DateTime>
-            | Primitive XsdDateTime -> typeof<DateTime>
-            | Primitive XsdTime -> typeof<TimeSpan>
-            | Primitive XsdBool -> typeof<bool>
-            | Primitive XsdBase64Binary -> typeof<byte[]>
-            | Primitive XsdHexBinary -> typeof<byte[]>
-            | Element e ->
-                failwithf "Cannot build top level element %s" e.Name
-            | ComplexType { Elements = [ { MaxOccurs = Unbounded; Type = t} ] } ->
+            | XsdSimpleType t ->
+               t.Datatype.ValueType
+            | XsdEmptyType t ->
+                typeof<obj>
+            | XsdArray t  ->
                 (typeRef t).MakeArrayType()
-            | ComplexType ct ->
-                match buildComplexType (defaultArg ct.Name "") ct with
-                | Some t -> t
-                | None -> failwithf "Could not build Complex type %s" (defaultArg  ct.Name "(no name)") 
-            | EmptyType _ -> typeof<obj>
-            | TypeRef r -> 
-                wsdl.Types
-                |> List.tryPick (function ComplexType t when  t.Name =  Some r -> Some t | _ -> None)
-                |> Option.bind(fun complexType -> buildType (*defaultArg complexType.Name "" *) (ComplexType complexType))
-                |> function
-                | Some t -> t
-                | None -> failwithf "Could not build typeref %s" r
-        let buildElement (e: Element) =
-            match e.Type with
-            | ComplexType { Elements = [ { MaxOccurs = Occurs 1; Type = t } ] } ->
-                typeRef t
-            | ComplexType { Elements = [ { MaxOccurs = Unbounded; Type = t } ] } ->
+            | XsdComplexType ct ->
+                buildComplexType ct.QualifiedName.XName ct
+        let buildElement (e: XmlSchemaElement) =
+            match e.ElementSchemaType with
+            | XsdArray t ->
                 (typeRef t).MakeArrayType()
-            | ComplexType ct ->
-                match buildComplexType e.Name  ct with
-                | Some e -> 
-                    e
-                | _ -> failwithf "Cannot build element complextype %s" e.Name
+            | XsdComplexType (Particle (XsdSequence [ XsdElement e])) ->
+                typeRef e.ElementSchemaType
+            | XsdComplexType ct ->
+                buildComplexType e.QualifiedName.XName ct
                 
-            | _ -> failwithf "Canot build toplevel element %s" e.Name
+            | _ -> failwithf "Canot build toplevel element %O" e.Name
             
             
         let buildPort serviceName (port: Port) = 
             try
 
 
-            let soapItf = ProvidedTypeDefinition(asm, nsp, "I" + port.Name , None, isErased = false, isInterface = true)
-            soapItf.AddCustomAttribute(mkServiceContractAttribute wsdl.TargetNamespace (nsp + "." + serviceName))
+            let soapItf = ProvidedTypeDefinition(asm, nsp, "I" + port.Name.LocalName , None, isErased = false, isInterface = true)
+            soapItf.AddCustomAttribute(mkServiceContractAttribute port.Name.NamespaceName (nsp + "." + serviceName))
 
-            let itf = ProvidedTypeDefinition(asm, nsp, port.Name , None, isErased = false, isInterface = true)
+            let itf = ProvidedTypeDefinition(asm, nsp, port.Name.LocalName , None, isErased = false, isInterface = true)
 
             let clientBase =
                 let def = typedefof<System.ServiceModel.ClientBase<_>>
@@ -333,7 +306,7 @@ module Provided =
                 ProvidedTypeDefinition(
                         asm,
                         nsp,
-                        port.Name + "Client",
+                        port.Name.LocalName + "Client",
                         Some clientBase,
                         isErased = false,
                         isSealed = false)
@@ -350,14 +323,30 @@ module Provided =
 
             for op in port.Binding.Operations do
                 let input = 
-                    match op.Input.Type with
-                    | ComplexType { Elements = [] } -> []
-                    | ComplexType { Elements = [ { Name = name; MaxOccurs = Occurs 1; Type = t } ]} ->
-                        [ ProvidedParameter(name, typeRef t) ]
-                    | _ -> failwithf "Cannot parse input type %A" op.Input
+                    match op.PortOperation.Input with
+                    | None 
+                    | Some ({Element = Element (SchemaType XsdEmptyType)}) 
+                        -> []
+                    | Some ({ Element = Element e }) -> 
+                        match e.ElementSchemaType with
+                        | XsdComplexType (Particle (XsdSequence [XsdElement elt])) ->
+                            [ ProvidedParameter(elt.Name, typeRef elt.ElementSchemaType) ]
+                        | XsdComplexType t ->
+                            [ ProvidedParameter(e.Name, buildComplexType e.QualifiedName.XName t ) ]
+                        | XsdSimpleType t ->
+                            [  ProvidedParameter(e.Name, t.Datatype.ValueType) ]
+
+                    | Some ({ Name = n; Element = SimpleType t }) ->
+                        [  ProvidedParameter(n, t.Datatype.ValueType) ]
 
                     
-                let output = buildElement op.Output
+                let output = 
+                    match op.PortOperation.Output with
+                    | Some ({Element = Element (SchemaType XsdEmptyType)}) ->
+                        typeof<Unit>
+                    | Some { Element = Element e } -> buildElement e
+                    | _ -> failwithf "Cannot prepare output for %s" op.PortOperation.Name
+                    
 
                 // synchronous method
                 defineOperationMethod (op,input,output) channel itf soapItf client  
@@ -377,15 +366,7 @@ module Provided =
             [ for port in service.Ports do
                 yield! buildPort service.Name port ]
 
-        let declaredTypes = 
-            wsdl.Types
-            |> List.choose buildType
-
-        p.AddMembers(Seq.toList types.Values)
-
         p.AddMembers( wsdl.Services |> List.collect buildService)
-
-
 
         p
 

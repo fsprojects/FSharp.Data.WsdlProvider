@@ -1,66 +1,46 @@
 ﻿module FSharp.Data.Wsdl
 
+open System.Xml
 open System.Xml.Linq
+open System.Xml.Schema
 
-type PrimitiveXsdType = 
-    | XsdString
-    | XsdBool
-    | XsdByte
-    | XsdShort
-    | XsdInt
-    | XsdLong
-    | XsdDecimal
-    | XsdFloat
-    | XsdDouble
-    | XsdDate
-    | XsdTime
-    | XsdDateTime
-    | XsdHexBinary
-    | XsdBase64Binary
+type MessageElement =
+    | SimpleType of XmlSchemaSimpleType
+    | Element of XmlSchemaElement 
 
 
-type Occurs =
-    | Occurs of int
-    | Unbounded
+type Part =
+    { Name: string
+      Element: MessageElement }
 
-type WsdlType =
-    | Element of Element
-    | Primitive of PrimitiveXsdType
-    | ComplexType of ComplexType
-    | TypeRef of string
-    | EmptyType
+type Message =
+    { Name: XName
+      Part: Part option }
 
-
-/// Represents an element (field/arg) in a complex type
-and Element = 
-    { MinOccurs: Occurs
-      MaxOccurs: Occurs
-      Name: string
-      Type: WsdlType }
-/// Represents a complex type
-and ComplexType =
-    { Name: string option
-      Elements: Element list }
+type PortOperation =
+    { Name: string
+      Documentation: string option
+      /// the operation input argument (as a complex type)
+      Input: Part option
+      /// the operation return type 
+      Output: Part option }
+type PortType =
+    { Name: XName
+      Operations: PortOperation list}
 
 /// Represents a Wsdl operation (Soap action)
 type Operation =
-    { Name: string
-      SoapAction: string
-      Documentation: string option
-      /// the operation input argument (as a complex type)
-      Input: Element 
-      /// the operation return type 
-      Output: Element }
+    { PortOperation: PortOperation
+      SoapAction: string }
 
-// A soap binding (
+// A soap binding
 type SoapBinding =
-    { Name: string
-      Type: string
-      Operations: Operation list}
+    { Name: XName
+      Operations: Operation list }
 
 // A wsdl port (a binding at a specific location)
 type Port =
-    { Name : string
+    { Name : XName
       Location: string
       Binding: SoapBinding }
 
@@ -70,14 +50,21 @@ type Service =
       Ports: Port list}
 
 type Wsdl =
-    { TargetNamespace: string
-      Types: WsdlType list 
+    { Schemas: XmlSchemaSet
       Services: Service list }
 
 
 module String =
     let split (char: char) (str: string) = 
         str.Split(char)
+
+type XName with
+    member this.QualifiedName =
+        XmlQualifiedName(this.LocalName, this.NamespaceName)
+
+type XmlQualifiedName with
+    member this.XName =
+        XName.Get(this.Name, this.Namespace)
 
 module Xml =
     let xn = XName.Get
@@ -90,12 +77,62 @@ module Xml =
         elt.Element(name)
         |> Option.ofObj
 
-let (|XAtt|_|) (a: XAttribute) =
+let (|XAtt|_|) name (e: XElement) =
+    let a = e.Attribute(XName.Get name)
     if isNull a then
         None
     else
         Some a.Value
 
+let resolveXName (e: XElement) name =
+    match String.split ':' name with
+    | [| pfx; localName |] ->
+        let ns = e.GetNamespaceOfPrefix(pfx)
+        Some (ns + localName)
+    | _ -> None
+    
+let (|XName|_|) e name = resolveXName e name
+
+let (|XsdElement|_|) (e: XmlSchemaObject) =
+    match e with
+    | :? XmlSchemaElement as e -> Some e
+    | _ -> None
+
+let (|XsdSequence|_|) (e: XmlSchemaObject) =
+    match e with
+    | :? XmlSchemaSequence as s -> Some (s.Items |> Seq.cast<XmlSchemaElement> |> Seq.toList)
+    | _ -> None
+
+let (|XsdComplexType|_|) (e: XmlSchemaObject) =
+    match e with
+    | :? XmlSchemaComplexType as t -> Some t
+    | _ -> None
+
+let (|XsdSimpleType|_|) (e: XmlSchemaObject) =
+    match e with
+    | :? XmlSchemaSimpleType as t -> Some t
+    | _ -> None
+
+let (|Particle|) (t: XmlSchemaComplexType) =
+    t.Particle
+
+let (|SchemaType|) (e: XmlSchemaElement) =
+    e.ElementSchemaType
+
+let (|XsdArray|_|) (e: XmlSchemaObject) =
+    match e with
+    | XsdComplexType (Particle (XsdSequence [XsdElement e])) 
+        when e.MinOccurs = 0m && e.MaxOccurs = System.Decimal.MaxValue
+        -> Some e.ElementSchemaType
+    | _ -> None
+
+let (|XsdEmptyType|_|) (e: XmlSchemaObject) =
+    match e with
+    | XsdComplexType t when isNull t.Particle ->
+        Some()
+    | XsdComplexType (Particle (XsdSequence [])) ->
+        Some()
+    | _ -> None
 module XmlSchema =
     let ns = XNamespace.Get "http://www.w3.org/2001/XMLSchema"
 
@@ -141,221 +178,197 @@ module Soap =
     module Attr = 
         let soapAction =  XName.Get "soapAction"
 
+let parseMessage (tns: XNamespace) (msg: XElement ) (schemas: XmlSchemaSet) =
+    let msgName = Xml.attr "name" msg
+    let partElt =
+        msg.Element(Wsdl.part)
+        |> Option.ofObj
 
-let tryParsePrimitive s (input: string) =
-    match input.Split(':') with
-    | [| prefix ; "boolean" |] when prefix = s -> Some XsdBool
-    | [| prefix ; "string" |] when prefix = s -> Some XsdString
-    | [| prefix ; "int" |] when prefix = s -> Some XsdInt
-    | [| prefix ; "decimal" |] when prefix = s -> Some XsdDecimal
-    | [| prefix ; "byte" |] when prefix = s -> Some XsdByte
-    | [| prefix ; "short" |] when prefix = s -> Some XsdShort
-    | [| prefix ; "long" |] when prefix = s -> Some XsdLong
-    | [| prefix ; "dateTime" |] when prefix = s -> Some XsdDateTime
-    | [| prefix ; "date" |] when prefix = s -> Some XsdDate
-    | [| prefix ; "time" |] when prefix = s -> Some XsdTime
-    | [| prefix ; "base64Binary" |] when prefix = s -> Some XsdBase64Binary
-    | [| prefix ; "hexBinary" |] when prefix = s -> Some XsdHexBinary
-    | [| prefix ; "float" |] when prefix = s -> Some XsdFloat
-    | [| prefix ; "double" |] when prefix = s -> Some XsdDouble
-    | _ -> None
-
-let parseRef tns s =
-    match String.split ':' s with
-    | [| prefix ; name |] when prefix = tns -> Some (TypeRef name)
-    | _ -> None
-
-let attrOrDefault (name: XName) f def (e: XElement) =
-    let att = e.Attribute(name)
-    if isNull att then
-       def
-    else
-        att.Value |> f
-
-let parsOccurs (s: string) =
-    if s = "unbounded" then
-        Unbounded
-    else
-        Occurs (int s)
-
-let parseType s tns t =
-    tryParsePrimitive s t
-    |> Option.map Primitive
-    |> Option.orElseWith (fun _ -> parseRef tns t)
-
-let rec parseElement tns (e: XElement) =
-    let name = e.Attribute(XmlSchema.Attr.name).Value
-    let minOccurs = e |> attrOrDefault XmlSchema.Attr.minOccurs parsOccurs (Occurs 0)
-    let maxOccurs = e |> attrOrDefault XmlSchema.Attr.maxOccurs parsOccurs Unbounded
-
-    let s = e.GetPrefixOfNamespace(XmlSchema.ns)
-    let tnsp = e.GetPrefixOfNamespace(tns)
-    let typ =
-        match e.Attribute(XmlSchema.Attr.``type``) with
-        | XAtt t -> 
-            let simpleType = parseType s tnsp t
-
-            match simpleType with
-            | Some t -> t
-            | None -> failwithf "Unknown type %s" t
-
-        | _ ->
-            e.Element(XmlSchema.complexType)
-            |> Option.ofObj
-            |> Option.map (parseComplexType tns)
-            |> Option.defaultValue EmptyType
-    { Name = name
-      MinOccurs = minOccurs
-      MaxOccurs = maxOccurs
-      Type = typ }
-
-and parseComplexType tns (e:XElement) =
-    let name = e |> attrOrDefault XmlSchema.Attr.name Some None
-    let sequence = e.Element(XmlSchema.sequence)
-
-    let elts =
-        if isNull sequence then
-            []
-        else
-            [ for elt in sequence.Elements()
-               ->
-                parseElement tns elt ]
-
-    ComplexType
-        { Name = name
-          Elements = elts}
-
-let parseMessage tns (wsdl: XDocument) fullname =
-    let tnsp = wsdl.Root.GetPrefixOfNamespace(tns)
-    match String.split ':' fullname with
-    | [| ns; name |] when ns = tnsp ->
-        let message= 
-            wsdl.Root.Elements(Wsdl.message)
-            |> Seq.tryFind (fun e -> Xml.attr "name" e = name)
-
-        match message with
-        | None -> failwithf "Could not find message %s in wsdl" name
-        | Some msg -> 
-            let fullElementName =
-                msg.Element(Wsdl.part)
-                |> Xml.attr "element"
-            let s = msg.GetPrefixOfNamespace(XmlSchema.ns)
-            let tnsp = msg.GetPrefixOfNamespace(tns)
-
-            match String.split ':' fullElementName with
-            | [| ns; elementName|] when ns = tnsp ->
-                let element = 
-                    wsdl.Root.Element(Wsdl.types)
-                        .Elements(XmlSchema.schema)
-                        .Elements(XmlSchema.element)
-                    |> Seq.tryFind (fun e -> Xml.attr "name" e = elementName)
-
-                match element with
-                | Some e -> parseElement tns e
-                | None -> failwithf "Could not find element %s" elementName
-
-
-            | _ -> failwithf "Could not find element %s" fullElementName
+    let part = 
+        match partElt with
+        | None -> None
+        | Some p ->
+            let partName = Xml.attr "name" p
+            let element =
+                match p with
+                | XAtt "element" (XName p name) ->
+                     schemas.GlobalElements.[name.QualifiedName]
+                     :?> XmlSchemaElement
+                     |> Element
+                | XAtt "type" (XName p name) ->
+                    XmlSchemaSimpleType.GetBuiltInSimpleType(name.QualifiedName)
+                    |> SimpleType
+                | _ -> failwithf "Could not find element for %s" msgName
+            Some { Name = partName
+                   Element = element }
+        
+    { Name = tns + msgName
+      Part =  part }
             
-            
-    | _ -> failwithf "Cannot find message %s in wsdl" fullname
+
+let parseMessages tns (wsdl: XDocument) (schemas: XmlSchemaSet) =
+    [ for e in  wsdl.Root.Elements(Wsdl.message) ->
+        parseMessage tns e schemas ]
 
 
-
-let parseOperation tns (wsdl: XDocument) (portType: XElement)  (wsdlOp: XElement) =
-    let name = wsdlOp.Attribute(Wsdl.Attr.name).Value
-    let op = wsdlOp.Element(Soap.operation)
-    let action = op.Attribute(Soap.Attr.soapAction).Value
-
-    let portOp = 
-        portType.Elements(Wsdl.operation)
-        |> Seq.find(fun e -> e.Attribute(Wsdl.Attr.name).Value = name)
+let parseOperation (messages: Message list) (portOp: XElement) (*wsdlOp: XElement*)  =
+    let name = portOp.Attribute(Wsdl.Attr.name).Value
 
     let doc = 
         portOp.Element(Wsdl.documentation)
         |> Option.ofObj
         |> Option.map(fun x -> x.Value)
     let input =
-        portOp.Element(Wsdl.input)
-        |> Xml.attr "message"
-        |> parseMessage tns wsdl
+        let inputElement = portOp.Element(Wsdl.input)
+        match Xml.attr "message" inputElement with
+        | XName inputElement name -> 
+            messages
+            |> List.find (fun m -> m.Name = name)
+        | n -> failwithf "Could not parse input message name %s" n
+
+        
+
+
     let output =
-        portOp.Element(Wsdl.output)
-        |> Xml.attr "message"
-        |> parseMessage tns wsdl
+        let outputElement = portOp.Element(Wsdl.output)
+
+        match Xml.attr "message" outputElement with
+        | XName outputElement name ->
+            messages
+            |> List.find (fun m -> m.Name = name)
+        | n -> failwithf "Could not parse output message name %s" n
+
+
     { Name = name
-      SoapAction = action
       Documentation = doc
-      Input =  input 
-      Output = output  }
+      Input = input.Part
+      Output = output.Part  }
 
+let parsePortTypes (tns: XNamespace) (wsdl: XDocument) messages =
+    [ for p in wsdl.Root.Elements(Wsdl.portType) ->
+        let name = Xml.attr "name" p
+        { PortType.Name = tns + name
+          Operations = 
+            [for op in p.Elements(Wsdl.operation) ->
+                parseOperation messages op ] 
+        }
+    ]
+   
 
-let parseBinding tns (wsdl: XDocument) name =
-    let name = 
-        match String.split ':' name with
-        | [| _ ; n |] -> n
-        | _ -> name
-
-    let e = 
-        wsdl.Root.Elements(Wsdl.binding)
-        |> Seq.find(fun b -> Xml.attr "name" b = name)
-
+let parseBinding (tns: XNamespace) (binding: XElement) (portTypes: PortType list) =
+    let name = Xml.attr "name" binding
     let t = 
-        let t =  e |> Xml.attr "type" 
-        match String.split ':' t with
-        | [| _ ; n |] -> n
-        | _ -> t
+        match Xml.attr "type"  binding with
+        | XName binding t -> t
+        | t -> XName.Get t
 
     let portType = 
-        wsdl.Root.Elements(Wsdl.portType)
-        |> Seq.find (fun e -> Xml.attr "name" e = t )
+        portTypes
+        |> List.find (fun e -> e.Name = t )
 
-    { Name = name
-      Type = t
-      Operations =
-        e.Elements(Wsdl.operation)
-        |> Seq.map (parseOperation tns wsdl portType)
-        |> Seq.toList }
+    let ops = 
+        [ for wsdlop in binding.Elements(Wsdl.operation) do
+            let opName = Xml.attr "name" wsdlop
+            let soapOp = wsdlop.Element(Soap.operation)
+            if not (isNull  soapOp) then
+                let action = Xml.attr "soapAction" soapOp
+                let pop = portType.Operations |> List.find (fun o -> o.Name = opName)
+                { SoapAction = action
+                  PortOperation = pop } ]
+
+
+    { Name = tns + name
+      Operations = ops }
+
+
+let parseBindings tns (wsdl: XDocument) portTypes =
+    [ for b in wsdl.Root.Elements(Wsdl.binding) ->
+        parseBinding tns b portTypes ]
 
     
-let parsePort tns wsdl (e: XElement) =
+    
+let parsePort (bindings: SoapBinding list) (tns: XNamespace) (e: XElement)  =
     match e.Element(Soap.address) with
 
     | null -> None
     | address -> 
         let name = e.Attribute(Wsdl.Attr.name).Value
         let location = address.Attribute(Wsdl.Attr.location).Value
-        let bindingName = e.Attribute(Wsdl.Attr.binding).Value
-        let binding = parseBinding tns wsdl bindingName
+        let bindingName =  
+            match e.Attribute(Wsdl.Attr.binding).Value with
+            | XName e n -> n
+            | t -> XName.Get t
+        let binding =
+            bindings
+            |> List.find (fun b -> b.Name = bindingName)
 
         Some 
-            { Name = name
+            { Name = tns + name
               Location = location
               Binding = binding }
 
-let parseServices tns (wsdl: XDocument) = 
+let parseServices bindings tns (wsdl: XDocument)  = 
     [ for e in wsdl.Root.Elements(Wsdl.service) ->
         { Name = e.Attribute(Wsdl.Attr.name).Value
-          Ports = e.Elements(Wsdl.port) |> Seq.choose (parsePort tns wsdl) |> Seq.toList }
+          Ports = 
+            e.Elements(Wsdl.port)
+            |> Seq.choose (parsePort bindings tns)
+            |> Seq.toList }
     ]
 
-let parseTypes tns (schema: XElement) =
-    [ for e in schema.Elements() do
-        if e.Name = XmlSchema.element then
-            parseElement tns e |> Element
-        elif e.Name = XmlSchema.complexType then
-            parseComplexType tns e
-    ]
+
+let rec parseWsdlImports (wsdl: XDocument) docs =
+    wsdl.Root.Elements(Wsdl.ns + "import")
+    |> Seq.fold 
+        (fun docs import ->
+            let ns = Xml.attr "namespace" import
+            if Map.containsKey ns docs then
+                docs
+            else
+                let location = Xml.attr "location" import 
+                let doc = XDocument.Load(location)
+
+                docs
+                |> Map.add ns doc
+                |> parseWsdlImports doc ) 
+        docs
 
 
 let parse (wsdl: XDocument) =
     let tns = wsdl.Root.Attribute(Wsdl.Attr.targetNamespace).Value |> XNamespace.Get
-    let types = wsdl.Root.Element(Wsdl.types)
-    let schema = types.Element(XmlSchema.schema)
 
-    let types = parseTypes tns schema
-    let services = parseServices tns wsdl
-    { TargetNamespace = string tns
-      Types =  types
+    let imports = 
+        Map.empty
+        |> Map.add tns.NamespaceName wsdl
+        |> parseWsdlImports wsdl
+        |> Map.toList
+
+
+    let schemas = XmlSchemaSet(XmlResolver = XmlUrlResolver() )
+    for ns,wsdl in imports  do
+        let types = wsdl.Root.Element(Wsdl.types)
+        for schema in types.Elements(XmlSchema.schema) do
+            schemas.Add(null, schema.CreateReader()) |> ignore
+
+    schemas.Compile()
+
+    let messages =
+        [ for ns,wsdl in imports do
+            yield! parseMessages (XNamespace.Get ns) wsdl schemas ]
+
+    let portTypes =
+        [ for ns,wsdl in imports do
+            yield! parsePortTypes (XNamespace.Get ns) wsdl messages ] 
+
+    let bindings =
+        [ for ns, wsdl in imports do
+            yield! parseBindings (XNamespace.Get ns) wsdl portTypes]
+
+
+    let services = 
+        [ for ns, wsdl in imports do
+            yield! parseServices bindings (XNamespace.Get ns) wsdl  ]
+
+    { Schemas = schemas
       Services = services }
 
