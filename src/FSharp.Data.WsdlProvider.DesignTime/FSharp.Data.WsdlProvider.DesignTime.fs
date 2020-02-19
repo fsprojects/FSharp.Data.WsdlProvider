@@ -14,6 +14,7 @@ open FSharp.Data.Wsdl
 open System.Threading.Tasks
 open System.Xml.Linq
 open System.Xml.Schema
+open System.Collections.Concurrent
 
 module String =
     let camlCase (s: string) =
@@ -107,16 +108,22 @@ module Provided =
 
     let defineOperationMethod (op: Operation,input, output) channel (itf: ProvidedTypeDefinition) (soapItf: ProvidedTypeDefinition) (client: ProvidedTypeDefinition)  =
         let name = op.PortOperation.Name
+        let outputType =
+            if output = typeof<Unit> then
+                typeof<Void>
+            else
+                output
+
 
         // method on the soap interface including soap attributes
-        let soapItfMeth = ProvidedMethod(name, input , output)
+        let soapItfMeth = ProvidedMethod(name, input , outputType)
         soapItfMeth.AddCustomAttribute (mkOperationContractAttribute op.SoapAction "*")
         soapItfMeth.AddCustomAttribute(mkXmlSerializerFormatAttribute())
        
         soapItf.AddMember(soapItfMeth)
 
         // method on the user facing interface
-        let itfMeth = ProvidedMethod(name, input , output)
+        let itfMeth = ProvidedMethod(name, input , outputType)
         itf.AddMember(itfMeth)
 
         let code = 
@@ -124,10 +131,10 @@ module Provided =
                 Expr.Call(channel args.[0], soapItfMeth, args.[1..])
 
         // method implementation
-        let clientMeth = ProvidedMethod(name, input, output, code)
+        let clientMeth = ProvidedMethod(name, input, outputType, code)
 
         client.AddMember(clientMeth)
-        let itfImpl = ProvidedMethod(itf.FullName + "." + name, input , output, invokeCode = ( fun args -> Expr.Call(args.[0], clientMeth, args.[1..])))
+        let itfImpl = ProvidedMethod(itf.FullName + "." + name, input , outputType, invokeCode = ( fun args -> Expr.Call(args.[0], clientMeth, args.[1..])))
         itfImpl.SetMethodAttrs(MethodAttributes.Private ||| MethodAttributes.HideBySig ||| MethodAttributes.NewSlot ||| MethodAttributes.Virtual ||| MethodAttributes.Final)
         client.DefineMethodOverride(itfImpl, itfMeth)
         client.AddMember(itfImpl)
@@ -136,7 +143,11 @@ module Provided =
         let name = op.PortOperation.Name + "Async"
 
         // method on soap interface alwasy use tasks (include soap attributes)
-        let taskOutput = ProvidedTypeBuilder.MakeGenericType(typedefof<Task<_>>, [ output ])
+        let taskOutput = 
+            if output = typeof<Unit> then
+                typeof<Task>
+            else
+                ProvidedTypeBuilder.MakeGenericType(typedefof<Task<_>>, [ output ])
         let soapItfMeth = ProvidedMethod(name, input , taskOutput)
         soapItfMeth.AddCustomAttribute (mkOperationContractAttribute op.SoapAction "*")
         soapItfMeth.AddCustomAttribute(mkXmlSerializerFormatAttribute())
@@ -167,20 +178,21 @@ module Provided =
         itf.AddMember(itfAsyncMeth)
 
         let code = 
-            let awaitTaskGen = 
-                typeof<Async>.GetMethods()
-                |> Seq.find(fun m -> 
-                    m.Name = "AwaitTask" 
-                    && m.IsGenericMethod 
-                    && (let ps = m.GetParameters() 
-                        ps.Length = 1
-                        && ps.[0].ParameterType.IsGenericType
-                        && ps.[0].ParameterType.GetGenericTypeDefinition() = typedefof<Task<_>>) )
 
-            let awaitTask = ProvidedTypeBuilder.MakeGenericMethod(awaitTaskGen, [output])
-
-            let t = awaitTask.ReturnType.GetGenericArguments().[0]
-            
+            let awaitTask = 
+                if output = typeof<Unit> then
+                    typeof<Async>.GetMethod("AwaitTask", [| typeof<Task>|])
+                else
+                    let awaitTaskGen = 
+                        typeof<Async>.GetMethods()
+                        |> Seq.find(fun m -> 
+                            m.Name = "AwaitTask" 
+                            && m.IsGenericMethod 
+                            && (let ps = m.GetParameters() 
+                                ps.Length = 1
+                                && ps.[0].ParameterType.IsGenericType
+                                && ps.[0].ParameterType.GetGenericTypeDefinition() = typedefof<Task<_>>) )
+                    ProvidedTypeBuilder.MakeGenericMethod(awaitTaskGen, [output])
 
             fun (args: Expr list) ->
                   Expr.Call(awaitTask, [ Expr.Call(channel args.[0], soapItfMeth, args.[1..] )])
@@ -272,11 +284,13 @@ module Provided =
             | XsdSimpleType t ->
                t.Datatype.ValueType
             | XsdEmptyType t ->
-                typeof<obj>
+                typeof<Unit>
             | XsdArray t  ->
                 (typeRef t).MakeArrayType()
             | XsdComplexType ct ->
                 buildComplexType ct.QualifiedName.XName ct
+            | t -> failwithf "Unsupported schema type %s" (t.GetType().FullName)
+
         let buildElement (e: XmlSchemaElement) =
             match e.ElementSchemaType with
             | XsdArray t ->
@@ -335,6 +349,7 @@ module Provided =
                             [ ProvidedParameter(e.Name, buildComplexType e.QualifiedName.XName t ) ]
                         | XsdSimpleType t ->
                             [  ProvidedParameter(e.Name, t.Datatype.ValueType) ]
+                        | t -> failwithf "Unsupported schema type %s" (t.GetType().FullName)
 
                     | Some ({ Name = n; Element = SimpleType t }) ->
                         [  ProvidedParameter(n, t.Datatype.ValueType) ]
@@ -381,28 +396,37 @@ type WsdlProvider (config : TypeProviderConfig) as this =
     do assert (typeof<DataSource>.Assembly.GetName().Name = selfAsm.GetName().Name)  
 
 
-    let asm = ProvidedAssembly()
     let service = ProvidedTypeDefinition(selfAsm, ns, "WsdlProvider", Some typeof<obj>, isErased = false )
+
+    let cache = ConcurrentDictionary<string, string * ProvidedTypeDefinition>()
 
     do service.DefineStaticParameters(
 
         [ ProvidedStaticParameter("ServiceUri", typeof<string>) ],
         fun name args ->
             let uri = unbox<string> args.[0]
-            let wsdl = 
-                try
-                    Wsdl.parse (System.Xml.Linq.XDocument.Load uri)
-                with
-                | ex -> failwithf "Error while loading wsdl:\n%O" ex
 
-            try
-                Provided.buildWsdlTypes ns asm name wsdl 
-            with
-            | ex -> failwithf "%O" ex 
-          
+            match cache.TryGetValue(name) with
+            | true, (existingUri, providedType)
+                when existingUri = uri ->
+                providedType
+            | _ ->
+                let wsdl = 
+                    try
+                        Wsdl.parse (System.Xml.Linq.XDocument.Load uri)
+                    with
+                    | ex -> failwithf "Error while loading wsdl:\n%O" ex
+
+                try
+                    let asm = ProvidedAssembly()
+                    let providedType = Provided.buildWsdlTypes ns asm name wsdl 
+
+                    cache.[name] <- (uri, providedType)
+                    providedType
+                with
+                | ex -> failwithf "%O" ex 
         )
 
-    do asm.AddTypes [ service ]
 
     do this.AddNamespace(
         ns, [service]
