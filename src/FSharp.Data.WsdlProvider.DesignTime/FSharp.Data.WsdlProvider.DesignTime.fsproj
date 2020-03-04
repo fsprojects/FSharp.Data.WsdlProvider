@@ -20,6 +20,7 @@
       <Link>paket-files/ProvidedTypes.fs</Link>
     </Compile>
     <Compile Include="AssemblyInfo.fs" />
+    <Compile Include="Xsd.fs" />
     <Compile Include="Wsdl.fs" />
     <Compile Include="..\FSharp.Data.WsdlProvider.Runtime\FSharp.Data.WsdlProvider.Runtime.fs" />
     <Compile Include="FSharp.Data.WsdlProvider.DesignTime.fs" />

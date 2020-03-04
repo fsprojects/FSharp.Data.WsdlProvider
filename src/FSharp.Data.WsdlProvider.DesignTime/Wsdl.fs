@@ -2,11 +2,11 @@
 
 open System.Xml
 open System.Xml.Linq
-open System.Xml.Schema
+open FSharp.Data.Xsd
 
 type MessageElement =
-    | SimpleType of XmlSchemaSimpleType
-    | Element of XmlSchemaElement 
+    | SimpleType of XName
+    | Element of XsElement 
 
 
 type Part =
@@ -33,9 +33,15 @@ type Operation =
     { PortOperation: PortOperation
       SoapAction: string }
 
+/// Binding style
+type BindingStyle =
+    | Document
+    | RPC
+
 // A soap binding
 type SoapBinding =
     { Name: XName
+      Style: BindingStyle
       Operations: Operation list }
 
 // A wsdl port (a binding at a specific location)
@@ -50,7 +56,7 @@ type Service =
       Ports: Port list}
 
 type Wsdl =
-    { Schemas: XmlSchemaSet
+    { Schemas: XsSet
       Services: Service list }
 
 
@@ -58,13 +64,6 @@ module String =
     let split (char: char) (str: string) = 
         str.Split(char)
 
-type XName with
-    member this.QualifiedName =
-        XmlQualifiedName(this.LocalName, this.NamespaceName)
-
-type XmlQualifiedName with
-    member this.XName =
-        XName.Get(this.Name, this.Namespace)
 
 module Xml =
     let xn = XName.Get
@@ -84,6 +83,7 @@ let (|XAtt|_|) name (e: XElement) =
     else
         Some a.Value
 
+
 let resolveXName (e: XElement) name =
     match String.split ':' name with
     | [| pfx; localName |] ->
@@ -93,46 +93,6 @@ let resolveXName (e: XElement) name =
     
 let (|XName|_|) e name = resolveXName e name
 
-let (|XsdElement|_|) (e: XmlSchemaObject) =
-    match e with
-    | :? XmlSchemaElement as e -> Some e
-    | _ -> None
-
-let (|XsdSequence|_|) (e: XmlSchemaObject) =
-    match e with
-    | :? XmlSchemaSequence as s -> Some (s.Items |> Seq.cast<XmlSchemaElement> |> Seq.toList)
-    | _ -> None
-
-let (|XsdComplexType|_|) (e: XmlSchemaObject) =
-    match e with
-    | :? XmlSchemaComplexType as t -> Some t
-    | _ -> None
-
-let (|XsdSimpleType|_|) (e: XmlSchemaObject) =
-    match e with
-    | :? XmlSchemaSimpleType as t -> Some t
-    | _ -> None
-
-let (|Particle|) (t: XmlSchemaComplexType) =
-    t.Particle
-
-let (|SchemaType|) (e: XmlSchemaElement) =
-    e.ElementSchemaType
-
-let (|XsdArray|_|) (e: XmlSchemaObject) =
-    match e with
-    | XsdComplexType (Particle (XsdSequence [XsdElement e])) 
-        when e.MinOccurs = 0m && e.MaxOccurs = System.Decimal.MaxValue
-        -> Some e.ElementSchemaType
-    | _ -> None
-
-let (|XsdEmptyType|_|) (e: XmlSchemaObject) =
-    match e with
-    | XsdComplexType t when isNull t.Particle ->
-        Some()
-    | XsdComplexType (Particle (XsdSequence [])) ->
-        Some()
-    | _ -> None
 module XmlSchema =
     let ns = XNamespace.Get "http://www.w3.org/2001/XMLSchema"
 
@@ -178,7 +138,7 @@ module Soap =
     module Attr = 
         let soapAction =  XName.Get "soapAction"
 
-let parseMessage (tns: XNamespace) (msg: XElement ) (schemas: XmlSchemaSet) =
+let parseMessage (tns: XNamespace) (msg: XElement ) (schemas: XsSet) =
     let msgName = Xml.attr "name" msg
     let partElt =
         msg.Element(Wsdl.part)
@@ -192,11 +152,10 @@ let parseMessage (tns: XNamespace) (msg: XElement ) (schemas: XmlSchemaSet) =
             let element =
                 match p with
                 | XAtt "element" (XName p name) ->
-                     schemas.GlobalElements.[name.QualifiedName]
-                     :?> XmlSchemaElement
+                     schemas.Elements.[name]
                      |> Element
                 | XAtt "type" (XName p name) ->
-                    XmlSchemaSimpleType.GetBuiltInSimpleType(name.QualifiedName)
+                    name
                     |> SimpleType
                 | _ -> failwithf "Could not find element for %s" msgName
             Some { Name = partName
@@ -206,7 +165,7 @@ let parseMessage (tns: XNamespace) (msg: XElement ) (schemas: XmlSchemaSet) =
       Part =  part }
             
 
-let parseMessages tns (wsdl: XDocument) (schemas: XmlSchemaSet) =
+let parseMessages tns (wsdl: XDocument) (schemas: XsSet) =
     [ for e in  wsdl.Root.Elements(Wsdl.message) ->
         parseMessage tns e schemas ]
 
@@ -276,9 +235,16 @@ let parseBinding (tns: XNamespace) (binding: XElement) (portTypes: PortType list
                 { SoapAction = action
                   PortOperation = pop } ]
 
+    let style =
+        match Xml.tryAttr "style" binding with
+        | Some "rpc" -> RPC
+        | _ -> Document
+
+        
 
     { Name = tns + name
-      Operations = ops }
+      Operations = ops 
+      Style = style }
 
 
 let parseBindings tns (wsdl: XDocument) portTypes =
@@ -333,6 +299,7 @@ let rec parseWsdlImports (wsdl: XDocument) docs =
                 |> parseWsdlImports doc ) 
         docs
 
+open System.Xml.Schema
 
 let parse (wsdl: XDocument) =
     let tns = wsdl.Root.Attribute(Wsdl.Attr.targetNamespace).Value |> XNamespace.Get
@@ -351,10 +318,11 @@ let parse (wsdl: XDocument) =
             schemas.Add(null, schema.CreateReader()) |> ignore
 
     schemas.Compile()
+    let schemaSet = Schema.set schemas
 
     let messages =
         [ for ns,wsdl in imports do
-            yield! parseMessages (XNamespace.Get ns) wsdl schemas ]
+            yield! parseMessages (XNamespace.Get ns) wsdl schemaSet ]
 
     let portTypes =
         [ for ns,wsdl in imports do
@@ -369,6 +337,18 @@ let parse (wsdl: XDocument) =
         [ for ns, wsdl in imports do
             yield! parseServices bindings (XNamespace.Get ns) wsdl  ]
 
-    { Schemas = schemas
+    { Schemas = schemaSet
       Services = services }
 
+
+
+type PortOperation with
+    member this.RequireContract =
+        match this.Input with
+        | None 
+        | Some { Element = SimpleType _ }
+        | Some { Element = Element { Type = InlineType (XsSimpleType _ ) }} 
+        | Some { Element = Element { Type = InlineType (XsComplexType { Elements = NoContent }) } }
+        | Some { Element = Element { Type = InlineType (XsComplexType { Elements = Sequence [ XsElement _ ] }) } }
+            -> false
+        | _ -> true

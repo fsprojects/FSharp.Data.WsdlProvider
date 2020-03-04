@@ -1,0 +1,242 @@
+﻿module FSharp.Data.Xsd
+
+open System.Xml
+open System.Xml.Linq
+open System.Xml.Schema
+
+
+
+type XName with
+    member this.QualifiedName =
+        XmlQualifiedName(this.LocalName, this.NamespaceName)
+
+type XmlQualifiedName with
+    member this.XName =
+        XName.Get(this.Name, this.Namespace)
+
+
+type MinOccurs = MinOccurs of int
+type MaxOccurs = Unbounded | MaxOccurs of int 
+
+type Occurs = 
+    { Min: MinOccurs 
+      Max: MaxOccurs}
+
+type XsElement =
+    { Name: XName
+      Type: XsTypeRef
+      DefaultValue: string option
+      Occurs: Occurs
+      SubstitutionGroup: XName option}
+and XsParticle =
+    | XsElement of XsElement
+    | XsAny of Occurs
+and XsTypeRef =
+    | TypeRef of XName
+    | InlineType of XsType
+and Ordrer =
+    | NoContent
+    | Sequence of XsParticle list
+    | All of XsParticle list
+    | Choice of XsParticle list
+and XsComplexType =
+    { BaseType: XName option
+      Elements: Ordrer
+      Attributes: XsAttribute list
+      AnyAttribute: bool
+      Mixed: bool }
+and XsSimpleType =
+    { BaseType: XName }
+and XsType =
+    | XsComplexType of XsComplexType
+    | XsSimpleType of XsSimpleType
+and XsAttribute =
+    { Name: XName
+      Type: XsAttributeType
+      DefaultValue: string option }
+and XsAttributeType =
+    | XsSimple of XName
+    | XsList of XName
+and XsTypeDef =
+    { Name: XName
+      Type: XsType }
+
+module XsType =
+    let empty = 
+        { BaseType = None
+          Elements = NoContent
+          Attributes = []
+          AnyAttribute = false
+          Mixed = false }
+
+module Occurs =
+    let once = 
+        { Min = MinOccurs 1
+          Max = MaxOccurs 1}
+    let optional = 
+        { Min = MinOccurs 0
+          Max = MaxOccurs 1}
+
+let parseOccurs (p: XmlSchemaParticle) =
+    { Min = MinOccurs (int p.MinOccurs)
+      Max = 
+          if p.MaxOccurs = System.Decimal.MaxValue then
+              Unbounded
+          else
+              MaxOccurs(int p.MaxOccurs) }
+
+let rec parseElement (e: XmlSchemaElement) =
+    let t =
+        if isNull e.SchemaTypeName || e.SchemaTypeName.IsEmpty then
+            match e.ElementSchemaType with
+            | :? XmlSchemaSimpleType as t when t.QualifiedName <> XmlQualifiedName.Empty ->
+                TypeRef t.QualifiedName.XName
+            | t ->
+                parseType t
+                |> InlineType 
+        else
+            TypeRef e.SchemaTypeName.XName
+            
+    let d =
+        e.DefaultValue
+        |> Option.ofObj
+    
+    let fix =
+        e.FixedValue
+        |> Option.ofObj
+
+    { XsElement.Name = e.QualifiedName.XName
+      Type = t
+      DefaultValue =  d |> Option.orElse fix
+      Occurs = parseOccurs e
+      SubstitutionGroup = 
+        if e.SubstitutionGroup = XmlQualifiedName.Empty then
+            None
+        else
+            Some e.SubstitutionGroup.XName }
+and parseParticle (p: XmlSchemaParticle) =
+    match p with
+    | :? XmlSchemaElement as e -> XsElement (parseElement e)
+    | :? XmlSchemaAny as any -> XsAny (parseOccurs any)
+    | _ -> failwithf "Unknown particle"
+and parseType (t: XmlSchemaType) =
+    match t with
+    | :? XmlSchemaComplexType as t ->
+        XsComplexType 
+          { BaseType = 
+                if isNull t.BaseXmlSchemaType then
+                    None
+                else
+                    let n = t.BaseXmlSchemaType.QualifiedName
+                    if n = XmlQualifiedName("anyType", "http://www.w3.org/2001/XMLSchema") then
+                        None
+                    else
+                        Some n.XName
+
+            Elements = 
+                match t.ContentTypeParticle with
+                | :? XmlSchemaSequence as s ->
+                    s.Items
+                    |> Seq.cast<XmlSchemaParticle>
+                    |> Seq.map parseParticle
+                    |> Seq.toList
+                    |> Sequence
+                | :? XmlSchemaAll as s ->
+                    s.Items
+                    |> Seq.cast<XmlSchemaElement>
+                    |> Seq.map parseParticle
+                    |> Seq.toList
+                    |> All
+                | :? XmlSchemaChoice as s ->
+                    s.Items
+                    |> Seq.cast<XmlSchemaElement>
+                    |> Seq.map parseParticle
+                    |> Seq.toList
+                    |> Choice
+                | _ -> NoContent
+
+                
+            Attributes = 
+                t.AttributeUses.Values
+                |> Seq.cast<XmlSchemaAttribute>
+                |> Seq.map parseAttribute
+                |> Seq.toList
+            AnyAttribute = not (isNull t.AnyAttribute)
+            Mixed = t.IsMixed
+        }
+    | :? XmlSchemaSimpleType as t ->
+        XsSimpleType
+            { BaseType = t.BaseXmlSchemaType.QualifiedName.XName }
+
+
+
+
+    | _ -> failwith "Unknown type"
+
+
+and parseAttribute (a: XmlSchemaAttribute) =
+    { Name = a.QualifiedName.XName
+      Type = 
+        if a.SchemaTypeName = XmlQualifiedName.Empty then
+            match a.AttributeSchemaType.Content with
+            | :? XmlSchemaSimpleTypeList as l ->
+                XsList l.ItemTypeName.XName
+            | _ -> failwith "Unsupported type"
+
+        else
+            XsSimple a.SchemaTypeName.XName
+             
+      DefaultValue = (Option.ofObj a.DefaultValue) |> Option.orElse (Option.ofObj a.FixedValue)
+
+    }
+and parseTypeDef (t: XmlSchemaType) =
+    { Name = t.QualifiedName.XName
+      Type = parseType t}
+   
+open System.Collections.Generic
+type XsSet =
+    { Types: IDictionary<XName, XsTypeDef>
+      Elements: IDictionary<XName, XsElement> }
+    
+module Schema =
+    let element (xname: XName) (set: XmlSchemaSet) = 
+        set.GlobalElements.[xname.QualifiedName]
+        :?> XmlSchemaElement
+        |> parseElement
+        
+    let typeDef (xname: XName) (set: XmlSchemaSet) = 
+        set.GlobalTypes.[xname.QualifiedName]
+        :?> XmlSchemaType
+        |> parseTypeDef
+       
+
+    let set (set: XmlSchemaSet) =
+        { Elements = 
+            set.GlobalElements.Values
+            |> Seq.cast<XmlSchemaElement>
+            |> Seq.map parseElement
+            |> Seq.map (fun e -> e.Name, e)
+            |> dict 
+          Types = 
+            set.GlobalTypes.Values
+            |> Seq.cast<XmlSchemaType>
+            |> Seq.map parseTypeDef
+            |> Seq.map (fun t -> t.Name , t)
+            |> dict
+        }
+
+
+    let builtInSimpleType (n: XName) =
+        let t = XmlSchemaSimpleType.GetBuiltInSimpleType(n.QualifiedName)
+        if isNull t then
+            None
+        else
+            Some t.Datatype.ValueType
+
+let isBuiltInSimpleType (n: XName) =
+    XmlSchemaSimpleType.GetBuiltInSimpleType(n.QualifiedName)
+    |> isNull
+    |> not
+
+            
+
