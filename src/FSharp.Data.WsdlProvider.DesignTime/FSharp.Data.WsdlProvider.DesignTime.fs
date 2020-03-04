@@ -11,6 +11,7 @@ open ProviderImplementation
 open ProviderImplementation.ProvidedTypes
 open System.ServiceModel
 open FSharp.Data.Wsdl
+open FSharp.Data.Xsd
 open System.Threading.Tasks
 open System.Xml.Linq
 open System.Xml.Schema
@@ -38,13 +39,30 @@ module Provided =
 
     let mkXmlElementAttribute (order: int) =  
         mkProvidedAttribute<XmlElementAttribute> [] [ "Order", box order ]
+    let mkXmlAttributeAttribute (name: XName) =  
+        mkProvidedAttribute<XmlAttributeAttribute> [typeof<string>, box name.LocalName] 
+            [ if name.NamespaceName <> "" then
+                "Namespace", box name.NamespaceName ]
+
 
 
     let mkXmlTypeAttribute (ns: string) =
         mkProvidedAttribute<XmlTypeAttribute> [] ["Namespace", box ns]
   
-    let mkServiceContractAttribute (ns: string) (configName: string) =
+    let mkServiceContractAttribute (ns: string,configName: string) =
         mkProvidedAttribute<ServiceContractAttribute> [] ["Namespace", box ns; "ConfigurationName", box configName ] 
+
+    let mkMessageContractAttribute (name: XName,isWrapped: bool) =
+        mkProvidedAttribute<MessageContractAttribute> [] 
+            [ "WrapperName", box name.LocalName
+              "WrapperNamespace", box name.NamespaceName
+              "IsWrapped", box isWrapped ] 
+
+    let mkMessageBodyMember (ns: string, order: int)  =
+        mkProvidedAttribute<MessageBodyMemberAttribute> [] 
+            [ "Namespace", box ns
+              "Order", box order ]
+        
 
     let mkXmlSerializerFormatAttribute() =
         mkProvidedAttribute<XmlSerializerFormatAttribute> [] [ "SupportFaults", box true]
@@ -209,96 +227,182 @@ module Provided =
 
 
 
+    let rec makeSequencial (exprs: Expr list) =
+        match exprs with
+        | [] -> <@@ () @@>
+        | [ e ] -> e
+        | [ ex; ey] -> Expr.Sequential(ex,ey)
+        | _ ->
+            let left, right = List.splitAt(exprs.Length / 2) exprs
+            Expr.Sequential( makeSequencial left, makeSequencial right)
 
 
-
-
+    type CTChildKind =
+        | CTElement
+        | CTAttribute
 
     let buildWsdlTypes nsp (asm: ProvidedAssembly) name wsdl =
         let p = ProvidedTypeDefinition(asm, nsp, name, Some typeof<obj>, isSealed = false, isErased = false)
         asm.AddTypes([p])
 
         let types = Dictionary<XName,ProvidedTypeDefinition>()
+        let typeNames = Dictionary<string,int>()
 
 
-        let rec buildComplexType (name: XName) (t: XmlSchemaComplexType) = 
+        let rec buildComplexType contract (name: XName) (t: XsComplexType) = 
             match types.TryGetValue(name) with
             | true, t -> t :> Type
             | false, _ ->
-                let pt = ProvidedTypeDefinition(asm, nsp , name.LocalName, Some typeof<obj>, isErased = false)
-                pt.AddCustomAttribute(mkXmlTypeAttribute name.NamespaceName)
+                let typeName =
+                    match typeNames.TryGetValue(name.LocalName) with
+                    | false, _ ->
+                        typeNames.[name.LocalName] <- 0
+                        name.LocalName 
+                    | true, n ->
+                        let newN = n + 1
+                        typeNames.[name.LocalName] <- newN
+                        name.LocalName + string newN
+
+                let pt = ProvidedTypeDefinition(asm, nsp , typeName, Some typeof<obj>, isErased = false)
+                if contract then
+                    pt.AddCustomAttribute(mkMessageContractAttribute(name, true))
+                else
+                    pt.AddCustomAttribute(mkXmlTypeAttribute name.NamespaceName)
 
                 types.Add(name, pt)
                 p.AddMember(pt)
 
+
                 let elements = 
-                    match t.Particle with
-                    | XsdSequence elts ->
-                        [ for e in elts do
-                           let propType = typeRef e.ElementSchemaType
-                              
-                           e.Name, propType ]
-                    | _ -> failwithf "Cannot build type with Particle of type %s" (t.Particle.GetType().FullName)
+                    match t.Elements with
+                    | Sequence elts ->
+                        [ for p in elts do
+                            match p with
+                            | XsElement ({ Type = TypeRef t } as e) 
+                            | XsElement ({ Type = InlineType (XsSimpleType { BaseType = t }) } as e) ->
+                                let propType = typeRef t
+                                  
+                                yield (e.Name.LocalName, e.Name, propType, CTElement)
+                            | XsElement ( { Type = InlineType (XsComplexType ct)} as e) ->
+                                let propType = buildComplexType false e.Name ct
+                                yield (e.Name.LocalName, e.Name, propType, CTElement)
+                            | XsAny _ -> () ]
+                    | _ -> []
+                let elementNames = set [ for (n,_,_,_) in elements -> n ]
 
-                if elements = [] then
-                    failwith "Empty ComplexType"
+                let attributes =
+                    [ for a in t.Attributes do
+                        let attrType = attributeTypeRef a.Type
+                        let name = 
+                            if Set.contains a.Name.LocalName elementNames then
+                                a.Name.LocalName + "Attribute"
+                            else
+                                a.Name.LocalName
 
-                let fields =
-                    [ for name, t in elements -> 
-                        ProvidedField( String.camlCase name , t ) ]
-
-                let props =
-                    (elements,fields)
-                    ||> List.mapi2 (fun i (name,t) field ->
-                       let prop = ProvidedProperty(name, t, getterCode = (fun args -> Expr.FieldGet( args.[0], field) ), setterCode = (fun args -> Expr.FieldSet(args.[0], field, args.[1] ))) 
-                       prop.AddCustomAttribute(mkXmlElementAttribute i)
-                       prop
-                    )
+                        name, a.Name, attrType, CTAttribute ]
 
 
-                let ctor = 
-                    let ps =
-                        [ for name, t in elements ->
-                            ProvidedParameter(String.camlCase name, t) ]
+                let all = elements @ attributes
 
-                    ProvidedConstructor(ps, fun args -> 
-                        let this = args.[0]
-                        let sets = 
-                            fields |> List.mapi (fun i field ->
-                                Expr.FieldSet(this, field, args.[i+1] ))
-                        List.fold (fun x y -> Expr.Sequential(x,y)) sets.[0] (List.tail sets)
-                        
-                    )
+                if not (List.isEmpty all) then
 
-                pt.AddMembers(fields)
-                pt.AddMembers(props)
-                pt.AddMember(ctor)
+                    let fields =
+                        [ for name, _, t, _ in all -> 
+                            ProvidedField( String.camlCase name, t ) ]
+
+                    let props =
+                        (all,fields)
+                        ||> List.mapi2 (fun i (name, xsname,t, kind) field ->
+                           let prop = ProvidedProperty(name, t, getterCode = (fun args -> Expr.FieldGet( args.[0], field) ), setterCode = (fun args -> Expr.FieldSet(args.[0], field, args.[1] ))) 
+                           match kind with
+                           | CTElement -> 
+                                if contract then
+                                    prop.AddCustomAttribute(mkMessageBodyMember(xsname.NamespaceName , i))
+                                else
+                                    prop.AddCustomAttribute(mkXmlElementAttribute i)
+                           | CTAttribute -> prop.AddCustomAttribute(mkXmlAttributeAttribute xsname)
+
+                           prop
+                        )
+
+
+                    let ctor = 
+                        let ps =
+                            [ for name,_, t,_ in all ->
+                                ProvidedParameter(String.camlCase name, t) ]
+
+                        ProvidedConstructor(ps, fun args -> 
+                            let this = args.[0]
+                            let sets = 
+                                fields |> List.mapi (fun i field ->
+                                    Expr.FieldSet(this, field, args.[i+1] ))
+
+                            makeSequencial sets
+                            
+                        )
+
+                    pt.AddMembers(fields)
+                    pt.AddMembers(props)
+                    pt.AddMember(ctor)
                 pt.AddMember(ProvidedConstructor([], fun _ -> <@@ () @@>))
 
                 (pt :> Type)
 
-
+        and buildType contract (typeDef: XsTypeDef) =
+            match typeDef.Type with
+            | XsComplexType t ->
+                buildComplexType contract typeDef.Name t
+            | XsSimpleType t ->
+                match  Schema.builtInSimpleType t.BaseType with
+                | Some ty -> ty
+                | None -> failwith "Unsupported simple type base type"
             
-        and typeRef (t: XmlSchemaType) =
-            match t with
-            | XsdSimpleType t ->
-               t.Datatype.ValueType
-            | XsdEmptyType t ->
-                typeof<Unit>
-            | XsdArray t  ->
-                (typeRef t).MakeArrayType()
-            | XsdComplexType ct ->
-                buildComplexType ct.QualifiedName.XName ct
-            | t -> failwithf "Unsupported schema type %s" (t.GetType().FullName)
+        and typeRef (name: XName) =
+            match Schema.builtInSimpleType name with
+            | Some t -> t
+            | None  ->
+                match types.TryGetValue(name) with
+                | true, t -> t :> Type
+                | false,_ ->                    
+                    buildType false wsdl.Schemas.Types.[name]
 
-        let buildElement (e: XmlSchemaElement) =
-            match e.ElementSchemaType with
-            | XsdArray t ->
-                (typeRef t).MakeArrayType()
-            | XsdComplexType (Particle (XsdSequence [ XsdElement e])) ->
-                typeRef e.ElementSchemaType
-            | XsdComplexType ct ->
-                buildComplexType e.QualifiedName.XName ct
+        and attributeTypeRef (t: XsAttributeType) =
+            match t with
+            | XsSimple t -> typeRef t
+            | XsList t -> (typeRef t).MakeArrayType()
+
+        let buildMessage contract (name: XName) (typeRef: XsTypeRef) =
+            match typeRef with
+            | TypeRef name 
+            | InlineType (XsSimpleType { BaseType = name}) ->
+                match Schema.builtInSimpleType name with
+                | Some t -> t
+                | None  ->
+                    match types.TryGetValue(name) with
+                    | true, t -> t :> Type
+                    | false,_ ->                    
+                        buildType contract wsdl.Schemas.Types.[name]
+            | InlineType (XsComplexType t) ->
+                match types.TryGetValue(name) with
+                | true, t -> t :> Type
+                | false,_ ->                    
+                    buildComplexType contract name t
+                
+
+ 
+
+        let buildElement contract (e: XsElement) =
+            match e with
+            | { Type = t   ; Occurs = { Max = Unbounded }} ->
+                (buildMessage contract e.Name t).MakeArrayType()
+            | { Type = InlineType (XsComplexType { Elements = Sequence [ XsElement { Type = TypeRef t} ] })} when not contract  ->
+                buildMessage contract e.Name (TypeRef t)
+            | { Type = InlineType (XsSimpleType { BaseType = t}) } when not contract ->
+                buildMessage contract e.Name (TypeRef t)
+            | { Type = InlineType (XsComplexType { BaseType = None; Elements = NoContent; Mixed = false; Attributes = []; AnyAttribute = false}) } ->
+                typeof<unit>
+            | { Type = ct } ->
+                buildMessage contract e.Name ct
                 
             | _ -> failwithf "Canot build toplevel element %O" e.Name
             
@@ -308,7 +412,7 @@ module Provided =
 
 
             let soapItf = ProvidedTypeDefinition(asm, nsp, "I" + port.Name.LocalName , None, isErased = false, isInterface = true)
-            soapItf.AddCustomAttribute(mkServiceContractAttribute port.Name.NamespaceName (nsp + "." + serviceName))
+            soapItf.AddCustomAttribute(mkServiceContractAttribute (port.Name.NamespaceName, nsp + "." + serviceName))
 
             let itf = ProvidedTypeDefinition(asm, nsp, port.Name.LocalName , None, isErased = false, isInterface = true)
 
@@ -335,33 +439,40 @@ module Provided =
             let channel this = 
                 Expr.PropertyGet(this, channelProp)
 
+
+
+            let buildParameters contract (name: XName) (t: XsTypeRef) =
+                match t with
+                | InlineType (XsComplexType { Elements = Sequence [ XsElement ({ Type = tn} as elt) ]}) ->
+                    [ ProvidedParameter(elt.Name.LocalName, buildMessage contract name tn) ]
+                | InlineType (XsComplexType { Elements = NoContent; BaseType = None}) ->
+                    []
+                | tn ->
+                    [ ProvidedParameter(name.LocalName, buildMessage contract name tn ) ]
+
+
+
             for op in port.Binding.Operations do
+                let contract = op.PortOperation.RequireContract
                 let input = 
                     match op.PortOperation.Input with
-                    | None 
-                    | Some ({Element = Element (SchemaType XsdEmptyType)}) 
-                        -> []
-                    | Some ({ Element = Element e }) -> 
-                        match e.ElementSchemaType with
-                        | XsdComplexType (Particle (XsdSequence [XsdElement elt])) ->
-                            [ ProvidedParameter(elt.Name, typeRef elt.ElementSchemaType) ]
-                        | XsdComplexType t ->
-                            [ ProvidedParameter(e.Name, buildComplexType e.QualifiedName.XName t ) ]
-                        | XsdSimpleType t ->
-                            [  ProvidedParameter(e.Name, t.Datatype.ValueType) ]
-                        | t -> failwithf "Unsupported schema type %s" (t.GetType().FullName)
+                    | None  -> []
+                    | Some {Element = Element { Name = n; Type = t }} -> 
+                        buildParameters contract n t
+                    | Some { Name = n; Element = SimpleType t } ->
+                        buildParameters contract (XName.Get n) (TypeRef t)
 
-                    | Some ({ Name = n; Element = SimpleType t }) ->
-                        [  ProvidedParameter(n, t.Datatype.ValueType) ]
+
 
                     
                 let output = 
                     match op.PortOperation.Output with
-                    | Some ({Element = Element (SchemaType XsdEmptyType)}) ->
-                        typeof<Unit>
-                    | Some { Element = Element e } -> buildElement e
-                    | _ -> failwithf "Cannot prepare output for %s" op.PortOperation.Name
-                    
+                    | Some {Element = Element e } ->
+                        buildElement contract e 
+                    | Some {Element = SimpleType t } ->
+                        typeRef t
+                    | None ->
+                        typeof<unit>
 
                 // synchronous method
                 defineOperationMethod (op,input,output) channel itf soapItf client  

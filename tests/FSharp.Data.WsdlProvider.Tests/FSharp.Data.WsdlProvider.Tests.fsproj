@@ -6,6 +6,7 @@
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
   </PropertyGroup>
   <ItemGroup>
+    <None Include="Eutax.wsdl" />
     <None Include="Translator.wsdl" />
     <None Include="Weather.wsdl">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>

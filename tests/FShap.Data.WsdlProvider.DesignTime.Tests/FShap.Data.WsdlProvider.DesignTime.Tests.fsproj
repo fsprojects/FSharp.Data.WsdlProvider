@@ -8,15 +8,20 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <None Include="..\FSharp.Data.WsdlProvider.Tests\Translator.wsdl" Link="Translator.wsdl" >
+    <None Include="..\FSharp.Data.WsdlProvider.Tests\Eutax.wsdl" Link="Eutax.wsdl">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\FSharp.Data.WsdlProvider.Tests\Translator.wsdl" Link="Translator.wsdl">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="..\FSharp.Data.WsdlProvider.Tests\Weather.wsdl" Link="Weather.wsdl">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="paket.references" />
+    <Compile Include="..\..\src\FSharp.Data.WsdlProvider.DesignTime\Xsd.fs" Link="Xsd.fs" />
     <Compile Include="..\..\src\FSharp.Data.WsdlProvider.DesignTime\Wsdl.fs" Link="Wsdl.fs" />
-    <Compile Include="Tests.fs" />
+    <Compile Include="XsdParsing.fs" />
+    <Compile Include="WsdlTests.fs" />
   </ItemGroup>
 
 
