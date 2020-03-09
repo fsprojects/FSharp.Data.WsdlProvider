@@ -776,7 +776,7 @@ let ``SimpleType with restriction``() =
     |> loadSchema
     let expectedElement = 
      { Name = dedge + "age"
-       Type = InlineType (XsSimpleType { BaseType = xs + "integer" })
+       Type = InlineType (XsSimpleType { BaseType = xs + "integer"; Enumeration = [] })
        DefaultValue = None
        Occurs = Occurs.once
        SubstitutionGroup = None }
@@ -814,5 +814,56 @@ let ``SimpleType with list``() =
        SubstitutionGroup = None }
         
     let e = Schema.element (dedge + "persons") xsd 
+    Assert.AreEqual(expectedElement , e)
+
+
+[<Test>]       
+let ``SimpleType with enumeration``() =
+
+    let xsd = 
+     """
+     <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+             targetNamespace="https://d-edge.com"
+             xmlns:tns="https://d-edge.com"
+             elementFormDefault="qualified">
+        <xs:element name="state">
+            <xs:simpleType>
+                <xs:annotation>
+                    <xs:documentation>States in the Pacific Northwest of US</xs:documentation>
+                </xs:annotation>
+                <xs:restriction base="xs:string">
+                  <xs:enumeration value='WA'>
+                    <xs:annotation>
+                      <xs:documentation>Washington</xs:documentation>
+                    </xs:annotation>
+                  </xs:enumeration>
+                  <xs:enumeration value='OR'>
+                    <xs:annotation>
+                      <xs:documentation>Oregon</xs:documentation>
+                    </xs:annotation>
+                  </xs:enumeration>
+                  <xs:enumeration value='ID'>
+                    <xs:annotation>
+                      <xs:documentation>Idaho</xs:documentation>
+                    </xs:annotation>
+                  </xs:enumeration>
+                </xs:restriction>
+            </xs:simpleType>
+        </xs:element>
+    </xs:schema>
+    """
+    |> loadSchema
+    let expectedElement = 
+     { Name = dedge + "state"
+       Type = InlineType (XsSimpleType { 
+                BaseType = xs + "string"
+                Enumeration = [ { Value = "WA"; Name = "Washington" }
+                                { Value = "OR"; Name = "Oregon" }
+                                { Value = "ID"; Name = "Idaho" } ] })
+       DefaultValue = None
+       Occurs = Occurs.once
+       SubstitutionGroup = None }
+        
+    let e = Schema.element (dedge + "state") xsd 
     Assert.AreEqual(expectedElement , e)
 

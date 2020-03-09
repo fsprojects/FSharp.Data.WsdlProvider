@@ -46,6 +46,14 @@ let ``Translator Wsld loading should succeed`` () =
     
     Assert.NotNull(wsdl)
 
+[<Test>]
+let ``Planning Wsld loading should succeed`` () =
+    let wsdl = loadWsdl "https://ws.availpro.com/planning/2012A/planningService.asmx?wsdl"
+    //let wsdl = loadWsdl "http://api.microsofttranslator.com/V2/soap.svc"
+    
+    Assert.NotNull(wsdl)
+
+
 
 [<Test>]
 let ``Element can be lists (with min=0 and max=unbounded)`` () =

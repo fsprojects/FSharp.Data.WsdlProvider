@@ -11,8 +11,8 @@ nuget System.ServiceModel.Http
 nuget NETStandard.Library.NETFramework
 
 # THis lines are used by Paket to get the latest version of the Type Provider SDK files
-github fsprojects/FSharp.TypeProviders.SDK src/ProvidedTypes.fsi
-github fsprojects/FSharp.TypeProviders.SDK src/ProvidedTypes.fs
+github thinkbeforecoding/FSharp.TypeProviders.SDK:feat-enumattributes src/ProvidedTypes.fsi
+github thinkbeforecoding/FSharp.TypeProviders.SDK:feat-enumattributes src/ProvidedTypes.fs
 
 group Test
   source https://api.nuget.org/v3/index.json

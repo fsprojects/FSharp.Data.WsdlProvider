@@ -16,7 +16,7 @@ type XmlQualifiedName with
 
 
 type MinOccurs = MinOccurs of int
-type MaxOccurs = Unbounded | MaxOccurs of int 
+type MaxOccurs = MaxOccurs of int  | Unbounded
 
 type Occurs = 
     { Min: MinOccurs 
@@ -46,7 +46,11 @@ and XsComplexType =
       AnyAttribute: bool
       Mixed: bool }
 and XsSimpleType =
-    { BaseType: XName }
+    { BaseType: XName
+      Enumeration: XsEnum list }
+and XsEnum =
+    { Value: string
+      Name: string }
 and XsType =
     | XsComplexType of XsComplexType
     | XsSimpleType of XsSimpleType
@@ -165,8 +169,42 @@ and parseType (t: XmlSchemaType) =
             Mixed = t.IsMixed
         }
     | :? XmlSchemaSimpleType as t ->
+        let enums =
+            match t.Content with
+            | :? XmlSchemaSimpleTypeRestriction as r ->
+                r.Facets
+                |> Seq.cast<XmlSchemaFacet>
+                |> Seq.choose ( fun facet ->
+                    match facet with
+                    | :? XmlSchemaEnumerationFacet as e ->
+                        let doc = 
+                            if isNull e.Annotation  then
+                                e.Value
+                            else
+                                e.Annotation.Items
+                                |> Seq.cast<XmlSchemaObject>
+                                |> Seq.tryPick (fun a ->
+                                    match a with
+                                    | :? XmlSchemaDocumentation as d ->
+                                        Some (
+                                            
+                                            d.Markup
+                                            |> Array.map (fun m -> m.InnerText)
+                                            |> String.concat(" "))
+                                    | _ -> None
+                                )
+                                |> Option.defaultValue e.Value
+                        
+                        Some { Value = e.Value; Name = doc }
+                    | _ -> None)
+                |> Seq.toList
+
+            | _ -> []
         XsSimpleType
-            { BaseType = t.BaseXmlSchemaType.QualifiedName.XName }
+
+            { BaseType = t.BaseXmlSchemaType.QualifiedName.XName
+              Enumeration = enums
+              }
 
 
 

@@ -6,7 +6,6 @@ open System.IO
 open System.Reflection
 open FSharp.Quotations
 open FSharp.Core.CompilerServices
-open MyNamespace
 open ProviderImplementation
 open ProviderImplementation.ProvidedTypes
 open System.ServiceModel
@@ -21,6 +20,11 @@ module String =
     let camlCase (s: string) =
         if s.Length >= 1 then
             string (Char.ToLowerInvariant(s.[0])) + s.Substring(1);
+        else
+            s
+    let PascalCase (s: string) =
+        if s.Length >= 1 then
+            string (Char.ToUpperInvariant(s.[0])) + s.Substring(1);
         else
             s
 
@@ -67,6 +71,9 @@ module Provided =
     let mkXmlSerializerFormatAttribute() =
         mkProvidedAttribute<XmlSerializerFormatAttribute> [] [ "SupportFaults", box true]
     
+    let mkXmlEnumAttribute (name: string) =
+       mkProvidedAttribute<XmlEnumAttribute> [typeof<string>, box name] []
+    
     let mkOperationContractAttribute (action: string) (replyAction: string) =
         mkProvidedAttribute<OperationContractAttribute> [] [ "Action", box action; "ReplyAction", box replyAction]
     
@@ -79,14 +86,16 @@ module Provided =
                        typeof<System.ServiceModel.EndpointAddress> |],
                     null)
             
+
             let defaultCtor =
                 // this is the constructor with no parameters (default remote address)
                 let args = []
                 let c = ProvidedConstructor(args, (fun _ -> <@@ () @@>))
                 let location = location
+                let binding = DefaultBinding.SelectBinding(location)
                 let parentCtorCall (args: Expr list) = 
                     [ args.[0] 
-                      <@@ BasicHttpBinding() @@>
+                      <@@ DefaultBinding.SelectBinding(location) @@>
                       <@@ EndpointAddress(location) @@> ]
 
                 c.BaseConstructorCall <- (fun args -> parentCtor, parentCtorCall args )
@@ -98,7 +107,7 @@ module Provided =
                 let c = ProvidedConstructor(args, (fun _ -> <@@ () @@>))
                 let parentCtorCall (args: Expr list) = 
                     [ args.[0]
-                      <@@ BasicHttpBinding() @@>
+                      <@@ DefaultBinding.SelectBinding(%%(args.[1])) @@>
                       <@@ EndpointAddress( %%(args.[1]) ) @@> ]
 
                 c.BaseConstructorCall <- (fun args -> parentCtor, parentCtorCall args )
@@ -249,27 +258,36 @@ module Provided =
         let typeNames = Dictionary<string,int>()
 
 
-        let rec buildComplexType contract (name: XName) (t: XsComplexType) = 
-            match types.TryGetValue(name) with
-            | true, t -> t :> Type
-            | false, _ ->
+        let rec buildComplexType contract name (xmlname: XName option) (t: XsComplexType) = 
+            xmlname 
+            |> Option.bind(fun n ->
+                match types.TryGetValue(n) with
+                | true, t -> t :> Type |> Some
+                | false, _ -> None )
+            |> function
+               | Some t -> t
+               | None ->
+            
                 let typeName =
-                    match typeNames.TryGetValue(name.LocalName) with
+                    match typeNames.TryGetValue(name) with
                     | false, _ ->
-                        typeNames.[name.LocalName] <- 0
-                        name.LocalName 
+                        typeNames.[name] <- 0
+                        name
                     | true, n ->
                         let newN = n + 1
-                        typeNames.[name.LocalName] <- newN
-                        name.LocalName + string newN
+                        typeNames.[name] <- newN
+                        name + string newN
 
                 let pt = ProvidedTypeDefinition(asm, nsp , typeName, Some typeof<obj>, isErased = false)
-                if contract then
-                    pt.AddCustomAttribute(mkMessageContractAttribute(name, true))
-                else
-                    pt.AddCustomAttribute(mkXmlTypeAttribute name.NamespaceName)
+                match xmlname with
+                | Some n ->
+                    if contract then
+                        pt.AddCustomAttribute(mkMessageContractAttribute(n, true))
+                    else
+                        pt.AddCustomAttribute(mkXmlTypeAttribute n.NamespaceName)
+                    types.Add(n, pt)
+                | None -> ()
 
-                types.Add(name, pt)
                 p.AddMember(pt)
 
 
@@ -280,11 +298,25 @@ module Provided =
                             match p with
                             | XsElement ({ Type = TypeRef t } as e) 
                             | XsElement ({ Type = InlineType (XsSimpleType { BaseType = t }) } as e) ->
-                                let propType = typeRef t
+                                let propType = 
+                                    if e.Occurs.Max > MaxOccurs 1 then
+                                        let ref : Type = typeRef t
+                                        ref.MakeArrayType()
+                                    else
+                                        typeRef t
+
+                                
                                   
                                 yield (e.Name.LocalName, e.Name, propType, CTElement)
                             | XsElement ( { Type = InlineType (XsComplexType ct)} as e) ->
-                                let propType = buildComplexType false e.Name ct
+                                let propType = 
+                                    let pt = buildComplexType false (name + String.PascalCase e.Name.LocalName) None ct
+                                    if e.Occurs.Max > MaxOccurs 1 then
+                                        pt.MakeArrayType()
+                                    else
+                                        pt
+                                    
+
                                 yield (e.Name.LocalName, e.Name, propType, CTElement)
                             | XsAny _ -> () ]
                     | _ -> []
@@ -347,11 +379,44 @@ module Provided =
                 pt.AddMember(ProvidedConstructor([], fun _ -> <@@ () @@>))
 
                 (pt :> Type)
+        and buildEnum (name: XName) (t: XsSimpleType) =
+            match types.TryGetValue(name) with
+            | true, t -> t :> Type
+            | false, _ ->
+                let typeName =
+                    match typeNames.TryGetValue(name.LocalName) with
+                    | false, _ ->
+                        typeNames.[name.LocalName] <- 0
+                        name.LocalName 
+                    | true, n ->
+                        let newN = n + 1
+                        typeNames.[name.LocalName] <- newN
+                        name.LocalName + string newN
+                let pt = ProvidedTypeDefinition(asm, nsp , typeName, Some typeof<Enum>, isErased = false)
+                pt.SetEnumUnderlyingType(typeof<int>)
+                pt.AddCustomAttribute(mkXmlTypeAttribute name.NamespaceName)
+
+                types.Add(name, pt)
+                p.AddMember(pt)
+
+                t.Enumeration
+                |> List.mapi (fun i e ->
+                    let f = ProvidedField.Literal(e.Name, pt, box i)
+                    f.AddCustomAttribute(mkXmlEnumAttribute e.Value)
+                    f )
+                |> pt.AddMembers
+
+                pt :> Type
+
+
 
         and buildType contract (typeDef: XsTypeDef) =
             match typeDef.Type with
             | XsComplexType t ->
-                buildComplexType contract typeDef.Name t
+                buildComplexType contract typeDef.Name.LocalName (Some typeDef.Name) t
+            | XsSimpleType ({ Enumeration = _ :: _ } as t)  ->
+                buildEnum typeDef.Name t
+
             | XsSimpleType t ->
                 match  Schema.builtInSimpleType t.BaseType with
                 | Some ty -> ty
@@ -386,7 +451,7 @@ module Provided =
                 match types.TryGetValue(name) with
                 | true, t -> t :> Type
                 | false,_ ->                    
-                    buildComplexType contract name t
+                    buildComplexType contract name.LocalName (Some name) t
                 
 
  
@@ -394,7 +459,7 @@ module Provided =
         let buildElement contract (e: XsElement) =
             match e with
             | { Type = t   ; Occurs = { Max = Unbounded }} ->
-                (buildMessage contract e.Name t).MakeArrayType()
+                (buildMessage contract  e.Name t).MakeArrayType()
             | { Type = InlineType (XsComplexType { Elements = Sequence [ XsElement { Type = TypeRef t} ] })} when not contract  ->
                 buildMessage contract e.Name (TypeRef t)
             | { Type = InlineType (XsSimpleType { BaseType = t}) } when not contract ->
@@ -498,13 +563,13 @@ module Provided =
 
 [<TypeProvider>]
 type WsdlProvider (config : TypeProviderConfig) as this =
-    inherit TypeProviderForNamespaces (config, assemblyReplacementMap=[("FSharp.Data.WsdlProvider.DesignTime", "FSharp.Data.WsdlProvider.Runtime")])
+    inherit TypeProviderForNamespaces(config, assemblyReplacementMap=[("FSharp.Data.WsdlProvider.DesignTime", "FSharp.Data.WsdlProvider.Runtime")], addDefaultProbingLocation=true)
 
     let ns = "FSharp.Data"
     let selfAsm = Assembly.GetExecutingAssembly()
 
     // check we contain a copy of runtime files, and are not referencing the runtime DLL
-    do assert (typeof<DataSource>.Assembly.GetName().Name = selfAsm.GetName().Name)  
+    do assert (typeof<DefaultBinding>.Assembly.GetName().Name = selfAsm.GetName().Name)  
 
 
     let service = ProvidedTypeDefinition(selfAsm, ns, "WsdlProvider", Some typeof<obj>, isErased = false )
