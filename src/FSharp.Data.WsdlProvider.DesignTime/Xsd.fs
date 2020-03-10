@@ -271,10 +271,10 @@ module Schema =
         else
             Some t.Datatype.ValueType
 
-let isBuiltInSimpleType (n: XName) =
-    XmlSchemaSimpleType.GetBuiltInSimpleType(n.QualifiedName)
-    |> isNull
-    |> not
+    let isBuiltInSimpleType (n: XName) =
+        XmlSchemaSimpleType.GetBuiltInSimpleType(n.QualifiedName)
+        |> isNull
+        |> not
 
             
 

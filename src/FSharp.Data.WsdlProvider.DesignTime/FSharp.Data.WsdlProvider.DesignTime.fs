@@ -47,11 +47,19 @@ module Provided =
         mkProvidedAttribute<XmlAttributeAttribute> [typeof<string>, box name.LocalName] 
             [ if name.NamespaceName <> "" then
                 "Namespace", box name.NamespaceName ]
+    let mkXmlArrayAttribute (order: int) =  
+        mkProvidedAttribute<XmlArrayAttribute> [] [ "Order", box order ]
+    let mkXmlArrayItemAttribute (name: string, isNullable:bool) =  
+        mkProvidedAttribute<XmlArrayItemAttribute> [typeof<string>, box name] 
+                [ "IsNullable", box isNullable ]
 
 
 
-    let mkXmlTypeAttribute (ns: string) =
-        mkProvidedAttribute<XmlTypeAttribute> [] ["Namespace", box ns]
+    let mkXmlTypeAttribute (ns: string, anonymous) =
+        mkProvidedAttribute<XmlTypeAttribute> []
+            [ if anonymous then
+                "AnonymousType", box true
+              "Namespace", box ns]
   
     let mkServiceContractAttribute (ns: string,configName: string) =
         mkProvidedAttribute<ServiceContractAttribute> [] ["Namespace", box ns; "ConfigurationName", box configName ] 
@@ -248,8 +256,14 @@ module Provided =
 
     type CTChildKind =
         | CTElement
+        | CTArray of string
         | CTAttribute
 
+
+    type CTXmlName =
+        | XmlType of XName
+        | Anonymous of XName
+        | NoName
     let buildWsdlTypes nsp (asm: ProvidedAssembly) name wsdl =
         let p = ProvidedTypeDefinition(asm, nsp, name, Some typeof<obj>, isSealed = false, isErased = false)
         asm.AddTypes([p])
@@ -258,12 +272,15 @@ module Provided =
         let typeNames = Dictionary<string,int>()
 
 
-        let rec buildComplexType contract name (xmlname: XName option) (t: XsComplexType) = 
-            xmlname 
-            |> Option.bind(fun n ->
+        let rec buildComplexType contract name (xmlname: CTXmlName) (t: XsComplexType) = 
+            match xmlname with
+            | XmlType n 
+            | Anonymous n ->
                 match types.TryGetValue(n) with
                 | true, t -> t :> Type |> Some
-                | false, _ -> None )
+                | false, _ -> None
+
+            | _ -> None
             |> function
                | Some t -> t
                | None ->
@@ -280,13 +297,15 @@ module Provided =
 
                 let pt = ProvidedTypeDefinition(asm, nsp , typeName, Some typeof<obj>, isErased = false)
                 match xmlname with
-                | Some n ->
+                | XmlType n ->
                     if contract then
                         pt.AddCustomAttribute(mkMessageContractAttribute(n, true))
                     else
-                        pt.AddCustomAttribute(mkXmlTypeAttribute n.NamespaceName)
+                        pt.AddCustomAttribute(mkXmlTypeAttribute(n.NamespaceName, false))
                     types.Add(n, pt)
-                | None -> ()
+                | Anonymous n ->
+                    pt.AddCustomAttribute(mkXmlTypeAttribute(n.NamespaceName, true))
+                | NoName -> ()
 
                 p.AddMember(pt)
 
@@ -298,19 +317,42 @@ module Provided =
                             match p with
                             | XsElement ({ Type = TypeRef t } as e) 
                             | XsElement ({ Type = InlineType (XsSimpleType { BaseType = t }) } as e) ->
-                                let propType = 
-                                    if e.Occurs.Max > MaxOccurs 1 then
-                                        let ref : Type = typeRef t
-                                        ref.MakeArrayType()
-                                    else
-                                        typeRef t
-
                                 
-                                  
-                                yield (e.Name.LocalName, e.Name, propType, CTElement)
+                                let innerType = 
+                                    if Schema.isBuiltInSimpleType t then
+                                        None
+                                    else
+                                        Some wsdl.Schemas.Types.[t]
+
+                                match innerType with
+                                | Some { Type = XsComplexType { Attributes = []; Elements = Sequence [ XsElement { Name = itemName; Occurs = { Max = max }; Type = TypeRef titem } ]}} when max > MaxOccurs 1 ->
+                                    // This is actually an array
+                                    let ref : Type = typeRef titem
+                                    let propType = ref.MakeArrayType()
+                                    yield (e.Name.LocalName, e.Name, propType, CTArray itemName.LocalName)
+                                | Some { Name = arrayName ; Type = XsComplexType { Attributes = []; Elements = Sequence [ XsElement { Name = itemName; Occurs = { Max = max }; Type = InlineType (XsComplexType ct) } ]}} when max > MaxOccurs 1 ->
+                                
+                                    let pt = buildComplexType false (String.PascalCase arrayName.LocalName + String.PascalCase itemName.LocalName) (Anonymous arrayName) ct
+                                    let propType = pt.MakeArrayType()
+                                    yield (e.Name.LocalName, e.Name, propType, CTArray itemName.LocalName)
+
+
+
+                                | _ ->
+
+                                    let propType = 
+                                        if e.Occurs.Max > MaxOccurs 1 then
+                                            let ref : Type = typeRef t
+                                            ref.MakeArrayType()
+                                        else
+                                            typeRef t
+                                    yield (e.Name.LocalName, e.Name, propType, CTElement)
+
+                                     
+                                      
                             | XsElement ( { Type = InlineType (XsComplexType ct)} as e) ->
                                 let propType = 
-                                    let pt = buildComplexType false (name + String.PascalCase e.Name.LocalName) None ct
+                                    let pt = buildComplexType false (name + String.PascalCase e.Name.LocalName) NoName ct
                                     if e.Occurs.Max > MaxOccurs 1 then
                                         pt.MakeArrayType()
                                     else
@@ -353,7 +395,13 @@ module Provided =
                                 else
                                     prop.AddCustomAttribute(mkXmlElementAttribute i)
                            | CTAttribute -> prop.AddCustomAttribute(mkXmlAttributeAttribute xsname)
-
+                           | CTArray itemName ->
+                                if contract then
+                                    prop.AddCustomAttribute(mkMessageBodyMember(xsname.NamespaceName , i))
+                                else
+                                    prop.AddCustomAttribute(mkXmlArrayAttribute i)
+                                prop.AddCustomAttribute(mkXmlArrayItemAttribute(itemName, false))
+                                
                            prop
                         )
 
@@ -394,7 +442,7 @@ module Provided =
                         name.LocalName + string newN
                 let pt = ProvidedTypeDefinition(asm, nsp , typeName, Some typeof<Enum>, isErased = false)
                 pt.SetEnumUnderlyingType(typeof<int>)
-                pt.AddCustomAttribute(mkXmlTypeAttribute name.NamespaceName)
+                pt.AddCustomAttribute(mkXmlTypeAttribute(name.NamespaceName,false))
 
                 types.Add(name, pt)
                 p.AddMember(pt)
@@ -413,7 +461,7 @@ module Provided =
         and buildType contract (typeDef: XsTypeDef) =
             match typeDef.Type with
             | XsComplexType t ->
-                buildComplexType contract typeDef.Name.LocalName (Some typeDef.Name) t
+                buildComplexType contract typeDef.Name.LocalName (XmlType typeDef.Name) t
             | XsSimpleType ({ Enumeration = _ :: _ } as t)  ->
                 buildEnum typeDef.Name t
 
@@ -451,7 +499,7 @@ module Provided =
                 match types.TryGetValue(name) with
                 | true, t -> t :> Type
                 | false,_ ->                    
-                    buildComplexType contract name.LocalName (Some name) t
+                    buildComplexType contract name.LocalName (XmlType name) t
                 
 
  
