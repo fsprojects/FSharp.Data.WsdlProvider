@@ -49,8 +49,8 @@ NUGET
       System.Drawing.Common (>= 4.7) - restriction: || (&& (== net45) (>= netcoreapp3.0)) (== netcoreapp3.1) (&& (== netstandard2.0) (>= netcoreapp3.0))
 GITHUB
   remote: thinkbeforecoding/FSharp.TypeProviders.SDK
-    src/ProvidedTypes.fs (196ece3e862af2ce382c07d2cd99870c88caad0a)
-    src/ProvidedTypes.fsi (196ece3e862af2ce382c07d2cd99870c88caad0a)
+    src/ProvidedTypes.fs (621eabdd926e9b4f476f8f1af653d89639ecb69a)
+    src/ProvidedTypes.fsi (621eabdd926e9b4f476f8f1af653d89639ecb69a)
 GROUP Test
 RESTRICTION: || (== net461) (== netcoreapp3.1)
 NUGET
@@ -89,14 +89,14 @@ NUGET
     NuGet.Frameworks (5.4) - restriction: || (&& (== net461) (>= netcoreapp2.1)) (== netcoreapp3.1)
     NUnit (3.12)
       NETStandard.Library (>= 2.0) - restriction: || (&& (== net461) (< net35) (>= netstandard2.0)) (== netcoreapp3.1)
-    NUnit.Console (3.10)
-      NUnit.ConsoleRunner (>= 3.10)
+    NUnit.Console (3.11.1)
+      NUnit.ConsoleRunner (>= 3.11.1)
       NUnit.Extension.NUnitProjectLoader (>= 3.6)
-      NUnit.Extension.NUnitV2Driver (>= 3.7)
+      NUnit.Extension.NUnitV2Driver (>= 3.8)
       NUnit.Extension.NUnitV2ResultWriter (>= 3.6)
-      NUnit.Extension.TeamCityEventListener (>= 1.0.6)
+      NUnit.Extension.TeamCityEventListener (>= 1.0.7)
       NUnit.Extension.VSProjectLoader (>= 3.8)
-    NUnit.ConsoleRunner (3.10)
+    NUnit.ConsoleRunner (3.11.1)
     NUnit.Extension.NUnitProjectLoader (3.6)
     NUnit.Extension.NUnitV2Driver (3.8)
     NUnit.Extension.NUnitV2ResultWriter (3.6)

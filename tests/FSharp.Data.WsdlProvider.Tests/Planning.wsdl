@@ -1,0 +1,526 @@
+<?xml version="1.0" encoding="utf-8"?>
+<wsdl:definitions xmlns:s="http://www.w3.org/2001/XMLSchema" xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/" xmlns:http="http://schemas.xmlsoap.org/wsdl/http/" xmlns:mime="http://schemas.xmlsoap.org/wsdl/mime/" xmlns:tns="http://ws.availpro.com/schemas/planning/2012A" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:tm="http://microsoft.com/wsdl/mime/textMatching/" xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/" targetNamespace="http://ws.availpro.com/schemas/planning/2012A" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">
+  <wsdl:documentation xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">Provides pricing and availabilities for one or more channels and hotels.</wsdl:documentation>
+  <wsdl:types>
+    <s:schema elementFormDefault="qualified" targetNamespace="http://ws.availpro.com/schemas/planning/2012A">
+      <s:element name="GetStayPlanning">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="arrivalDate" type="s:dateTime" />
+            <s:element minOccurs="1" maxOccurs="1" name="nightCount" type="s:int" />
+            <s:element minOccurs="0" maxOccurs="1" name="filter" type="tns:PlanningFilter" />
+            <s:element minOccurs="0" maxOccurs="1" name="layout" type="tns:PlanningLayout" />
+            <s:element minOccurs="0" maxOccurs="1" name="impersonation" type="tns:Impersonation" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetStayPlanningResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="response" type="tns:PlanningResponseMessage" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetDailyPlanning">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="beginDate" type="s:dateTime" />
+            <s:element minOccurs="1" maxOccurs="1" name="endDate" type="s:dateTime" />
+            <s:element minOccurs="0" maxOccurs="1" name="filter" type="tns:PlanningFilter" />
+            <s:element minOccurs="0" maxOccurs="1" name="layout" type="tns:PlanningLayout" />
+            <s:element minOccurs="0" maxOccurs="1" name="impersonation" type="tns:Impersonation" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetDailyPlanningResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="response" type="tns:PlanningResponseMessage" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetPricingRanges">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="beginDate" type="s:dateTime" />
+            <s:element minOccurs="1" maxOccurs="1" name="endDate" type="s:dateTime" />
+            <s:element minOccurs="0" maxOccurs="1" name="filter" type="tns:PlanningFilter" />
+            <s:element minOccurs="0" maxOccurs="1" name="layout" type="tns:PlanningLayout" />
+            <s:element minOccurs="0" maxOccurs="1" name="impersonation" type="tns:Impersonation" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetPricingRangesResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="response" type="tns:PlanningResponseMessage" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="Test">
+        <s:complexType />
+      </s:element>
+      <s:element name="TestResponse">
+        <s:complexType />
+      </s:element>
+      <s:element name="filter" nillable="true" type="tns:PlanningFilter" />
+      <s:element name="layout" nillable="true" type="tns:PlanningLayout" />
+      <s:element name="response" type="tns:PlanningResponseMessage" />
+      <s:element name="impersonation" nillable="true" type="tns:Impersonation" />
+      <s:simpleType name="Id">
+        <s:restriction base="s:string">
+          <s:pattern value="[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}" />
+        </s:restriction>
+      </s:simpleType>
+      <s:simpleType name="BookingEngineReference">
+        <s:restriction base="s:string">
+          <s:pattern value="[a-zA-Z0-9]{4,}" />
+        </s:restriction>
+      </s:simpleType>
+      <s:complexType name="Error">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="comment" type="s:string" />
+        </s:sequence>
+        <s:attribute name="type" type="s:string" use="required" />
+        <s:attribute name="message" type="s:string" use="required" />
+        <s:attribute name="trackingId" type="tns:Id" use="optional" />
+      </s:complexType>
+      <s:simpleType name="EntityDefaultFilter">
+        <s:restriction base="s:string">
+          <s:enumeration value="Included" />
+          <s:enumeration value="Excluded" />
+        </s:restriction>
+      </s:simpleType>
+      <s:simpleType name="Status">
+        <s:restriction base="s:string">
+          <s:enumeration value="Available" />
+          <s:enumeration value="OnRequest" />
+          <s:enumeration value="NotAvailable" />
+        </s:restriction>
+      </s:simpleType>
+      <s:simpleType name="PlanningLevel">
+        <s:restriction base="s:string">
+          <s:enumeration value="Hotel" />
+          <s:enumeration value="Article" />
+          <s:enumeration value="ArticleRate" />
+        </s:restriction>
+      </s:simpleType>
+      <s:simpleType name="OptionName">
+        <s:restriction base="s:string">
+          <s:enumeration value="SalesAgentAccess" />
+          <s:enumeration value="PrivateRatesIncluded" />
+          <s:enumeration value="TestHotelsIncluded" />
+        </s:restriction>
+      </s:simpleType>
+      <s:simpleType name="PropertyName">
+        <s:restriction base="s:string">
+          <s:enumeration value="Status" />
+          <s:enumeration value="Availability" />
+          <s:enumeration value="TotalPrice" />
+          <s:enumeration value="MinimumPrice" />
+          <s:enumeration value="MaximumPrice" />
+          <s:enumeration value="DiscountPrice" />
+          <s:enumeration value="DiscountNightCount" />
+          <s:enumeration value="CrossedOutPrice" />
+          <s:enumeration value="Price" />
+          <s:enumeration value="MixedRates" />
+          <s:enumeration value="OfferCodeDiscountPrice" />
+          <s:enumeration value="ClosedOnArrival" />
+          <s:enumeration value="ClosedOnDeparture" />
+          <s:enumeration value="MinimumStayOnArrival" />
+          <s:enumeration value="MinimumStayThrough" />
+          <s:enumeration value="MinimumStayOnDeparture" />
+          <s:enumeration value="MaximumStayOnArrival" />
+          <s:enumeration value="MaximumStayThrough" />
+          <s:enumeration value="MaximumStayOnDeparture" />
+        </s:restriction>
+      </s:simpleType>
+      <s:simpleType name="QualifierName">
+        <s:restriction base="s:string">
+          <s:enumeration value="Lowest" />
+          <s:enumeration value="Highest" />
+        </s:restriction>
+      </s:simpleType>
+      <s:simpleType name="CurrencyCode">
+        <s:restriction base="s:string">
+          <s:pattern value="[a-zA-Z0-9]{3}" />
+        </s:restriction>
+      </s:simpleType>
+      <s:complexType name="EntityFilter">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="unbounded" name="exception">
+            <s:complexType>
+              <s:attribute name="id" type="s:unsignedInt" use="required" />
+            </s:complexType>
+          </s:element>
+        </s:sequence>
+        <s:attribute name="default" type="tns:EntityDefaultFilter" use="required" />
+      </s:complexType>
+      <s:complexType name="CurrencyFilter">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="unbounded" name="exception">
+            <s:complexType>
+              <s:attribute name="currency" type="tns:CurrencyCode" use="required" />
+            </s:complexType>
+          </s:element>
+        </s:sequence>
+        <s:attribute name="default" type="tns:EntityDefaultFilter" use="required" />
+      </s:complexType>
+      <s:complexType name="RatePlanList">
+        <s:sequence>
+          <s:element minOccurs="1" maxOccurs="unbounded" name="ratePlan">
+            <s:complexType>
+              <s:sequence>
+                <s:element minOccurs="0" maxOccurs="1" name="hotels" type="tns:EntityFilter" />
+              </s:sequence>
+              <s:attribute name="groupId" type="s:unsignedInt" use="required" />
+              <s:attribute name="referenceRateCode" type="s:string" use="optional" />
+            </s:complexType>
+          </s:element>
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="OptionList">
+        <s:sequence>
+          <s:element minOccurs="1" maxOccurs="unbounded" name="set">
+            <s:complexType>
+              <s:attribute name="option" type="tns:OptionName" use="required" />
+            </s:complexType>
+          </s:element>
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="StatusList">
+        <s:sequence>
+          <s:element minOccurs="1" maxOccurs="unbounded" name="include">
+            <s:complexType>
+              <s:attribute name="status" type="tns:Status" use="required" />
+            </s:complexType>
+          </s:element>
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="QualifierList">
+        <s:sequence>
+          <s:element minOccurs="1" maxOccurs="unbounded" name="set">
+            <s:complexType>
+              <s:sequence>
+                <s:element minOccurs="0" maxOccurs="unbounded" name="property">
+                  <s:complexType>
+                    <s:attribute name="name" type="tns:PropertyName" use="required" />
+                    <s:attribute name="qualifier" type="tns:QualifierName" use="required" />
+                  </s:complexType>
+                </s:element>
+              </s:sequence>
+              <s:attribute name="name" type="s:string" use="required" />
+            </s:complexType>
+          </s:element>
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="PlanningFilter">
+        <s:sequence>
+          <s:element minOccurs="1" maxOccurs="1" name="ratePlans" type="tns:RatePlanList" />
+          <s:element minOccurs="0" maxOccurs="1" name="rooms" type="tns:EntityFilter" />
+          <s:element minOccurs="0" maxOccurs="1" name="occupancies" type="tns:EntityFilter" />
+          <s:element minOccurs="0" maxOccurs="1" name="rates" type="tns:EntityFilter" />
+          <s:element minOccurs="0" maxOccurs="1" name="currencies" type="tns:CurrencyFilter" />
+          <s:element minOccurs="0" maxOccurs="1" name="status" type="tns:StatusList" />
+          <s:element minOccurs="0" maxOccurs="1" name="qualifiers" type="tns:QualifierList" />
+          <s:element minOccurs="0" maxOccurs="1" name="availability">
+            <s:complexType>
+              <s:attribute name="minimum" type="s:unsignedInt" use="optional" />
+              <s:attribute default="true" name="minimumIncluded" type="s:boolean" use="optional" />
+              <s:attribute name="maximum" type="s:unsignedInt" use="optional" />
+              <s:attribute default="true" name="maximumIncluded" type="s:boolean" use="optional" />
+            </s:complexType>
+          </s:element>
+          <s:element minOccurs="0" maxOccurs="1" name="prices">
+            <s:complexType>
+              <s:sequence>
+                <s:element minOccurs="1" maxOccurs="unbounded" name="price">
+                  <s:complexType>
+                    <s:attribute name="currency" type="tns:CurrencyCode" use="required" />
+                    <s:attribute name="minimum" type="s:unsignedInt" use="optional" />
+                    <s:attribute default="true" name="minimumIncluded" type="s:boolean" use="optional" />
+                    <s:attribute name="maximum" type="s:unsignedInt" use="optional" />
+                    <s:attribute default="true" name="maximumIncluded" type="s:boolean" use="optional" />
+                  </s:complexType>
+                </s:element>
+              </s:sequence>
+            </s:complexType>
+          </s:element>
+          <s:element minOccurs="0" maxOccurs="1" name="options" type="tns:OptionList" />
+          <s:element minOccurs="0" maxOccurs="1" name="customerLocation">
+            <s:complexType>
+              <s:attribute name="geonameId" type="s:unsignedInt" use="required" />
+            </s:complexType>
+          </s:element>
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="PlanningLayout">
+        <s:sequence>
+          <s:element minOccurs="1" maxOccurs="unbounded" name="level">
+            <s:complexType>
+              <s:sequence>
+                <s:element minOccurs="1" maxOccurs="unbounded" name="property">
+                  <s:complexType>
+                    <s:attribute name="name" type="tns:PropertyName" use="required" />
+                  </s:complexType>
+                </s:element>
+              </s:sequence>
+              <s:attribute name="name" type="tns:PlanningLevel" use="required" />
+            </s:complexType>
+          </s:element>
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="Impersonation">
+        <s:attribute name="groupId" type="s:unsignedInt" use="optional" />
+        <s:attribute name="hotelId" type="s:unsignedInt" use="optional" />
+        <s:attribute name="userId" type="s:unsignedInt" use="optional" />
+        <s:attribute name="bookingEngineReference" type="tns:BookingEngineReference" use="optional" />
+      </s:complexType>
+      <s:complexType name="StayPlanningResponse">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="unbounded" name="ratePlan">
+            <s:complexType>
+              <s:sequence>
+                <s:element minOccurs="1" maxOccurs="unbounded" name="hotel">
+                  <s:complexType>
+                    <s:sequence>
+                      <s:element minOccurs="1" maxOccurs="unbounded" name="entity">
+                        <s:complexType>
+                          <s:sequence>
+                            <s:element minOccurs="0" maxOccurs="unbounded" name="property">
+                              <s:complexType>
+                                <s:attribute name="value" type="s:string" use="required" />
+                                <s:attribute name="name" type="tns:PropertyName" use="required" />
+                              </s:complexType>
+                            </s:element>
+                            <s:element minOccurs="0" maxOccurs="1" name="mixedRates">
+                              <s:complexType>
+                                <s:sequence>
+                                  <s:element minOccurs="1" maxOccurs="unbounded" name="period">
+                                    <s:complexType>
+                                      <s:attribute name="beginDate" type="s:date" use="required" />
+                                      <s:attribute name="endDate" type="s:date" use="required" />
+                                      <s:attribute name="rateId" type="s:unsignedInt" use="required" />
+                                    </s:complexType>
+                                  </s:element>
+                                </s:sequence>
+                              </s:complexType>
+                            </s:element>
+                          </s:sequence>
+                          <s:attribute name="level" type="tns:PlanningLevel" use="required" />
+                          <s:attribute name="roomId" type="s:unsignedInt" use="optional" />
+                          <s:attribute name="articleId" type="s:unsignedInt" use="optional" />
+                          <s:attribute name="rateId" type="s:unsignedInt" use="optional" />
+                          <s:attribute default="" name="qualifierSets" type="s:string" use="optional" />
+                          <s:attribute name="currency" type="tns:CurrencyCode" use="optional" />
+                          <s:attribute default="true" name="taxIncluded" type="s:boolean" use="optional" />
+                          <s:attribute name="taxRate" type="s:decimal" use="optional" />
+                          <s:attribute name="taxNominal" type="s:decimal" use="optional" />
+                        </s:complexType>
+                      </s:element>
+                    </s:sequence>
+                    <s:attribute name="hotelId" type="s:unsignedInt" use="required" />
+                  </s:complexType>
+                </s:element>
+              </s:sequence>
+              <s:attribute name="groupId" type="s:unsignedInt" use="required" />
+              <s:attribute name="referenceRateCode" type="s:string" use="optional" />
+            </s:complexType>
+          </s:element>
+        </s:sequence>
+        <s:attribute name="defaultCurrency" type="tns:CurrencyCode" use="required" />
+      </s:complexType>
+      <s:complexType name="DailyPlanningResponse">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="unbounded" name="ratePlan">
+            <s:complexType>
+              <s:sequence>
+                <s:element minOccurs="1" maxOccurs="unbounded" name="hotel">
+                  <s:complexType>
+                    <s:sequence>
+                      <s:element minOccurs="1" maxOccurs="unbounded" name="entity">
+                        <s:complexType>
+                          <s:sequence>
+                            <s:element minOccurs="0" maxOccurs="unbounded" name="property">
+                              <s:complexType>
+                                <s:sequence>
+                                  <s:element minOccurs="1" maxOccurs="unbounded" name="period">
+                                    <s:complexType>
+                                      <s:attribute name="beginDate" type="s:date" use="required" />
+                                      <s:attribute name="endDate" type="s:date" use="required" />
+                                      <s:attribute name="value" type="s:string" use="required" />
+                                    </s:complexType>
+                                  </s:element>
+                                </s:sequence>
+                                <s:attribute name="name" type="tns:PropertyName" use="required" />
+                              </s:complexType>
+                            </s:element>
+                          </s:sequence>
+                          <s:attribute name="level" type="tns:PlanningLevel" use="required" />
+                          <s:attribute name="roomId" type="s:unsignedInt" use="optional" />
+                          <s:attribute name="articleId" type="s:unsignedInt" use="optional" />
+                          <s:attribute name="rateId" type="s:unsignedInt" use="optional" />
+                          <s:attribute default="" name="qualifierSets" type="s:string" use="optional" />
+                          <s:attribute name="currency" type="tns:CurrencyCode" use="optional" />
+                          <s:attribute default="true" name="taxIncluded" type="s:boolean" use="optional" />
+                          <s:attribute name="taxRate" type="s:decimal" use="optional" />
+                          <s:attribute name="taxNominal" type="s:decimal" use="optional" />
+                        </s:complexType>
+                      </s:element>
+                    </s:sequence>
+                    <s:attribute name="hotelId" type="s:unsignedInt" use="required" />
+                  </s:complexType>
+                </s:element>
+              </s:sequence>
+              <s:attribute name="groupId" type="s:unsignedInt" use="required" />
+              <s:attribute name="referenceRateCode" type="s:string" use="optional" />
+            </s:complexType>
+          </s:element>
+        </s:sequence>
+        <s:attribute name="defaultCurrency" type="tns:CurrencyCode" use="required" />
+      </s:complexType>
+      <s:complexType name="PlanningResponseMessage">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="success" />
+          <s:element minOccurs="0" maxOccurs="1" name="warning" type="tns:Error" />
+          <s:element minOccurs="0" maxOccurs="1" name="failure" type="tns:Error" />
+          <s:element minOccurs="0" maxOccurs="1" name="stayPlanning" type="tns:StayPlanningResponse" />
+          <s:element minOccurs="0" maxOccurs="1" name="dailyPlanning" type="tns:DailyPlanningResponse" />
+        </s:sequence>
+      </s:complexType>
+    </s:schema>
+  </wsdl:types>
+  <wsdl:message name="GetStayPlanningSoapIn">
+    <wsdl:part name="parameters" element="tns:GetStayPlanning" />
+  </wsdl:message>
+  <wsdl:message name="GetStayPlanningSoapOut">
+    <wsdl:part name="parameters" element="tns:GetStayPlanningResponse" />
+  </wsdl:message>
+  <wsdl:message name="GetDailyPlanningSoapIn">
+    <wsdl:part name="parameters" element="tns:GetDailyPlanning" />
+  </wsdl:message>
+  <wsdl:message name="GetDailyPlanningSoapOut">
+    <wsdl:part name="parameters" element="tns:GetDailyPlanningResponse" />
+  </wsdl:message>
+  <wsdl:message name="GetPricingRangesSoapIn">
+    <wsdl:part name="parameters" element="tns:GetPricingRanges" />
+  </wsdl:message>
+  <wsdl:message name="GetPricingRangesSoapOut">
+    <wsdl:part name="parameters" element="tns:GetPricingRangesResponse" />
+  </wsdl:message>
+  <wsdl:message name="TestSoapIn">
+    <wsdl:part name="parameters" element="tns:Test" />
+  </wsdl:message>
+  <wsdl:message name="TestSoapOut">
+    <wsdl:part name="parameters" element="tns:TestResponse" />
+  </wsdl:message>
+  <wsdl:portType name="PlanningServiceSoap">
+    <wsdl:operation name="GetStayPlanning">
+      <wsdl:documentation xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">Retrieves planning for a stay period and a given filter.</wsdl:documentation>
+      <wsdl:input message="tns:GetStayPlanningSoapIn" />
+      <wsdl:output message="tns:GetStayPlanningSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetDailyPlanning">
+      <wsdl:documentation xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">Retrieves day-per-day planning for a period and a given filter.</wsdl:documentation>
+      <wsdl:input message="tns:GetDailyPlanningSoapIn" />
+      <wsdl:output message="tns:GetDailyPlanningSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetPricingRanges">
+      <wsdl:documentation xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">Retrieves pricing ranges for a stay period and a given filter.</wsdl:documentation>
+      <wsdl:input message="tns:GetPricingRangesSoapIn" />
+      <wsdl:output message="tns:GetPricingRangesSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="Test">
+      <wsdl:documentation xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">Tests availability of the service</wsdl:documentation>
+      <wsdl:input message="tns:TestSoapIn" />
+      <wsdl:output message="tns:TestSoapOut" />
+    </wsdl:operation>
+  </wsdl:portType>
+  <wsdl:binding name="PlanningServiceSoap" type="tns:PlanningServiceSoap">
+    <soap:binding transport="http://schemas.xmlsoap.org/soap/http" />
+    <wsdl:operation name="GetStayPlanning">
+      <soap:operation soapAction="http://ws.availpro.com/schemas/planning/2012A/GetStayPlanning" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetDailyPlanning">
+      <soap:operation soapAction="http://ws.availpro.com/schemas/planning/2012A/GetDailyPlanning" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetPricingRanges">
+      <soap:operation soapAction="http://ws.availpro.com/schemas/planning/2012A/GetPricingRanges" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="Test">
+      <soap:operation soapAction="http://ws.availpro.com/schemas/planning/2012A/Test" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+  </wsdl:binding>
+  <wsdl:binding name="PlanningServiceSoap12" type="tns:PlanningServiceSoap">
+    <soap12:binding transport="http://schemas.xmlsoap.org/soap/http" />
+    <wsdl:operation name="GetStayPlanning">
+      <soap12:operation soapAction="http://ws.availpro.com/schemas/planning/2012A/GetStayPlanning" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetDailyPlanning">
+      <soap12:operation soapAction="http://ws.availpro.com/schemas/planning/2012A/GetDailyPlanning" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetPricingRanges">
+      <soap12:operation soapAction="http://ws.availpro.com/schemas/planning/2012A/GetPricingRanges" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="Test">
+      <soap12:operation soapAction="http://ws.availpro.com/schemas/planning/2012A/Test" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+  </wsdl:binding>
+  <wsdl:service name="PlanningService">
+    <wsdl:documentation xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">Provides pricing and availabilities for one or more channels and hotels.</wsdl:documentation>
+    <wsdl:port name="PlanningServiceSoap" binding="tns:PlanningServiceSoap">
+      <soap:address location="https://ws.availpro.com/planning/2012A/planningService.asmx" />
+    </wsdl:port>
+    <wsdl:port name="PlanningServiceSoap12" binding="tns:PlanningServiceSoap12">
+      <soap12:address location="https://ws.availpro.com/planning/2012A/planningService.asmx" />
+    </wsdl:port>
+  </wsdl:service>
+</wsdl:definitions>

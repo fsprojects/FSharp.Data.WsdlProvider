@@ -1,0 +1,3342 @@
+<?xml version="1.0" encoding="utf-8"?>
+<wsdl:definitions name="ChannelConnectService" targetNamespace="http://synxis.com/OTA2004AService/"
+    xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/"
+    xmlns:wsam="http://www.w3.org/2007/05/addressing/metadata"
+    xmlns:wsx="http://schemas.xmlsoap.org/ws/2004/09/mex"
+    xmlns:wsap="http://schemas.xmlsoap.org/ws/2004/08/addressing/policy"
+    xmlns:msc="http://schemas.microsoft.com/ws/2005/12/wsdl/contract"
+    xmlns:wsp="http://schemas.xmlsoap.org/ws/2004/09/policy"
+    xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+    xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/"
+    xmlns:wsu="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd"
+    xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/"
+    xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/"
+    xmlns:tns="http://synxis.com/OTA2004AService/"
+    xmlns:wsa10="http://www.w3.org/2005/08/addressing"
+    xmlns:wsaw="http://www.w3.org/2006/05/addressing/wsdl"
+    xmlns:wsa="http://schemas.xmlsoap.org/ws/2004/08/addressing">
+  <wsdl:types>
+    <xs:schema elementFormDefault="qualified" targetNamespace="http://www.opentravel.org/OTA/2003/05"
+        xmlns:xs="http://www.w3.org/2001/XMLSchema"
+        xmlns:tns="http://www.opentravel.org/OTA/2003/05">
+      <xs:element name="OTA_HotelAvailRQ" type="tns:OTA_HotelAvailRQ"/>
+      <xs:complexType name="OTA_HotelAvailRQ">
+        <xs:complexContent mixed="false">
+          <xs:extension base="tns:OtaRequestMessage">
+            <xs:sequence>
+              <xs:element minOccurs="0" maxOccurs="1" name="POS" type="tns:POS"/>
+              <xs:element minOccurs="0" maxOccurs="1" name="AvailRequestSegments" type="tns:ArrayOfAvailRequestSegment"/>
+              <xs:element minOccurs="0" maxOccurs="1" name="HotelReservationIDs" type="tns:ArrayOfHotelReservationID"/>
+            </xs:sequence>
+            <xs:attribute name="MaxResponses" type="xs:int" use="required"/>
+            <xs:attribute name="RequestedCurrency" type="xs:string"/>
+            <xs:attribute name="ExactMatchOnly" type="xs:boolean" use="required"/>
+            <xs:attribute name="BestOnly" type="xs:boolean" use="required"/>
+            <xs:attribute name="SummaryOnly" type="xs:boolean" use="required"/>
+            <xs:attribute name="HotelStayOnly" type="xs:boolean" use="required"/>
+            <xs:attribute name="PricingMethod" type="xs:string"/>
+            <xs:attribute name="AvailRatesOnly" type="xs:boolean"/>
+            <xs:attribute name="MostRestrictiveAvailFailureOnly" type="xs:boolean"/>
+			<xs:attribute name="RateDetailsInd" type="xs:boolean"/>
+          </xs:extension>
+        </xs:complexContent>
+      </xs:complexType>
+      <xs:complexType name="OtaRequestMessage" abstract="true">
+        <xs:complexContent mixed="false">
+          <xs:extension base="tns:OtaMessage"/>
+        </xs:complexContent>
+      </xs:complexType>
+      <xs:complexType name="OtaMessage" abstract="true">
+        <xs:complexContent mixed="false">
+          <xs:extension base="tns:OTA_PayloadStdAttributes">
+            <xs:sequence>
+              <xs:element minOccurs="0" maxOccurs="1" name="TPA_Extensions" type="tns:TPA_Extensions"/>
+            </xs:sequence>
+          </xs:extension>
+        </xs:complexContent>
+      </xs:complexType>
+      <xs:complexType name="OTA_PayloadStdAttributes">
+        <xs:attribute name="EchoToken" type="xs:string"/>
+        <xs:attribute name="PrimaryLangID" type="xs:string"/>
+        <xs:attribute name="AltLangID" type="xs:string"/>
+        <xs:attribute name="TimeStamp" type="xs:string"/>
+        <xs:attribute name="Target" type="xs:string"/>
+        <xs:attribute name="Version" type="xs:string"/>
+        <xs:attribute name="MessageContentCode" type="xs:string"/>
+      </xs:complexType>
+      <xs:complexType name="TPA_Extensions">
+        <xs:sequence>
+          <xs:element minOccurs="0" maxOccurs="unbounded" name="Image" type="xs:string"/>
+          <xs:element minOccurs="0" maxOccurs="1" name="Security" type="tns:SecurityType"/>
+          <xs:element minOccurs="0" maxOccurs="1" name="GuaranteeDetails" type="tns:GuaranteeDetails"/>
+          <xs:element minOccurs="0" maxOccurs="1" name="SourceOfBusiness" type="tns:SourceOfBusiness"/>
+          <xs:element minOccurs="0" maxOccurs="1" name="MarketSegment" type="tns:MarketSegment"/>
+          <xs:element minOccurs="0" maxOccurs="1" name="BasicPropertyInfo" type="tns:BasicPropertyInfoType"/>
+          <xs:element minOccurs="0" maxOccurs="1" name="Warnings" type="tns:ArrayOfWarning"/>
+          <xs:element minOccurs="0" maxOccurs="1" name="Success" type="tns:Success"/>
+          <xs:element minOccurs="0" maxOccurs="1" name="ResStatus" type="tns:ResStatus"/>
+          <xs:element minOccurs="0" maxOccurs="1" name="WrittenConfInst" type="tns:WrittenConfInst"/>
+          <xs:element minOccurs="0" maxOccurs="unbounded" name="NightlyRate" type="tns:NightlyRate"/>
+          <xs:element minOccurs="0" maxOccurs="unbounded" name="DiscountedNightlyRate" type="tns:DiscountedNightlyRate"/>
+          <xs:element minOccurs="0" maxOccurs="1" name="ChildAges" type="tns:ChildAges"/>
+          <xs:element minOccurs="0" maxOccurs="1" name="RedemptionDetail" type="tns:RedemptionDetail"/>
+          <xs:element minOccurs="0" maxOccurs="1" name="TotalType" type="tns:TotalType"/>
+          <xs:element minOccurs="0" maxOccurs="1" name="IsReserved" type="xs:string"/>
+          <xs:element minOccurs="0" maxOccurs="1" name="CampaignDetails" type="tns:ArrayOfCampaignDetail"/>
+          <xs:element minOccurs="0" maxOccurs="1" name="BaseRate" type="tns:CodeInfo"/>
+          <xs:element minOccurs="0" maxOccurs="1" name="DerivedFormula" type="tns:AmountPercent"/>
+          <xs:element minOccurs="0" maxOccurs="1" name="TokenInfo" type="tns:TokenInfo"/>
+          <xs:element minOccurs="0" maxOccurs="1" name="BookingChannel" type="tns:BookingChannel"/>
+          <xs:element minOccurs="0" maxOccurs="1" name="StaggeredCancelPolicies" type="tns:ArrayOfCancelPenalty"/>
+          <xs:element minOccurs="0" maxOccurs="1" name="BedTypes" type="tns:ArrayOfBedType"/>
+          <xs:element minOccurs="0" maxOccurs="1" name="ItineraryTotal" type="tns:ItineraryTotal"/>
+          <xs:element minOccurs="0" maxOccurs="1" name="RoutingCodeInfo" type="tns:RoutingCodeInfo"/>
+          <xs:element minOccurs="0" maxOccurs="1" name="ResGuestInfo" type="tns:ResGuestInfo"/>
+          <xs:element minOccurs="0" maxOccurs="1" name="DisclosureExclusion" type="tns:DisclosureExclusion"/>
+          <xs:element minOccurs="0" maxOccurs="1" name="HoldPeriod" type="tns:HoldPeriod"/>
+        </xs:sequence>
+        <xs:attribute name="ADACompliantIndicator" type="xs:boolean"/>
+      </xs:complexType>
+      <xs:complexType name="HoldPeriod">
+        <xs:attribute name="HoursAfterBooking" type="xs:string"/>
+        <xs:attribute name="DaysAfterDeparture" type="xs:string"/>
+      </xs:complexType>
+      <xs:complexType name="DisclosureExclusion">
+        <xs:attribute name="EligibleForExclusion" type="xs:boolean"/>
+      </xs:complexType>
+      <xs:complexType name="ResGuestInfo">
+        <xs:sequence>
+          <xs:element minOccurs="0" maxOccurs="2" name="PersonName" type="tns:PersonName"/>
+          <xs:element minOccurs="0" maxOccurs="unbounded" name="Telephone" type="tns:TelephoneInfo"/>
+          <xs:element minOccurs="0" maxOccurs="unbounded" name="Email" type="tns:Email"/>
+          <xs:element minOccurs="0" maxOccurs="unbounded" name="Address" type="tns:AddressInfo"/>
+          <xs:element minOccurs="0" maxOccurs="1" name="ContactPerson" type="tns:ContactPerson"/>
+          <xs:element minOccurs="0" maxOccurs="unbounded" name="CustLoyalty" type="tns:CustLoyalty"/>
+        </xs:sequence>
+        <xs:attribute name="ID" type="xs:string"/>
+        <xs:attribute name="ShareAllMarketInd" type="tns:YesNo"/>
+      </xs:complexType>
+      <xs:complexType name="ItineraryTotal">
+        <xs:sequence>
+          <xs:element minOccurs="0" maxOccurs="1" name="Taxes" type="tns:TaxesType"/>
+        </xs:sequence>
+        <xs:attribute name="AmountBeforeTax" type="xs:string"/>
+        <xs:attribute name="AmountAfterTax" type="xs:string"/>
+        <xs:attribute name="CurrencyCode" type="xs:string"/>
+      </xs:complexType>
+      <xs:complexType name="SecurityType">
+        <xs:sequence>
+          <xs:element minOccurs="0" maxOccurs="1" name="LoginInfo" type="tns:LoginInfoType"/>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="LoginInfoType">
+        <xs:attribute name="Username" type="xs:string"/>
+        <xs:attribute name="Password" type="xs:string"/>
+        <xs:attribute name="SystemType" type="xs:string"/>
+      </xs:complexType>
+      <xs:complexType name="GuaranteeDetails">
+        <xs:sequence>
+          <xs:element minOccurs="0" maxOccurs="1" name="PaymentCardDetails" type="tns:PaymentCardDetails"/>
+          <xs:element minOccurs="0" maxOccurs="1" name="CertificateDetails" type="tns:CertificateDetails"/>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="PaymentCardDetails">
+        <xs:attribute name="PmsCreditCardCode" type="xs:string"/>
+      </xs:complexType>
+      <xs:complexType name="CertificateDetails">
+        <xs:attribute name="CertificateNumber" type="xs:string"/>
+      </xs:complexType>
+      <xs:complexType name="SourceOfBusiness">
+        <xs:simpleContent>
+          <xs:extension base="xs:string">
+            <xs:attribute name="PrimaryCode" type="xs:string"/>
+            <xs:attribute name="PrimaryID" type="xs:string"/>
+            <xs:attribute name="SecondaryID" type="xs:string"/>
+            <xs:attribute name="SecondaryCode" type="xs:string"/>
+            <xs:attribute name="SubSourceID" type="xs:string"/>
+            <xs:attribute name="SubSourceCode" type="xs:string"/>
+            <xs:attribute name="MarketSourceCode" type="xs:string"/>
+            <xs:attribute name="CroCode" type="xs:string"/>
+          </xs:extension>
+        </xs:simpleContent>
+      </xs:complexType>
+      <xs:complexType name="MarketSegment">
+        <xs:simpleContent>
+          <xs:extension base="xs:string">
+            <xs:attribute name="MarketSegmentCode" type="xs:string"/>
+          </xs:extension>
+        </xs:simpleContent>
+      </xs:complexType>
+      <xs:complexType name="BasicPropertyInfoType">
+        <xs:attribute name="ChainCode" type="xs:string"/>
+        <xs:attribute name="HotelCode" type="xs:string"/>
+        <xs:attribute name="BrandCode" type="xs:string"/>
+        <xs:attribute name="HotelCityCode" type="xs:string"/>
+        <xs:attribute name="HotelName" type="xs:string"/>
+        <xs:attribute name="ChainName" type="xs:string"/>
+        <xs:attribute name="BrandName" type="xs:string"/>
+        <xs:attribute name="AreaId" type="xs:string"/>
+      </xs:complexType>
+      <xs:complexType name="ArrayOfWarning">
+        <xs:sequence>
+          <xs:element minOccurs="0" maxOccurs="unbounded" name="Warning" nillable="true" type="tns:Warning"/>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="Warning">
+        <xs:simpleContent>
+          <xs:extension base="xs:string">
+            <xs:attribute name="Type" type="xs:string"/>
+            <xs:attribute name="Code" type="xs:string"/>
+            <xs:attribute name="ShortText" type="xs:string"/>
+            <xs:attribute name="Status" type="xs:string"/>
+            <xs:attribute name="RecordID" type="xs:string"/>
+          </xs:extension>
+        </xs:simpleContent>
+      </xs:complexType>
+      <xs:complexType name="Success"/>
+      <xs:complexType name="ResStatus">
+        <xs:simpleContent>
+          <xs:extension base="xs:string">
+            <xs:attribute name="IsModifiable" type="xs:boolean" use="required"/>
+            <xs:attribute name="IsCancellable" type="xs:boolean"/>
+          </xs:extension>
+        </xs:simpleContent>
+      </xs:complexType>
+      <xs:complexType name="WrittenConfInst">
+        <xs:sequence>
+          <xs:element minOccurs="0" maxOccurs="1" name="SupplementalData" type="tns:SupplementalData"/>
+        </xs:sequence>
+        <xs:attribute name="LanguageID" type="xs:string"/>
+        <xs:attribute name="AddresseeName" type="xs:string"/>
+        <xs:attribute name="Address" type="xs:string"/>
+        <xs:attribute name="Telephone" type="xs:string"/>
+      </xs:complexType>
+      <xs:complexType name="SupplementalData">
+        <xs:sequence>
+          <xs:element minOccurs="0" maxOccurs="1" name="Text" type="tns:Text"/>
+        </xs:sequence>
+        <xs:attribute name="Name" type="xs:string"/>
+        <xs:attribute name="ParagraphNumber" type="xs:string"/>
+        <xs:attribute name="CreateDateTime" type="xs:string"/>
+        <xs:attribute name="CreatorID" type="xs:string"/>
+        <xs:attribute name="LastModifyDateTime" type="xs:string"/>
+        <xs:attribute name="LastModifierID" type="xs:string"/>
+        <xs:attribute name="Language" type="xs:string"/>
+      </xs:complexType>
+      <xs:complexType name="Text">
+        <xs:simpleContent>
+          <xs:extension base="xs:string">
+            <xs:attribute name="Formatted" type="xs:string"/>
+            <xs:attribute name="Language" type="xs:string"/>
+            <xs:attribute name="TextFormat" type="xs:string"/>
+          </xs:extension>
+        </xs:simpleContent>
+      </xs:complexType>
+      <xs:complexType name="NightlyRate">
+        <xs:complexContent mixed="false">
+          <xs:extension base="tns:AvailabilityDayItem"/>
+        </xs:complexContent>
+      </xs:complexType>
+      <xs:complexType name="AvailabilityDayItem">
+        <xs:attribute name="Date" type="xs:string"/>
+        <xs:attribute name="Price" type="xs:string"/>
+        <xs:attribute name="Tax" type="xs:string"/>
+        <xs:attribute name="Fee" type="xs:string"/>
+        <xs:attribute name="PriceWithTaxAndFee" type="xs:string"/>
+      </xs:complexType>
+      <xs:complexType name="DiscountedNightlyRate">
+        <xs:complexContent mixed="false">
+          <xs:extension base="tns:NightlyRate"/>
+        </xs:complexContent>
+      </xs:complexType>
+      <xs:complexType name="ChildAges">
+        <xs:attribute name="Ages">
+          <xs:simpleType>
+            <xs:list itemType="xs:string"/>
+          </xs:simpleType>
+        </xs:attribute>
+      </xs:complexType>
+      <xs:complexType name="RedemptionDetail">
+        <xs:sequence>
+          <xs:element minOccurs="0" maxOccurs="1" name="RedemptionQuantity" type="xs:string"/>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="TotalType">
+        <xs:sequence>
+          <xs:element minOccurs="0" maxOccurs="1" name="Taxes" type="tns:TaxesType"/>
+          <xs:element minOccurs="0" maxOccurs="1" name="DiscountReason" type="tns:DiscountReason"/>
+        </xs:sequence>
+        <xs:attribute name="TaxInclusive" type="xs:boolean"/>
+        <xs:attribute name="AmountBeforeTax" type="xs:string"/>
+        <xs:attribute name="AmountAfterTax" type="xs:string"/>
+        <xs:attribute name="CurrencyCode" type="xs:string"/>
+        <xs:attribute name="DecimalPlaces" type="xs:int"/>
+        <xs:attribute name="ItemRPH" type="xs:string"/>
+      </xs:complexType>
+      <xs:complexType name="TaxesType">
+        <xs:sequence>
+          <xs:element minOccurs="0" maxOccurs="unbounded" name="Tax" type="tns:TaxType"/>
+        </xs:sequence>
+        <xs:attribute name="Amount" type="xs:string"/>
+        <xs:attribute name="CurrencyCode" type="xs:string"/>
+      </xs:complexType>
+      <xs:complexType name="TaxType">
+        <xs:sequence>
+          <xs:element minOccurs="0" maxOccurs="unbounded" name="TaxDescription" type="tns:ParagraphType"/>
+          <xs:element minOccurs="0" maxOccurs="1" name="TPA_Extensions" type="tns:TPA_Extensions"/>
+        </xs:sequence>
+        <xs:attribute name="Amount" type="xs:string"/>
+        <xs:attribute name="Percent" type="xs:string"/>
+        <xs:attribute name="CurrencyCode" type="xs:string"/>
+        <xs:attribute name="Type" type="xs:string"/>
+        <xs:attribute name="Code" type="xs:string"/>
+        <xs:attribute name="EffectiveDate" type="xs:string"/>
+        <xs:attribute name="ExpireDate" type="xs:string"/>
+        <xs:attribute name="ChargeFrequency" type="xs:string"/>
+        <xs:attribute name="ChargeUnit" type="xs:string"/>
+      </xs:complexType>
+      <xs:complexType name="ParagraphType">
+        <xs:sequence>
+          <xs:element minOccurs="0" maxOccurs="1" name="Text" type="xs:string"/>
+          <xs:element minOccurs="0" maxOccurs="unbounded" name="Image" type="xs:string"/>
+          <xs:element minOccurs="0" maxOccurs="1" name="URL" type="xs:string"/>
+        </xs:sequence>
+        <xs:attribute name="Name" type="xs:string"/>
+      </xs:complexType>
+      <xs:complexType name="Description">
+        <xs:complexContent mixed="false">
+          <xs:extension base="tns:ParagraphType">
+            <xs:sequence>
+              <xs:element minOccurs="0" maxOccurs="1" name="MultimediaDescriptions" type="tns:ArrayOfMultimediaDescription"/>
+            </xs:sequence>
+          </xs:extension>
+        </xs:complexContent>
+      </xs:complexType>
+      <xs:complexType name="ArrayOfMultimediaDescription">
+        <xs:sequence>
+          <xs:element minOccurs="0" maxOccurs="unbounded" name="MultimediaDescription" nillable="true" type="tns:MultimediaDescription"/>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="MultimediaDescription">
+        <xs:sequence>
+          <xs:element minOccurs="0" maxOccurs="1" name="TextItems" type="tns:ArrayOfTextItem"/>
+          <xs:element minOccurs="0" maxOccurs="1" name="ImageItems" type="tns:ArrayOfImageItem"/>
+        </xs:sequence>
+        <xs:attribute name="InfoCode" type="xs:string"/>
+        <xs:attribute name="AdditionalDetailCode" type="xs:string"/>
+      </xs:complexType>
+      <xs:complexType name="ArrayOfTextItem">
+        <xs:sequence>
+          <xs:element minOccurs="0" maxOccurs="unbounded" name="TextItem" nillable="true" type="tns:TextItem"/>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="TextItem">
+        <xs:sequence>
+          <xs:element minOccurs="0" maxOccurs="1" name="Description" type="tns:DescriptionHDI"/>
+        </xs:sequence>
+        <xs:attribute name="Title" type="xs:string"/>
+      </xs:complexType>
+      <xs:complexType name="DescriptionHDI">
+        <xs:simpleContent>
+          <xs:extension base="xs:string">
+            <xs:attribute name="Language" type="xs:string"/>
+          </xs:extension>
+        </xs:simpleContent>
+      </xs:complexType>
+      <xs:complexType name="ArrayOfImageItem">
+        <xs:sequence>
+          <xs:element minOccurs="0" maxOccurs="unbounded" name="ImageItem" nillable="true" type="tns:ImageItem"/>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="ImageItem">
+        <xs:sequence>
+          <xs:element minOccurs="0" maxOccurs="1" name="ImageFormat" type="tns:ImageFormat"/>
+          <xs:element minOccurs="0" maxOccurs="1" name="Description" type="tns:ImageDescription"/>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="ImageFormat">
+        <xs:sequence>
+          <xs:element minOccurs="0" maxOccurs="1" name="URL" type="tns:URL"/>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="ImageDescription">
+        <xs:attribute name="Language" type="xs:string"/>
+        <xs:attribute name="Caption " type="xs:string"/>
+      </xs:complexType>
+      <xs:complexType name="URL">
+        <xs:simpleContent>
+          <xs:extension base="xs:string"/>
+        </xs:simpleContent>
+      </xs:complexType>
+      <xs:complexType name="RatePlanDescription">
+        <xs:complexContent mixed="false">
+          <xs:extension base="tns:ParagraphType"/>
+        </xs:complexContent>
+      </xs:complexType>
+      <xs:complexType name="RoomDescription">
+        <xs:complexContent mixed="false">
+          <xs:extension base="tns:ParagraphType"/>
+        </xs:complexContent>
+      </xs:complexType>
+      <xs:complexType name="Renovation">
+        <xs:complexContent mixed="false">
+          <xs:extension base="tns:ParagraphType">
+            <xs:attribute name="RenovationCompletionDate" type="xs:string"/>
+          </xs:extension>
+        </xs:complexContent>
+      </xs:complexType>
+      <xs:complexType name="DiscountReason">
+        <xs:sequence>
+          <xs:element minOccurs="0" maxOccurs="1" name="Text" type="xs:string"/>
+          <xs:element minOccurs="0" maxOccurs="1" name="Image" type="xs:string"/>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="Base">
+        <xs:complexContent mixed="false">
+          <xs:extension base="tns:TotalType"/>
+        </xs:complexContent>
+      </xs:complexType>
+      <xs:complexType name="Total">
+        <xs:complexContent mixed="false">
+          <xs:extension base="tns:TotalType">
+            <xs:sequence>
+              <xs:element minOccurs="0" maxOccurs="1" name="Tpa_Extensions" type="tns:TPA_Extensions"/>
+            </xs:sequence>
+          </xs:extension>
+        </xs:complexContent>
+      </xs:complexType>
+      <xs:complexType name="Discount">
+        <xs:complexContent mixed="false">
+          <xs:extension base="tns:TotalType"/>
+        </xs:complexContent>
+      </xs:complexType>
+      <xs:complexType name="ArrayOfCampaignDetail">
+        <xs:sequence>
+          <xs:element minOccurs="0" maxOccurs="unbounded" name="CampaignDetail" type="tns:CampaignDetail"/>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="CampaignDetail">
+        <xs:simpleContent>
+          <xs:extension base="xs:string">
+            <xs:attribute name="name" type="xs:string"/>
+          </xs:extension>
+        </xs:simpleContent>
+      </xs:complexType>
+      <xs:complexType name="CodeInfo">
+        <xs:attribute name="Code" type="xs:string"/>
+        <xs:attribute name="BaseRateCode" type="xs:string"/>
+      </xs:complexType>
+      <xs:complexType name="AmountPercent">
+        <xs:attribute name="NmbrOfNights" type="xs:string"/>
+        <xs:attribute name="Percentage" type="xs:decimal"/>
+        <xs:attribute name="Percent" type="xs:decimal"/>
+        <xs:attribute name="Amount" type="xs:decimal"/>
+        <xs:attribute name="CurrencyCode" type="xs:string"/>
+        <xs:attribute name="TaxInclusive" type="xs:boolean"/>
+        <xs:attribute name="AdjustedAmount" type="xs:string"/>
+        <xs:attribute name="AdjustedPercentage" type="xs:string"/>
+      </xs:complexType>
+      <xs:complexType name="TokenInfo">
+        <xs:attribute name="Token" type="xs:string"/>
+        <xs:attribute name="TokenProviderID" type="xs:string"/>
+      </xs:complexType>
+      <xs:complexType name="BookingChannel">
+        <xs:sequence>
+          <xs:element minOccurs="0" maxOccurs="1" name="CompanyName" type="tns:CompanyName"/>
+        </xs:sequence>
+        <xs:attribute name="Primary" type="xs:string"/>
+        <xs:attribute name="Type" type="xs:string"/>
+        <xs:attribute name="AnyBookingChannelInd" type="xs:boolean"/>
+      </xs:complexType>
+      <xs:complexType name="CompanyName">
+        <xs:simpleContent>
+          <xs:extension base="xs:string">
+            <xs:attribute name="CodeContext" type="xs:string"/>
+            <xs:attribute name="CompanyShortName" type="xs:string"/>
+            <xs:attribute name="TravelSector" type="xs:string"/>
+            <xs:attribute name="Code" type="xs:string"/>
+          </xs:extension>
+        </xs:simpleContent>
+      </xs:complexType>
+      <xs:complexType name="ArrayOfCancelPenalty">
+        <xs:sequence>
+          <xs:element minOccurs="0" maxOccurs="unbounded" name="StaggeredCancelPenalty" type="tns:CancelPenalty"/>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="ArrayOfBedType">
+        <xs:sequence>
+          <xs:element minOccurs="0" maxOccurs="unbounded" name="BedType" type="tns:BedType"/>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="BedType">
+        <xs:attribute name="BedTypeCode" type="xs:int"/>
+        <xs:attribute name="Quantity" type="xs:int" use="required"/>
+      </xs:complexType>
+      <xs:complexType name="RoutingCodeInfo">
+        <xs:attribute name="RoutingCode" type="xs:string"/>
+      </xs:complexType>
+      <xs:complexType name="CancelPenalty">
+        <xs:sequence>
+          <xs:element minOccurs="0" maxOccurs="unbounded" name="PenaltyDescription" type="tns:ParagraphType"/>
+          <xs:element minOccurs="0" maxOccurs="1" name="AmountPercent" type="tns:AmountPercent"/>
+          <xs:element minOccurs="0" maxOccurs="1" name="Deadline" type="tns:Deadline"/>
+        </xs:sequence>
+        <xs:attribute name="PolicyCode" type="xs:string"/>
+        <xs:attribute name="NonRefundable" type="xs:boolean"/>
+      </xs:complexType>
+      <xs:complexType name="Deadline">
+        <xs:attribute name="AbsoluteDeadline" type="xs:string"/>
+        <xs:attribute name="OffsetTimeUnit" type="tns:OffsetTimeUnit"/>
+        <xs:attribute name="OffsetUnitMultiplier" type="xs:string"/>
+        <xs:attribute name="OffsetDropTime" type="tns:OffsetDropTime"/>
+      </xs:complexType>
+      <xs:simpleType name="OffsetTimeUnit">
+        <xs:restriction base="xs:string">
+          <xs:enumeration value="Year"/>
+          <xs:enumeration value="Month"/>
+          <xs:enumeration value="Week"/>
+          <xs:enumeration value="Day"/>
+          <xs:enumeration value="Hour"/>
+          <xs:enumeration value="Second"/>
+          <xs:enumeration value="FullDuration"/>
+        </xs:restriction>
+      </xs:simpleType>
+      <xs:simpleType name="OffsetDropTime">
+        <xs:restriction base="xs:string">
+          <xs:enumeration value="BeforeArrival"/>
+          <xs:enumeration value="AfterBooking"/>
+        </xs:restriction>
+      </xs:simpleType>
+      <xs:complexType name="AvailabilityTpaExtensions">
+        <xs:complexContent mixed="false">
+          <xs:extension base="tns:TPA_Extensions">
+            <xs:attribute name="MinMaxOnly" type="xs:boolean" use="required"/>
+            <xs:attribute name="AvailCalendarOnly" type="xs:boolean" use="required"/>
+            <xs:attribute name="LinkCfg" type="xs:string"/>
+            <xs:attribute name="ADACompliantRooms" type="xs:string"/>
+          </xs:extension>
+        </xs:complexContent>
+      </xs:complexType>
+      <xs:complexType name="OtaResponseMessage" abstract="true">
+        <xs:complexContent mixed="false">
+          <xs:extension base="tns:OtaMessage">
+            <xs:sequence>
+              <xs:element minOccurs="0" maxOccurs="1" name="Success" type="tns:Success"/>
+              <xs:element minOccurs="0" maxOccurs="1" name="Warnings" type="tns:ArrayOfWarning"/>
+              <xs:element minOccurs="0" maxOccurs="1" name="Errors" type="tns:ArrayOfErrorType"/>
+            </xs:sequence>
+          </xs:extension>
+        </xs:complexContent>
+      </xs:complexType>
+      <xs:complexType name="ArrayOfErrorType">
+        <xs:sequence>
+          <xs:element minOccurs="0" maxOccurs="unbounded" name="Error" nillable="true" type="tns:ErrorType"/>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="ErrorType">
+        <xs:simpleContent>
+          <xs:extension base="xs:string">
+            <xs:attribute name="Type" type="xs:string"/>
+            <xs:attribute name="Language" type="xs:string"/>
+            <xs:attribute name="ShortText" type="xs:string"/>
+            <xs:attribute name="Code" type="xs:string"/>
+            <xs:attribute name="DocURL" type="xs:string"/>
+            <xs:attribute name="Status" type="xs:string"/>
+            <xs:attribute name="Tag" type="xs:string"/>
+            <xs:attribute name="RecordID" type="xs:string"/>
+            <xs:attribute name="NodeList" type="xs:string"/>
+          </xs:extension>
+        </xs:simpleContent>
+      </xs:complexType>
+      <xs:complexType name="OTA_HotelAvailRS">
+        <xs:complexContent mixed="false">
+          <xs:extension base="tns:OtaResponseMessage">
+            <xs:sequence>
+              <xs:element minOccurs="0" maxOccurs="1" name="Services" type="tns:ArrayOfService"/>
+              <xs:element minOccurs="0" maxOccurs="1" name="Profiles" type="tns:ArrayOfProfile"/>
+              <xs:element minOccurs="0" maxOccurs="1" name="RoomStays" type="tns:ArrayOfRoomStay"/>
+              <xs:element minOccurs="0" maxOccurs="1" name="HotelStays" type="tns:ArrayOfHotelStay"/>
+              <xs:element minOccurs="0" maxOccurs="1" name="Criteria" type="tns:ArrayOfHotelSearchCriterion"/>
+            </xs:sequence>
+          </xs:extension>
+        </xs:complexContent>
+      </xs:complexType>
+      <xs:complexType name="ArrayOfService">
+        <xs:sequence>
+          <xs:element minOccurs="0" maxOccurs="unbounded" name="Service" nillable="true" type="tns:Service"/>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="Service">
+        <xs:sequence>
+          <xs:element minOccurs="0" maxOccurs="1" name="ServiceDetails" type="tns:ResCommonDetailType"/>
+          <xs:element minOccurs="0" maxOccurs="unbounded" name="Price" type="tns:AmountType"/>
+          <xs:element minOccurs="0" maxOccurs="1" name="DescriptiveText" type="xs:string"/>
+          <xs:element minOccurs="0" maxOccurs="1" name="Descriptions" type="tns:ArrayOfDescription"/>
+          <xs:element minOccurs="0" maxOccurs="1" name="Features" type="tns:ArrayOfFeature"/>
+          <xs:element minOccurs="0" maxOccurs="1" name="TPA_Extensions" type="tns:TPA_Extensions"/>
+        </xs:sequence>
+        <xs:attribute name="InvCode" type="xs:string"/>
+        <xs:attribute name="BusinessServiceCode" type="xs:string"/>
+        <xs:attribute name="MealPlanCode" type="xs:string"/>
+        <xs:attribute name="Included" type="xs:string"/>
+        <xs:attribute name="Code" type="xs:string"/>
+        <xs:attribute name="ProximityCode" type="xs:string"/>
+        <xs:attribute name="Inclusive" type="xs:string"/>
+        <xs:attribute name="CodeDetail" type="xs:string"/>
+        <xs:attribute name="ServiceInventoryCode" type="xs:string"/>
+        <xs:attribute name="ServicePricingType" type="xs:string"/>
+        <xs:attribute name="Quantity" type="xs:string"/>
+        <xs:attribute name="RatePlanCode" type="xs:string"/>
+        <xs:attribute name="ServiceRPH" type="xs:string"/>
+        <xs:attribute name="MeetingRoomCode" type="xs:string"/>
+      </xs:complexType>
+      <xs:complexType name="ResCommonDetailType">
+        <xs:sequence>
+          <xs:element minOccurs="0" maxOccurs="1" name="GuestCounts" type="tns:GuestCounts"/>
+          <xs:element minOccurs="0" maxOccurs="1" name="Comments" type="tns:ArrayOfParagraphType1"/>
+          <xs:element minOccurs="0" maxOccurs="1" name="TimeSpan" type="tns:DateTimeSpanType"/>
+          <xs:element minOccurs="0" maxOccurs="1" name="CancelPenalties" type="tns:ArrayOfCancelPenalty1"/>
+          <xs:element minOccurs="0" maxOccurs="1" name="Guarantee" type="tns:Guarantee"/>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="GuestCounts">
+        <xs:sequence>
+          <xs:element minOccurs="0" maxOccurs="unbounded" name="GuestCount" type="tns:GuestCount"/>
+        </xs:sequence>
+        <xs:attribute name="IsPerRoom" type="xs:boolean"/>
+      </xs:complexType>
+      <xs:complexType name="GuestCount">
+        <xs:complexContent mixed="false">
+          <xs:extension base="tns:GuestCountGroup"/>
+        </xs:complexContent>
+      </xs:complexType>
+      <xs:complexType name="GuestCountGroup">
+        <xs:attribute name="AgeQualifyingCode" type="xs:string"/>
+        <xs:attribute name="Count" type="xs:string"/>
+        <xs:attribute name="Age" type="xs:string"/>
+      </xs:complexType>
+      <xs:complexType name="ArrayOfParagraphType1">
+        <xs:sequence>
+          <xs:element minOccurs="0" maxOccurs="unbounded" name="Comment" type="tns:ParagraphType"/>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="DateTimeSpanType">
+        <xs:attribute name="Start" type="xs:string"/>
+        <xs:attribute name="End" type="xs:string"/>
+        <xs:attribute name="Duration" type="xs:string"/>
+        <xs:attribute name="Increment" type="xs:string"/>
+      </xs:complexType>
+      <xs:complexType name="CacheChangeTimeSpan">
+        <xs:attribute name="Start" type="xs:date"/>
+        <xs:attribute name="End" type="xs:date"/>
+        <xs:attribute name="ChangeDateMask" type="xs:string"/>
+      </xs:complexType>
+      <xs:complexType name="ClosedSeason">
+        <xs:complexContent mixed="false">
+          <xs:extension base="tns:DateTimeSpanType"/>
+        </xs:complexContent>
+      </xs:complexType>
+      <xs:complexType name="ArrayOfCancelPenalty1">
+        <xs:sequence>
+          <xs:element minOccurs="0" maxOccurs="unbounded" name="CancelPenalty" type="tns:CancelPenalty"/>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="Guarantee">
+        <xs:sequence>
+          <xs:element minOccurs="0" maxOccurs="1" name="GuaranteesAccepted" type="tns:ArrayOfGuaranteeAccepted"/>
+          <xs:element minOccurs="0" maxOccurs="1" name="GuaranteeDescription" type="tns:ParagraphType"/>
+          <xs:element minOccurs="0" maxOccurs="1" name="AmountPercent" type="tns:AmountPercent"/>
+          <xs:element minOccurs="0" maxOccurs="1" name="Deadline" type="tns:Deadline"/>
+        </xs:sequence>
+        <xs:attribute name="GuaranteeCode" type="xs:string"/>
+        <xs:attribute name="HoldTime" type="xs:dateTime"/>
+      </xs:complexType>
+      <xs:complexType name="ArrayOfGuaranteeAccepted">
+        <xs:sequence>
+          <xs:element minOccurs="0" maxOccurs="unbounded" name="GuaranteeAccepted" nillable="true" type="tns:GuaranteeAccepted"/>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="GuaranteeAccepted">
+        <xs:sequence>
+          <xs:element minOccurs="0" maxOccurs="1" name="PaymentCard" type="tns:PaymentCard"/>
+          <xs:element minOccurs="0" maxOccurs="1" name="LoyaltyRedemption" type="tns:LoyaltyRedemption"/>
+        </xs:sequence>
+        <xs:attribute name="PaymentTransactionTypeCode" type="xs:string"/>
+      </xs:complexType>
+      <xs:complexType name="PaymentCard">
+        <xs:sequence>
+          <xs:element minOccurs="0" maxOccurs="1" name="CardHolderName" type="xs:string"/>
+          <xs:element minOccurs="0" maxOccurs="1" name="CardIssuerName" type="tns:CardIssuerName"/>
+          <xs:element minOccurs="0" maxOccurs="1" name="TPA_Extensions" type="tns:TPA_Extensions"/>
+        </xs:sequence>
+        <xs:attribute name="CardType" type="xs:string"/>
+        <xs:attribute name="CardCode" type="xs:string"/>
+        <xs:attribute name="CardNumber" type="xs:string"/>
+        <xs:attribute name="SeriesCode" type="xs:string"/>
+        <xs:attribute name="ExpireDate" type="xs:string"/>
+      </xs:complexType>
+      <xs:complexType name="CardIssuerName">
+        <xs:attribute name="BankID" type="xs:string"/>
+      </xs:complexType>
+      <xs:complexType name="LoyaltyRedemption">
+        <xs:sequence>
+          <xs:element minOccurs="0" maxOccurs="1" name="LoyaltyCertificate" type="tns:LoyaltyCertificate"/>
+        </xs:sequence>
+        <xs:attribute name="RedemptionQuantity" type="xs:string"/>
+        <xs:attribute name="ProgramName" type="xs:string"/>
+        <xs:attribute name="MemberNumber" type="xs:string"/>
+      </xs:complexType>
+      <xs:complexType name="LoyaltyCertificate">
+        <xs:attribute name="CertificateNumber" type="xs:string"/>
+        <xs:attribute name="MemberNumber" type="xs:string"/>
+        <xs:attribute name="ProgramName" type="xs:string"/>
+        <xs:attribute name="EffectiveDate" type="xs:string"/>
+        <xs:attribute name="ExpireDate" type="xs:string"/>
+        <xs:attribute name="ExpireDateExclusiveIndicator" type="xs:boolean" use="required"/>
+        <xs:attribute name="NmbrOfNights" type="xs:string"/>
+        <xs:attribute name="Status" type="xs:string"/>
+      </xs:complexType>
+      <xs:complexType name="AmountType">
+        <xs:sequence>
+          <xs:element minOccurs="0" maxOccurs="1" name="Base" type="tns:TotalType"/>
+          <xs:element minOccurs="0" maxOccurs="1" name="AdditionalGuestAmounts" type="tns:ArrayOfAdditionalGuestAmount"/>
+          <xs:element minOccurs="0" maxOccurs="unbounded" name="Discount" type="tns:Discount"/>
+        </xs:sequence>
+        <xs:attribute name="EffectiveDate" type="xs:string"/>
+        <xs:attribute name="ExpireDate" type="xs:string"/>
+      </xs:complexType>
+      <xs:complexType name="ArrayOfAdditionalGuestAmount">
+        <xs:sequence>
+          <xs:element minOccurs="0" maxOccurs="unbounded" name="AdditionalGuestAmount" nillable="true" type="tns:AdditionalGuestAmount"/>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="AdditionalGuestAmount">
+        <xs:complexContent mixed="false">
+          <xs:extension base="tns:AgeQualifyingGroup">
+            <xs:sequence>
+              <xs:element minOccurs="0" maxOccurs="1" name="Amount" type="tns:TotalType"/>
+              <xs:element minOccurs="0" maxOccurs="1" name="Taxes" type="tns:TaxesType"/>
+            </xs:sequence>
+            <xs:attribute name="Amount" type="xs:decimal"/>
+            <xs:attribute name="AmountBeforeTax" type="xs:decimal"/>
+            <xs:attribute name="RPH" type="xs:string"/>
+            <xs:attribute name="TaxInclusive" type="xs:boolean"/>
+          </xs:extension>
+        </xs:complexContent>
+      </xs:complexType>
+      <xs:complexType name="AgeQualifyingGroup">
+        <xs:attribute name="AgeQualifyingCode" type="xs:string"/>
+        <xs:attribute name="MinAge" type="xs:string"/>
+        <xs:attribute name="MaxAge" type="xs:string"/>
+        <xs:attribute name="AgeTimeUnit" type="xs:string"/>
+      </xs:complexType>
+      <xs:complexType name="BaseByGuestAmt">
+        <xs:complexContent mixed="false">
+          <xs:extension base="tns:AgeQualifyingGroup">
+            <xs:sequence>
+              <xs:element minOccurs="0" maxOccurs="1" name="Taxes" type="tns:TaxesType"/>
+            </xs:sequence>
+            <xs:attribute name="AmountBeforeTax" type="xs:decimal"/>
+            <xs:attribute name="AmountAfterTax" type="xs:decimal"/>
+            <xs:attribute name="NumberOfGuests" type="xs:int"/>
+            <xs:attribute name="CurrencyCode" type="xs:string"/>
+          </xs:extension>
+        </xs:complexContent>
+      </xs:complexType>
+      <xs:complexType name="ArrayOfDescription">
+        <xs:sequence>
+          <xs:element minOccurs="0" maxOccurs="unbounded" name="Description" nillable="true" type="tns:Description"/>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="ArrayOfFeature">
+        <xs:sequence>
+          <xs:element minOccurs="0" maxOccurs="unbounded" name="Feature" nillable="true" type="tns:Feature"/>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="Feature">
+        <xs:sequence>
+          <xs:element minOccurs="0" maxOccurs="1" name="Description" type="tns:Description"/>
+          <xs:element minOccurs="0" maxOccurs="1" name="Charge" type="tns:CurrencyAmount"/>
+          <xs:element minOccurs="0" maxOccurs="1" name="MultimediaDescriptions" type="tns:ArrayOfMultimediaDescription"/>
+          <xs:element minOccurs="0" maxOccurs="1" name="DescriptiveText" type="xs:string"/>
+        </xs:sequence>
+        <xs:attribute name="AccessibleCode" type="xs:string"/>
+        <xs:attribute name="SecurityCode" type="xs:string"/>
+        <xs:attribute name="CodeDetail" type="xs:string"/>
+        <xs:attribute name="UnitOfMeasureQuantity" type="xs:string"/>
+        <xs:attribute name="UnitOfMeasureCode" type="xs:int"/>
+      </xs:complexType>
+      <xs:complexType name="CurrencyAmount">
+        <xs:attribute name="Amount" type="xs:decimal"/>
+        <xs:attribute name="CurrencyCode" type="xs:string"/>
+        <xs:attribute name="DecimalPlaces" type="xs:int"/>
+      </xs:complexType>
+      <xs:complexType name="ArrayOfProfile">
+        <xs:sequence>
+          <xs:element minOccurs="0" maxOccurs="unbounded" name="Profile" nillable="true" type="tns:Profile"/>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="Profile">
+        <xs:sequence>
+          <xs:element minOccurs="0" maxOccurs="1" name="Comments" type="tns:ArrayOfComment1"/>
+          <xs:element minOccurs="0" maxOccurs="1" name="Accesses" type="tns:ArrayOfAccess"/>
+          <xs:element minOccurs="0" maxOccurs="1" name="Customer" type="tns:Customer"/>
+          <xs:element minOccurs="0" maxOccurs="1" name="Affiliations" type="tns:Affiliations"/>
+          <xs:element minOccurs="0" maxOccurs="1" name="CompanyInfo" type="tns:CompanyInfo"/>
+          <xs:element minOccurs="0" maxOccurs="1" name="PrefCollections" type="tns:ArrayOfPrefCollection"/>
+          <xs:element minOccurs="0" maxOccurs="1" name="UserID" type="tns:UserID"/>
+        </xs:sequence>
+        <xs:attribute name="ProfileType" type="xs:string"/>
+        <xs:attribute name="CreateDateTime" type="xs:string"/>
+        <xs:attribute name="LastModifyDateTime" type="xs:string"/>
+        <xs:attribute name="CreatorID" type="xs:string"/>
+        <xs:attribute name="ShareAllMarketInd" type="tns:YesNo"/>
+      </xs:complexType>
+      <xs:complexType name="ArrayOfComment1">
+        <xs:sequence>
+          <xs:element minOccurs="0" maxOccurs="unbounded" name="Comment" type="tns:Comment"/>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="Comment">
+        <xs:sequence>
+          <xs:element minOccurs="0" maxOccurs="1" name="Text" type="xs:string"/>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="ArrayOfAccess">
+        <xs:sequence>
+          <xs:element minOccurs="0" maxOccurs="unbounded" name="Access" nillable="true" type="tns:Access"/>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="Access">
+        <xs:attribute name="ActionType" type="xs:string"/>
+      </xs:complexType>
+      <xs:complexType name="Customer">
+        <xs:sequence>
+          <xs:element minOccurs="0" maxOccurs="unbounded" name="PersonName" type="tns:PersonName"/>
+          <xs:element minOccurs="0" maxOccurs="unbounded" name="Telephone" type="tns:TelephoneInfo"/>
+          <xs:element minOccurs="0" maxOccurs="unbounded" name="Email" type="tns:Email"/>
+          <xs:element minOccurs="0" maxOccurs="unbounded" name="Address" type="tns:AddressInfo"/>
+          <xs:element minOccurs="0" maxOccurs="1" name="PaymentForm" type="tns:ArrayOfPaymentCard"/>
+          <xs:element minOccurs="0" maxOccurs="unbounded" name="CustLoyalty" type="tns:CustLoyalty"/>
+          <xs:element minOccurs="0" maxOccurs="1" name="TPA_Extensions" type="tns:TPA_Extensions"/>
+          <xs:element minOccurs="0" maxOccurs="1" name="RelatedTraveler" type="tns:ArrayOfRelatedTraveler"/>
+          <xs:element minOccurs="0" maxOccurs="1" name="ContactPerson" type="tns:ContactPerson"/>
+          <xs:element minOccurs="0" maxOccurs="unbounded" name="AlternateLanguage" type="tns:CodeInfo"/>
+        </xs:sequence>
+        <xs:attribute name="BirthDate" type="xs:date"/>
+        <xs:attribute name="Gender">
+          <xs:simpleType>
+            <xs:list itemType="xs:string"/>
+          </xs:simpleType>
+        </xs:attribute>
+        <xs:attribute name="CustomerValue" type="xs:string"/>
+        <xs:attribute name="LockoutType" type="xs:string"/>
+        <xs:attribute name="Language" type="xs:string"/>
+      </xs:complexType>
+      <xs:complexType name="PersonName">
+        <xs:sequence>
+          <xs:element minOccurs="0" maxOccurs="unbounded" name="NamePrefix" type="xs:string"/>
+          <xs:element minOccurs="0" maxOccurs="unbounded" name="NameTitle" type="xs:string"/>
+          <xs:element minOccurs="0" maxOccurs="unbounded" name="GivenName" type="xs:string"/>
+          <xs:element minOccurs="0" maxOccurs="unbounded" name="MiddleName" type="xs:string"/>
+          <xs:element minOccurs="0" maxOccurs="1" name="Surname" type="xs:string"/>
+          <xs:element minOccurs="0" maxOccurs="unbounded" name="NameSuffix" type="xs:string"/>
+        </xs:sequence>
+        <xs:attribute name="NameType" type="xs:string"/>
+      </xs:complexType>
+      <xs:complexType name="Name">
+        <xs:complexContent mixed="false">
+          <xs:extension base="tns:PersonName"/>
+        </xs:complexContent>
+      </xs:complexType>
+      <xs:complexType name="TelephoneInfo">
+        <xs:attribute name="FormattedInd" type="xs:boolean"/>
+        <xs:attribute name="PhoneTechType" type="xs:string"/>
+        <xs:attribute name="PhoneNumber" type="xs:string"/>
+        <xs:attribute name="PhoneUseType" type="xs:string"/>
+        <xs:attribute name="DefaultInd" type="xs:boolean"/>
+        <xs:attribute name="PhoneLocationType" type="xs:string"/>
+      </xs:complexType>
+      <xs:complexType name="Email">
+        <xs:simpleContent>
+          <xs:extension base="xs:string">
+            <xs:attribute name="DefaultInd" type="xs:string"/>
+            <xs:attribute name="EmailType" type="xs:string"/>
+          </xs:extension>
+        </xs:simpleContent>
+      </xs:complexType>
+      <xs:complexType name="AddressInfo">
+        <xs:complexContent mixed="false">
+          <xs:extension base="tns:Address"/>
+        </xs:complexContent>
+      </xs:complexType>
+      <xs:complexType name="Address">
+        <xs:sequence>
+          <xs:element minOccurs="0" maxOccurs="unbounded" name="AddressLine" type="xs:string"/>
+          <xs:element minOccurs="0" maxOccurs="1" name="CityName" type="xs:string"/>
+          <xs:element minOccurs="0" maxOccurs="1" name="PostalCode" type="xs:string"/>
+          <xs:element minOccurs="0" maxOccurs="1" name="StateProv" type="tns:StateProv"/>
+          <xs:element minOccurs="0" maxOccurs="1" name="CountryName" type="tns:CountryName"/>
+        </xs:sequence>
+        <xs:attribute name="Type" type="xs:string"/>
+        <xs:attribute name="Remark" type="xs:string"/>
+        <xs:attribute name="CompanyName" type="xs:string"/>
+        <xs:attribute name="FormattedInd" type="xs:boolean" use="required"/>
+        <xs:attribute name="DefaultInd" type="xs:boolean" use="required"/>
+      </xs:complexType>
+      <xs:complexType name="StateProv">
+        <xs:simpleContent>
+          <xs:extension base="xs:string">
+            <xs:attribute name="StateCode" type="xs:string"/>
+          </xs:extension>
+        </xs:simpleContent>
+      </xs:complexType>
+      <xs:complexType name="CountryName">
+        <xs:simpleContent>
+          <xs:extension base="xs:string">
+            <xs:attribute name="Code" type="xs:string"/>
+          </xs:extension>
+        </xs:simpleContent>
+      </xs:complexType>
+      <xs:complexType name="ArrayOfPaymentCard">
+        <xs:sequence>
+          <xs:element minOccurs="0" maxOccurs="unbounded" name="PaymentCard" type="tns:PaymentCard"/>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="CustLoyalty">
+        <xs:sequence>
+          <xs:element minOccurs="0" maxOccurs="unbounded" name="SubAccountBalance" type="tns:SubAccountBalance"/>
+        </xs:sequence>
+        <xs:attribute name="MembershipID" type="xs:string"/>
+        <xs:attribute name="ProgramID" type="xs:string"/>
+        <xs:attribute name="VendorCode" type="xs:string"/>
+        <xs:attribute name="LoyalLevel" type="xs:string"/>
+        <xs:attribute name="TravelSector" type="xs:string"/>
+        <xs:attribute name="SignupDate" type="xs:string"/>
+        <xs:attribute name="EffectiveDate" type="xs:string"/>
+        <xs:attribute name="ExpireDate" type="xs:string"/>
+        <xs:attribute name="PinNumber" type="xs:string"/>
+      </xs:complexType>
+      <xs:complexType name="SubAccountBalance">
+        <xs:attribute name="Type" type="xs:string"/>
+        <xs:attribute name="Balance" type="xs:int" use="required"/>
+      </xs:complexType>
+      <xs:complexType name="ArrayOfRelatedTraveler">
+        <xs:sequence>
+          <xs:element minOccurs="0" maxOccurs="unbounded" name="RelatedTraveler" nillable="true" type="tns:RelatedTraveler"/>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="RelatedTraveler">
+        <xs:sequence>
+          <xs:element minOccurs="0" maxOccurs="1" name="UniqueID" type="tns:UniqueID"/>
+          <xs:element minOccurs="0" maxOccurs="1" name="PersonName" type="tns:PersonName"/>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="UniqueID">
+        <xs:sequence>
+          <xs:element minOccurs="0" maxOccurs="1" name="CompanyName" type="tns:CompanyName"/>
+        </xs:sequence>
+        <xs:attribute name="Type" type="xs:string"/>
+        <xs:attribute name="ID" type="xs:string"/>
+        <xs:attribute name="ID_Context" type="xs:string"/>
+        <xs:attribute name="Instance" type="xs:string"/>
+        <xs:attribute name="PinNumber" type="xs:string"/>
+      </xs:complexType>
+      <xs:complexType name="RequestorID">
+        <xs:complexContent mixed="false">
+          <xs:extension base="tns:UniqueID">
+            <xs:attribute name="MessagePassword" type="xs:string"/>
+          </xs:extension>
+        </xs:complexContent>
+      </xs:complexType>
+      <xs:complexType name="ContactPerson">
+        <xs:sequence>
+          <xs:element minOccurs="0" maxOccurs="1" name="PersonName" type="tns:PersonName"/>
+          <xs:element minOccurs="0" maxOccurs="unbounded" name="Email" type="xs:string"/>
+          <xs:element minOccurs="0" maxOccurs="unbounded" name="Telephone" type="tns:TelephoneInfo"/>
+          <xs:element minOccurs="0" maxOccurs="unbounded" name="Address" type="tns:AddressInfo"/>
+        </xs:sequence>
+        <xs:attribute name="ContactType" type="xs:string"/>
+      </xs:complexType>
+      <xs:complexType name="Affiliations">
+        <xs:sequence>
+          <xs:element minOccurs="0" maxOccurs="1" name="TravelArranger" type="tns:TravelArranger"/>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="TravelArranger">
+        <xs:sequence>
+          <xs:element minOccurs="0" maxOccurs="1" name="PersonName" type="tns:PersonName"/>
+          <xs:element minOccurs="0" maxOccurs="unbounded" name="Email" type="xs:string"/>
+          <xs:element minOccurs="0" maxOccurs="unbounded" name="Telephone" type="tns:TelephoneInfo"/>
+          <xs:element minOccurs="0" maxOccurs="unbounded" name="Address" type="tns:AddressInfo"/>
+        </xs:sequence>
+        <xs:attribute name="TravelSector" type="xs:string"/>
+        <xs:attribute name="CompanyShortName" type="xs:string"/>
+        <xs:attribute name="Code" type="xs:string"/>
+        <xs:attribute name="CodeContext" type="xs:string"/>
+      </xs:complexType>
+      <xs:complexType name="CompanyInfo">
+        <xs:sequence>
+          <xs:element minOccurs="0" maxOccurs="unbounded" name="CompanyName" type="tns:CompanyName"/>
+          <xs:element minOccurs="0" maxOccurs="unbounded" name="TelephoneInfo" type="tns:TelephoneInfo"/>
+          <xs:element minOccurs="0" maxOccurs="unbounded" name="Email" type="xs:string"/>
+          <xs:element minOccurs="0" maxOccurs="1" name="URL" type="xs:string"/>
+          <xs:element minOccurs="0" maxOccurs="unbounded" name="BusinessLocale" type="tns:Address"/>
+          <xs:element minOccurs="0" maxOccurs="unbounded" name="ContactPerson" type="tns:ContactPerson"/>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="ArrayOfPrefCollection">
+        <xs:sequence>
+          <xs:element minOccurs="0" maxOccurs="unbounded" name="PrefCollection" nillable="true" type="tns:PrefCollection"/>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="PrefCollection">
+        <xs:sequence>
+          <xs:element minOccurs="0" maxOccurs="unbounded" name="HotelPref" type="tns:HotelPref"/>
+          <xs:element minOccurs="0" maxOccurs="1" name="TPA_Extensions" type="tns:TPA_Extensions"/>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="HotelPref">
+        <xs:sequence>
+          <xs:element minOccurs="0" maxOccurs="unbounded" name="RoomAmenityPref" type="tns:RoomAmenityPref"/>
+          <xs:element minOccurs="0" maxOccurs="unbounded" name="RoomLocationPref" type="tns:RoomLocationPref"/>
+          <xs:element minOccurs="0" maxOccurs="unbounded" name="PropertyAmenityPref" type="tns:PropertyAmenityPref"/>
+          <xs:element minOccurs="0" maxOccurs="unbounded" name="MealPref" type="tns:MealPref"/>
+          <xs:element minOccurs="0" maxOccurs="1" name="TPA_Extensions" type="tns:TPA_Extensions"/>
+        </xs:sequence>
+        <xs:attribute name="SmokingAllowed" type="xs:boolean" use="required"/>
+      </xs:complexType>
+      <xs:complexType name="RoomAmenityPref">
+        <xs:attribute name="RoomAmenity" type="xs:string"/>
+        <xs:attribute name="QualityLevel" type="xs:string"/>
+      </xs:complexType>
+      <xs:complexType name="RoomLocationPref">
+        <xs:attribute name="RoomLocationType" type="xs:string"/>
+        <xs:attribute name="PreferLevel" type="xs:string"/>
+      </xs:complexType>
+      <xs:complexType name="PropertyAmenityPref">
+        <xs:attribute name="PropertyAmenityType" type="xs:string"/>
+      </xs:complexType>
+      <xs:complexType name="MealPref">
+        <xs:attribute name="MealType" type="xs:string"/>
+        <xs:attribute name="Beverage" type="xs:string"/>
+        <xs:attribute name="FavoriteFood" type="xs:string"/>
+      </xs:complexType>
+      <xs:complexType name="UserID">
+        <xs:sequence>
+          <xs:element minOccurs="0" maxOccurs="1" name="CompanyName" type="tns:CompanyName"/>
+        </xs:sequence>
+        <xs:attribute name="Type" type="xs:string"/>
+        <xs:attribute name="URL" type="xs:string"/>
+        <xs:attribute name="Instance" type="xs:string"/>
+        <xs:attribute name="PinNumber" type="xs:string"/>
+        <xs:attribute name="ID" type="xs:string"/>
+        <xs:attribute name="ID_Context" type="xs:string"/>
+      </xs:complexType>
+      <xs:simpleType name="YesNo">
+        <xs:restriction base="xs:string">
+          <xs:enumeration value="Yes"/>
+          <xs:enumeration value="No"/>
+        </xs:restriction>
+      </xs:simpleType>
+      <xs:complexType name="ArrayOfRoomStay">
+        <xs:sequence>
+          <xs:element minOccurs="0" maxOccurs="unbounded" name="RoomStay" nillable="true" type="tns:RoomStay"/>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="RoomStay">
+        <xs:sequence>
+          <xs:element minOccurs="0" maxOccurs="1" name="Guarantee" type="tns:Guarantee"/>
+          <xs:element minOccurs="0" maxOccurs="1" name="CancelPenalties" type="tns:ArrayOfCancelPenalty1"/>
+          <xs:element minOccurs="0" maxOccurs="1" name="Tpa_Extensions" type="tns:TPA_Extensions"/>
+          <xs:element minOccurs="0" maxOccurs="1" name="Total" type="tns:Total"/>
+          <xs:element minOccurs="0" maxOccurs="1" name="RoomTypes" type="tns:ArrayOfRoomType"/>
+          <xs:element minOccurs="0" maxOccurs="1" name="RatePlans" type="tns:ArrayOfRatePlan"/>
+          <xs:element minOccurs="0" maxOccurs="1" name="RoomRates" type="tns:ArrayOfRoomRate"/>
+          <xs:element minOccurs="0" maxOccurs="1" name="GuestCounts" type="tns:GuestCounts"/>
+          <xs:element minOccurs="0" maxOccurs="1" name="TimeSpan" type="tns:DateTimeSpanType"/>
+          <xs:element minOccurs="0" maxOccurs="1" name="SpecialRequests" type="tns:ArrayOfSpecialRequest"/>
+          <xs:element minOccurs="0" maxOccurs="1" name="BasicPropertyInfo" type="tns:HotelReferenceGroup"/>
+          <xs:element minOccurs="0" maxOccurs="1" name="Comments" type="tns:ArrayOfComment"/>
+          <xs:element minOccurs="0" maxOccurs="1" name="DepositPayments" type="tns:ArrayOfRequiredPayment"/>
+          <xs:element minOccurs="0" maxOccurs="1" name="ResGuestRPHs" type="tns:ArrayOfResGuestRPH"/>
+          <xs:element minOccurs="0" maxOccurs="1" name="ServiceRPHs" type="tns:ArrayOfServiceRPH"/>
+          <xs:element minOccurs="0" maxOccurs="1" name="Memberships" type="tns:ArrayOfMembership"/>
+        </xs:sequence>
+        <xs:attribute name="MarketCode" type="xs:string"/>
+        <xs:attribute name="SourceOfBusiness" type="xs:string"/>
+        <xs:attribute name="PromotionCode" type="xs:string"/>
+        <xs:attribute name="IndexNumber" type="xs:string"/>
+        <xs:attribute name="AvailableIndicator" type="xs:boolean"/>
+      </xs:complexType>
+      <xs:complexType name="ArrayOfRoomType">
+        <xs:sequence>
+          <xs:element minOccurs="0" maxOccurs="unbounded" name="RoomType" nillable="true" type="tns:RoomType"/>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="RoomType">
+        <xs:sequence>
+          <xs:element minOccurs="0" maxOccurs="1" name="RoomDescription" type="tns:RoomDescription"/>
+          <xs:element minOccurs="0" maxOccurs="1" name="Occupancy" type="tns:Occupancy"/>
+          <xs:element minOccurs="0" maxOccurs="1" name="Amenities" type="tns:ArrayOfAmenity"/>
+          <xs:element minOccurs="0" maxOccurs="1" name="AdditionalDetails" type="tns:ArrayOfAdditionalDetail"/>
+          <xs:element minOccurs="0" maxOccurs="1" name="TPA_Extensions" type="tns:TPA_Extensions"/>
+        </xs:sequence>
+        <xs:attribute name="IsRoom" type="xs:boolean"/>
+        <xs:attribute name="RoomTypeCode" type="xs:string"/>
+        <xs:attribute name="InvBlockCode" type="xs:string"/>
+        <xs:attribute name="NumberOfUnits" type="xs:int"/>
+        <xs:attribute name="BedTypeCode" type="xs:int"/>
+        <xs:attribute name="Quantity" type="xs:int"/>
+      </xs:complexType>
+      <xs:complexType name="Occupancy">
+        <xs:attribute name="MaxOccupancy" type="xs:int" use="required"/>
+      </xs:complexType>
+      <xs:complexType name="ArrayOfAmenity">
+        <xs:sequence>
+          <xs:element minOccurs="0" maxOccurs="unbounded" name="Amenity" nillable="true" type="tns:Amenity"/>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="Amenity">
+        <xs:sequence>
+          <xs:element minOccurs="0" maxOccurs="1" name="MultimediaDescriptions" type="tns:ArrayOfMultimediaDescription"/>
+        </xs:sequence>
+        <xs:attribute name="RoomAmenityCode" type="xs:string"/>
+        <xs:attribute name="RoomAmenity" type="xs:string"/>
+        <xs:attribute name="ExistsCode" type="xs:string"/>
+        <xs:attribute name="CodeDetail" type="xs:string"/>
+      </xs:complexType>
+      <xs:complexType name="ArrayOfAdditionalDetail">
+        <xs:sequence>
+          <xs:element minOccurs="0" maxOccurs="unbounded" name="AdditionalDetail" nillable="true" type="tns:AdditionalDetail"/>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="AdditionalDetail">
+        <xs:sequence>
+          <xs:element minOccurs="0" maxOccurs="1" name="DetailDescription" type="tns:AdditionalDetailDescription"/>
+        </xs:sequence>
+        <xs:attribute name="Type" type="xs:string"/>
+        <xs:attribute name="Code" type="xs:string"/>
+        <xs:attribute name="Amount" type="xs:int"/>
+      </xs:complexType>
+      <xs:complexType name="AdditionalDetailDescription">
+        <xs:sequence>
+          <xs:element minOccurs="0" maxOccurs="1" name="Image" type="xs:string"/>
+          <xs:element minOccurs="0" maxOccurs="1" name="Text" type="xs:string"/>
+        </xs:sequence>
+        <xs:attribute name="Name" type="xs:string"/>
+      </xs:complexType>
+      <xs:complexType name="ArrayOfRatePlan">
+        <xs:sequence>
+          <xs:element minOccurs="0" maxOccurs="unbounded" name="RatePlan" nillable="true" type="tns:RatePlan"/>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="RatePlan">
+        <xs:sequence>
+          <xs:element minOccurs="0" maxOccurs="1" name="RatePlanDescription" type="tns:RatePlanDescription"/>
+          <xs:element minOccurs="0" maxOccurs="1" name="Guarantee" type="tns:Guarantee"/>
+          <xs:element minOccurs="0" maxOccurs="1" name="Rates" type="tns:ArrayOfRatePlanRate"/>
+          <xs:element minOccurs="0" maxOccurs="1" name="CancelPenalties" type="tns:ArrayOfCancelPenalty2"/>
+          <xs:element minOccurs="0" maxOccurs="1" name="Commission" type="tns:CommissionType"/>
+          <xs:element minOccurs="0" maxOccurs="1" name="AdditionalDetails" type="tns:ArrayOfAdditionalDetail"/>
+          <xs:element minOccurs="0" maxOccurs="1" name="RatePlanInclusions" type="tns:RatePlanInclusions"/>
+          <xs:element minOccurs="0" maxOccurs="1" name="MealsIncluded" type="tns:MealsIncluded"/>
+        </xs:sequence>
+        <xs:attribute name="RatePlanCategory" type="xs:string"/>
+        <xs:attribute name="PrepaidIndicator" type="xs:boolean"/>
+        <xs:attribute name="TaxInclusive" type="xs:string"/>
+        <xs:attribute name="RatePlanID" type="xs:string"/>
+        <xs:attribute name="ExpireDate" type="xs:string"/>
+        <xs:attribute name="EffectiveDate" type="xs:string"/>
+        <xs:attribute name="AvailabilityStatus" type="xs:string"/>
+        <xs:attribute name="RatePlanType" type="xs:string"/>
+        <xs:attribute name="BookingCode" type="xs:string"/>
+        <xs:attribute name="AutoEnrollmentIndicator" type="xs:boolean"/>
+        <xs:attribute name="AccrualIndicator" type="xs:boolean"/>
+        <xs:attribute name="RatePlanName" type="xs:string"/>
+        <xs:attribute name="RatePlanCode" type="xs:string"/>
+        <xs:attribute name="CurrencyCode" type="xs:string"/>
+        <xs:attribute name="PriceViewableInd" type="xs:boolean"/>
+      </xs:complexType>
+      <xs:complexType name="ArrayOfRatePlanRate">
+        <xs:sequence>
+          <xs:element minOccurs="0" maxOccurs="unbounded" name="Rate" type="tns:RatePlanRate"/>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="RatePlanRate">
+        <xs:complexContent mixed="false">
+          <xs:extension base="tns:RateUpload">
+            <xs:sequence>
+              <xs:element minOccurs="0" maxOccurs="1" name="Inventories" type="tns:ArrayOfInventory"/>
+              <xs:element minOccurs="0" maxOccurs="1" name="ArrivalDates" type="tns:ArrayOfArrivalDate"/>
+            </xs:sequence>
+            <xs:attribute name="InvTypeCode" type="xs:string"/>
+          </xs:extension>
+        </xs:complexContent>
+      </xs:complexType>
+      <xs:complexType name="RateUpload">
+        <xs:complexContent mixed="false">
+          <xs:extension base="tns:DOW_PatternGroup">
+            <xs:sequence>
+              <xs:element minOccurs="0" maxOccurs="1" name="BaseByGuestAmts" type="tns:ArrayOfBaseByGuestAmt"/>
+              <xs:element minOccurs="0" maxOccurs="1" name="AdditionalGuestAmounts" type="tns:ArrayOfAdditionalGuestAmount"/>
+              <xs:element minOccurs="0" maxOccurs="1" name="Fees" type="tns:ArrayOfFee"/>
+              <xs:element minOccurs="0" maxOccurs="1" name="TPA_Extensions" type="tns:TPA_Extensions"/>
+            </xs:sequence>
+            <xs:attribute name="Start" type="xs:string"/>
+            <xs:attribute name="NumberOfUnits" type="xs:string"/>
+            <xs:attribute name="End" type="xs:string"/>
+            <xs:attribute name="RateTimeUnit" type="xs:string"/>
+            <xs:attribute name="UnitMultiplier" type="xs:string"/>
+            <xs:attribute name="MinLOS" type="xs:string"/>
+            <xs:attribute name="MaxLOS" type="xs:string"/>
+            <xs:attribute name="CurrencyCode" type="xs:string"/>
+          </xs:extension>
+        </xs:complexContent>
+      </xs:complexType>
+      <xs:complexType name="DOW_PatternGroup">
+        <xs:attribute name="Mon" type="xs:boolean"/>
+        <xs:attribute name="Tue" type="xs:boolean"/>
+        <xs:attribute name="Weds" type="xs:boolean"/>
+        <xs:attribute name="Thur" type="xs:boolean"/>
+        <xs:attribute name="Fri" type="xs:boolean"/>
+        <xs:attribute name="Sat" type="xs:boolean"/>
+        <xs:attribute name="Sun" type="xs:boolean"/>
+      </xs:complexType>
+      <xs:complexType name="AvailableDaysOfWeek">
+        <xs:complexContent mixed="false">
+          <xs:extension base="tns:DOW_PatternGroup"/>
+        </xs:complexContent>
+      </xs:complexType>
+      <xs:complexType name="ArrivalDaysOfWeek">
+        <xs:complexContent mixed="false">
+          <xs:extension base="tns:DOW_PatternGroup"/>
+        </xs:complexContent>
+      </xs:complexType>
+      <xs:complexType name="DepartureDaysOfWeek">
+        <xs:complexContent mixed="false">
+          <xs:extension base="tns:DOW_PatternGroup"/>
+        </xs:complexContent>
+      </xs:complexType>
+      <xs:complexType name="ArrayOfBaseByGuestAmt">
+        <xs:sequence>
+          <xs:element minOccurs="0" maxOccurs="unbounded" name="BaseByGuestAmt" nillable="true" type="tns:BaseByGuestAmt"/>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="ArrayOfFee">
+        <xs:sequence>
+          <xs:element minOccurs="0" maxOccurs="unbounded" name="Fee" nillable="true" type="tns:Fee"/>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="Fee">
+        <xs:sequence>
+          <xs:element minOccurs="0" maxOccurs="1" name="Description" type="tns:ParagraphType"/>
+        </xs:sequence>
+        <xs:attribute name="TaxInclusive" type="xs:boolean"/>
+        <xs:attribute name="Amount" type="xs:decimal"/>
+        <xs:attribute name="Code" type="xs:string"/>
+        <xs:attribute name="CurrencyCode" type="xs:string"/>
+      </xs:complexType>
+      <xs:complexType name="ArrayOfInventory">
+        <xs:sequence>
+          <xs:element minOccurs="0" maxOccurs="unbounded" name="Inventory" nillable="true" type="tns:Inventory"/>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="Inventory">
+        <xs:attribute name="InvTypeCode" type="xs:string"/>
+      </xs:complexType>
+      <xs:complexType name="ArrayOfArrivalDate">
+        <xs:sequence>
+          <xs:element minOccurs="0" maxOccurs="unbounded" name="ArrivalDate" nillable="true" type="tns:ArrivalDate"/>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="ArrivalDate">
+        <xs:sequence>
+          <xs:element minOccurs="0" maxOccurs="1" name="LengthsOfStay" type="tns:ArrayOfLengthOfStay"/>
+        </xs:sequence>
+        <xs:attribute name="Start" type="xs:string"/>
+        <xs:attribute name="End" type="xs:string"/>
+      </xs:complexType>
+      <xs:complexType name="ArrayOfLengthOfStay">
+        <xs:sequence>
+          <xs:element minOccurs="0" maxOccurs="unbounded" name="LengthOfStay" nillable="true" type="tns:LengthOfStay"/>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="LengthOfStay">
+        <xs:sequence>
+          <xs:element minOccurs="0" maxOccurs="1" name="LOS_Pattern" type="tns:LOS_Pattern"/>
+          <xs:element minOccurs="0" maxOccurs="1" name="NightCounts" type="tns:ArrayOfNightCount"/>
+        </xs:sequence>
+        <xs:attribute name="Time" type="xs:string"/>
+        <xs:attribute name="TimeUnit" type="xs:string"/>
+        <xs:attribute name="MinMaxMessageType" type="xs:string"/>
+        <xs:attribute name="OpenStatusIndicator" type="xs:boolean" use="required"/>
+      </xs:complexType>
+      <xs:complexType name="LOS_Pattern">
+        <xs:attribute name="FullPatternLOS" type="xs:string"/>
+      </xs:complexType>
+      <xs:complexType name="ArrayOfNightCount">
+        <xs:sequence>
+          <xs:element minOccurs="0" maxOccurs="unbounded" name="NightCount" nillable="true" type="tns:NightCount"/>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="NightCount">
+        <xs:sequence>
+          <xs:element minOccurs="0" maxOccurs="1" name="BaseByGuestAmts" type="tns:ArrayOfBaseByGuestAmt"/>
+          <xs:element minOccurs="0" maxOccurs="1" name="AdditionalGuestAmounts" type="tns:ArrayOfAdditionalGuestAmount"/>
+        </xs:sequence>
+        <xs:attribute name="Count" type="xs:int" use="required"/>
+      </xs:complexType>
+      <xs:complexType name="ArrayOfCancelPenalty2">
+        <xs:sequence>
+          <xs:element minOccurs="0" maxOccurs="unbounded" name="CancelPenalty" nillable="true" type="tns:CancelPenalty"/>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="CommissionType">
+        <xs:sequence>
+          <xs:element minOccurs="1" maxOccurs="1" name="Percent" type="xs:int"/>
+          <xs:element minOccurs="0" maxOccurs="1" name="Comment" type="tns:CommissionComment"/>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="CommissionComment">
+        <xs:sequence>
+          <xs:element minOccurs="0" maxOccurs="1" name="Text" type="xs:string"/>
+        </xs:sequence>
+        <xs:attribute name="Name" type="xs:string"/>
+      </xs:complexType>
+      <xs:complexType name="RatePlanInclusions">
+        <xs:attribute name="TaxInclusive" type="xs:boolean" use="required"/>
+      </xs:complexType>
+      <xs:complexType name="MealsIncluded">
+        <xs:attribute name="Breakfast" type="xs:boolean" use="required"/>
+        <xs:attribute name="NumberOfBreakfast" type="xs:string"/>
+        <xs:attribute name="Lunch" type="xs:boolean" use="optional"/>
+        <xs:attribute name="Dinner" type="xs:boolean" use="optional"/>
+        <xs:attribute name="MealPlanCodes" type="xs:string" use="optional"/>
+      </xs:complexType>
+      <xs:complexType name="ArrayOfRoomRate">
+        <xs:sequence>
+          <xs:element minOccurs="0" maxOccurs="unbounded" name="RoomRate" nillable="true" type="tns:RoomRate"/>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="RoomRate">
+        <xs:sequence>
+          <xs:element minOccurs="0" maxOccurs="1" name="Rates" type="tns:ArrayOfRateType"/>
+          <xs:element minOccurs="0" maxOccurs="1" name="Total" type="tns:Total"/>
+          <xs:element minOccurs="0" maxOccurs="1" name="Availability" type="tns:Availability"/>
+          <xs:element minOccurs="0" maxOccurs="unbounded" name="RoomRateDescription" type="tns:RoomRateDescription"/>
+          <xs:element minOccurs="0" maxOccurs="1" name="FailureList" type="tns:ArrayOfFailure"/>
+        </xs:sequence>
+        <xs:attribute name="EffectiveDate" type="xs:string"/>
+        <xs:attribute name="ExpireDate" type="xs:string"/>
+        <xs:attribute name="RoomTypeCode" type="xs:string"/>
+        <xs:attribute name="RatePlanCode" type="xs:string"/>
+        <xs:attribute name="NumberOfUnits" type="xs:int"/>
+        <xs:attribute name="InvBlockCode" type="xs:string"/>
+      </xs:complexType>
+      <xs:complexType name="ArrayOfRateType">
+        <xs:sequence>
+          <xs:element minOccurs="0" maxOccurs="unbounded" name="Rate" nillable="true" type="tns:RateType"/>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="ArrayOfFailure">
+        <xs:sequence>
+          <xs:element minOccurs="0" maxOccurs="unbounded" name="Failure" nillable="true" type="tns:Failure"/>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="Failure">
+        <xs:attribute name="MostRestrictiveIndicator" type="xs:boolean" use="required"/>
+        <xs:attribute name="FailureDate" type="xs:string"/>
+        <xs:attribute name="FailureLevel" type="xs:string"/>
+        <xs:attribute name="FailureReason" type="xs:string"/>
+        <xs:attribute name="FailureQualifier" type="xs:int"/>
+      </xs:complexType>
+      <xs:complexType name="RateType">
+        <xs:sequence>
+          <xs:element minOccurs="0" maxOccurs="1" name="CancelPolicies" type="tns:ArrayOfCancelPenalty1"/>
+          <xs:element minOccurs="0" maxOccurs="1" name="PaymentPolicies" type="tns:PaymentPolicies"/>
+          <xs:element minOccurs="0" maxOccurs="1" name="Base" type="tns:Base"/>
+          <xs:element minOccurs="0" maxOccurs="1" name="Discount" type="tns:Discount"/>
+          <xs:element minOccurs="0" maxOccurs="1" name="AdditionalGuestAmounts" type="tns:ArrayOfAdditionalGuestAmount"/>
+          <xs:element minOccurs="0" maxOccurs="1" name="Fees" type="tns:ArrayOfFee"/>
+          <xs:element minOccurs="0" maxOccurs="1" name="Total" type="tns:Total"/>
+          <xs:element minOccurs="0" maxOccurs="1" name="Taxes" type="tns:ArrayOfTaxType"/>
+          <xs:element minOccurs="0" maxOccurs="1" name="AdditionalCharges" type="tns:ArrayOfAdditionalCharges"/>
+          <xs:element minOccurs="0" maxOccurs="1" name="Tpa_Extensions" type="tns:TPA_Extensions"/>
+        </xs:sequence>
+        <xs:attribute name="RateTypeCode" type="xs:string"/>
+        <xs:attribute name="RateTimeUnit" type="xs:string"/>
+        <xs:attribute name="UnitMultiplier" type="xs:int"/>
+        <xs:attribute name="EffectiveDate" type="xs:string"/>
+        <xs:attribute name="ExpireDate" type="xs:string"/>
+      </xs:complexType>
+      <xs:complexType name="PaymentPolicies">
+        <xs:sequence>
+          <xs:element minOccurs="0" maxOccurs="1" name="GuaranteePayment" type="tns:RateGuaranteePayment"/>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="RateGuaranteePayment">
+        <xs:sequence>
+          <xs:element minOccurs="0" maxOccurs="1" name="Description" type="tns:ParagraphType"/>
+          <xs:element minOccurs="0" maxOccurs="1" name="AmountPercent" type="tns:AmountPercent"/>
+          <xs:element minOccurs="0" maxOccurs="1" name="Deadline" type="tns:Deadline"/>
+          <xs:element minOccurs="0" maxOccurs="1" name="AcceptedPayments" type="tns:ArrayOfAcceptedPayment"/>
+        </xs:sequence>
+        <xs:attribute name="GuaranteeCode" type="xs:string"/>
+        <xs:attribute name="PolicyCode" type="xs:string"/>
+      </xs:complexType>
+      <xs:complexType name="ArrayOfAcceptedPayment">
+        <xs:sequence>
+          <xs:element minOccurs="0" maxOccurs="unbounded" name="AcceptedPayment" nillable="true" type="tns:AcceptedPayment"/>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="AcceptedPayment">
+        <xs:sequence>
+          <xs:element minOccurs="0" maxOccurs="1" name="PaymentCard" type="tns:PaymentCard"/>
+        </xs:sequence>
+        <xs:attribute name="GuaranteeTypeCode" type="xs:string"/>
+      </xs:complexType>
+      <xs:complexType name="ArrayOfTaxType">
+        <xs:sequence>
+          <xs:element minOccurs="0" maxOccurs="unbounded" name="Tax" nillable="true" type="tns:TaxType"/>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="ArrayOfAdditionalCharges">
+        <xs:sequence>
+          <xs:element minOccurs="0" maxOccurs="unbounded" name="AdditionalCharge" nillable="true" type="tns:AdditionalCharge"/>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="AdditionalCharge">
+        <xs:attribute name="RoomAmenityCode" type="xs:string"/>
+        <xs:attribute name="Quantity" type="xs:int" use="required"/>
+      </xs:complexType>
+      <xs:complexType name="Availability">
+        <xs:attribute name="Status" type="xs:string"/>
+        <xs:attribute name="AvailabilityStatus" type="xs:string"/>
+        <xs:attribute name="Quantity" type="xs:string"/>
+        <xs:attribute name="Start" type="xs:string"/>
+        <xs:attribute name="End" type="xs:string"/>
+        <xs:attribute name="Duration" type="xs:string"/>
+      </xs:complexType>
+      <xs:complexType name="RoomRateDescription">
+        <xs:simpleContent>
+          <xs:extension base="xs:string">
+            <xs:attribute name="Name" type="xs:string"/>
+          </xs:extension>
+        </xs:simpleContent>
+      </xs:complexType>
+      <xs:complexType name="ArrayOfSpecialRequest">
+        <xs:sequence>
+          <xs:element minOccurs="0" maxOccurs="unbounded" name="SpecialRequest" nillable="true" type="tns:SpecialRequest"/>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="SpecialRequest">
+        <xs:sequence>
+          <xs:element minOccurs="0" maxOccurs="1" name="Text" type="tns:Text"/>
+          <xs:element minOccurs="0" maxOccurs="unbounded" name="ListItem" type="tns:ListItem"/>
+        </xs:sequence>
+        <xs:attribute name="Name" type="xs:string"/>
+        <xs:attribute name="RequestCode" type="xs:string"/>
+        <xs:attribute name="Description" type="xs:string"/>
+      </xs:complexType>
+      <xs:complexType name="ListItem">
+        <xs:simpleContent>
+          <xs:extension base="xs:string">
+            <xs:attribute name="Listitem" type="xs:int" use="required"/>
+          </xs:extension>
+        </xs:simpleContent>
+      </xs:complexType>
+      <xs:complexType name="HotelReferenceGroup">
+        <xs:sequence>
+          <xs:element minOccurs="0" maxOccurs="1" name="VendorMessages" type="tns:ArrayOfVendorMessage"/>
+          <xs:element minOccurs="0" maxOccurs="1" name="RelativePosition" type="tns:RelativePosition"/>
+          <xs:element minOccurs="0" maxOccurs="1" name="Position" type="tns:Position"/>
+          <xs:element minOccurs="0" maxOccurs="1" name="Address" type="tns:Address"/>
+          <xs:element minOccurs="0" maxOccurs="1" name="ContactNumbers" type="tns:ArrayOfTelephoneInfo"/>
+        </xs:sequence>
+        <xs:attribute name="HotelCode" type="xs:string"/>
+        <xs:attribute name="HotelName" type="xs:string"/>
+        <xs:attribute name="AreaId" type="xs:string"/>
+        <xs:attribute name="HotelCodeContext" type="xs:string"/>
+        <xs:attribute name="ChainCode" type="xs:string"/>
+        <xs:attribute name="ChainName" type="xs:string"/>
+        <xs:attribute name="BrandCode" type="xs:string"/>
+        <xs:attribute name="BrandName" type="xs:string"/>
+        <xs:attribute name="HotelCityCode" type="xs:string"/>
+      </xs:complexType>
+      <xs:complexType name="ArrayOfVendorMessage">
+        <xs:sequence>
+          <xs:element minOccurs="0" maxOccurs="unbounded" name="VendorMessage" type="tns:VendorMessage"/>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="VendorMessage">
+        <xs:sequence>
+          <xs:element minOccurs="0" maxOccurs="1" name="SubSection" type="tns:ArrayOfParagraphType"/>
+        </xs:sequence>
+        <xs:attribute name="InfoType" type="xs:string"/>
+      </xs:complexType>
+      <xs:complexType name="ArrayOfParagraphType">
+        <xs:sequence>
+          <xs:element minOccurs="0" maxOccurs="unbounded" name="Paragraph" type="tns:ParagraphType"/>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="RelativePosition">
+        <xs:sequence>
+          <xs:element minOccurs="0" maxOccurs="1" name="Transportations" type="tns:ArrayOfTransportation"/>
+        </xs:sequence>
+        <xs:attribute name="Direction" type="xs:string"/>
+        <xs:attribute name="Distance" type="xs:string"/>
+        <xs:attribute name="UnitOfMeasureCode" type="xs:string"/>
+      </xs:complexType>
+      <xs:complexType name="ArrayOfTransportation">
+        <xs:sequence>
+          <xs:element minOccurs="0" maxOccurs="unbounded" name="Transportation" nillable="true" type="tns:Transportation"/>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="Transportation">
+        <xs:attribute name="TransportationCode" type="xs:string"/>
+        <xs:attribute name="CodeDetail" type="xs:string"/>
+        <xs:attribute name="ChargeUnit" type="xs:string"/>
+        <xs:attribute name="Amount" type="xs:string"/>
+      </xs:complexType>
+      <xs:complexType name="Position">
+        <xs:attribute name="Latitude" type="xs:string"/>
+        <xs:attribute name="Longitude" type="xs:string"/>
+        <xs:attribute name="Altitude" type="xs:string"/>
+      </xs:complexType>
+      <xs:complexType name="ArrayOfTelephoneInfo">
+        <xs:sequence>
+          <xs:element minOccurs="0" maxOccurs="unbounded" name="ContactNumber" nillable="true" type="tns:TelephoneInfo"/>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="HotelDescriptiveContent">
+        <xs:complexContent mixed="false">
+          <xs:extension base="tns:HotelReferenceGroup">
+            <xs:sequence>
+              <xs:element minOccurs="0" maxOccurs="1" name="DestinationSystemsCode" type="tns:ArrayOfDestinationSystemCode"/>
+              <xs:element minOccurs="0" maxOccurs="1" name="HotelInfo" type="tns:HotelInfo"/>
+              <xs:element minOccurs="0" maxOccurs="1" name="FacilityInfo" type="tns:FacilityInfo"/>
+              <xs:element minOccurs="0" maxOccurs="1" name="Policies" type="tns:Policies"/>
+              <xs:element minOccurs="0" maxOccurs="1" name="AreaInfo" type="tns:AreaInfo"/>
+              <xs:element minOccurs="0" maxOccurs="1" name="AffiliationInfo" type="tns:AffiliationInfo"/>
+              <xs:element minOccurs="0" maxOccurs="1" name="MultimediaObjects" type="tns:MultimediaObjects"/>
+              <xs:element minOccurs="0" maxOccurs="1" name="ContactInfos" type="tns:ArrayOfContactInfo"/>
+              <xs:element minOccurs="0" maxOccurs="1" name="TPA_Extensions" type="tns:TPA_Extensions_Type"/>
+            </xs:sequence>
+            <xs:attribute name="CurrencyCode" type="xs:string"/>
+            <xs:attribute name="DecimalPlaces" type="xs:string"/>
+            <xs:attribute name="LanguageCode" type="xs:string"/>
+            <xs:attribute name="TimeZone" type="xs:string"/>
+            <xs:attribute name="UnitOfMeasureCode" type="xs:string"/>
+            <xs:attribute name="Overwrite" type="xs:boolean" use="required"/>
+          </xs:extension>
+        </xs:complexContent>
+      </xs:complexType>
+      <xs:complexType name="ArrayOfDestinationSystemCode">
+        <xs:sequence>
+          <xs:element minOccurs="0" maxOccurs="unbounded" name="DestinationSystemCode" nillable="true" type="tns:DestinationSystemCode"/>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="DestinationSystemCode">
+        <xs:simpleContent>
+          <xs:extension base="xs:string"/>
+        </xs:simpleContent>
+      </xs:complexType>
+      <xs:complexType name="HotelInfo">
+        <xs:sequence>
+          <xs:element minOccurs="0" maxOccurs="1" name="HotelName" type="tns:HotelName"/>
+          <xs:element minOccurs="0" maxOccurs="1" name="ClosedSeasons" type="tns:ArrayOfClosedSeason"/>
+          <xs:element minOccurs="0" maxOccurs="1" name="Descriptions" type="tns:DescriptionsType"/>
+          <xs:element minOccurs="0" maxOccurs="1" name="CategoryCodes" type="tns:CategoryCodes"/>
+          <xs:element minOccurs="0" maxOccurs="1" name="Position" type="tns:Position"/>
+          <xs:element minOccurs="0" maxOccurs="1" name="Services" type="tns:ArrayOfService"/>
+          <xs:element minOccurs="0" maxOccurs="1" name="RelativePosition" type="tns:RelativePosition"/>
+        </xs:sequence>
+        <xs:attribute name="SendData" type="xs:string"/>
+        <xs:attribute name="WhenBuilt" type="xs:string"/>
+        <xs:attribute name="HotelStatus" type="xs:string"/>
+        <xs:attribute name="HotelStatusCode" type="xs:string"/>
+      </xs:complexType>
+      <xs:complexType name="HotelName">
+        <xs:simpleContent>
+          <xs:extension base="xs:string">
+            <xs:attribute name="HotelShortName" type="xs:string"/>
+          </xs:extension>
+        </xs:simpleContent>
+      </xs:complexType>
+      <xs:complexType name="ArrayOfClosedSeason">
+        <xs:sequence>
+          <xs:element minOccurs="0" maxOccurs="unbounded" name="ClosedSeason" nillable="true" type="tns:ClosedSeason"/>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="DescriptionsType">
+        <xs:sequence>
+          <xs:element minOccurs="0" maxOccurs="unbounded" name="Description" type="tns:Description"/>
+          <xs:element minOccurs="0" maxOccurs="unbounded" name="Renovation" type="tns:Renovation"/>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="CategoryCodes">
+        <xs:sequence>
+          <xs:element minOccurs="0" maxOccurs="unbounded" name="LocationCategory" type="tns:LocationCategory"/>
+          <xs:element minOccurs="0" maxOccurs="unbounded" name="SegmentCategory" type="tns:SegmentCategory"/>
+          <xs:element minOccurs="0" maxOccurs="unbounded" name="HotelCategory" type="tns:HotelCategory"/>
+          <xs:element minOccurs="0" maxOccurs="unbounded" name="GuestRoomInfo" type="tns:GuestRoomInfo"/>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="LocationCategory">
+        <xs:attribute name="Code" type="xs:string"/>
+        <xs:attribute name="CodeDetail" type="xs:string"/>
+      </xs:complexType>
+      <xs:complexType name="SegmentCategory">
+        <xs:attribute name="Code" type="xs:string"/>
+        <xs:attribute name="CodeDetail" type="xs:string"/>
+      </xs:complexType>
+      <xs:complexType name="HotelCategory">
+        <xs:attribute name="Code" type="xs:string"/>
+        <xs:attribute name="CodeDetail" type="xs:string"/>
+      </xs:complexType>
+      <xs:complexType name="GuestRoomInfo">
+        <xs:attribute name="Code" type="xs:string"/>
+        <xs:attribute name="Quantity" type="xs:string"/>
+      </xs:complexType>
+      <xs:complexType name="FacilityInfo">
+        <xs:sequence>
+          <xs:element minOccurs="0" maxOccurs="1" name="GuestRooms" type="tns:ArrayOfGuestRoom"/>
+          <xs:element minOccurs="0" maxOccurs="1" name="MeetingRooms" type="tns:MeetingRooms"/>
+          <xs:element minOccurs="0" maxOccurs="1" name="Restaurants" type="tns:ArrayOfRestaurant"/>
+        </xs:sequence>
+        <xs:attribute name="SendMeetingRooms" type="xs:string"/>
+        <xs:attribute name="SendGuestRooms" type="xs:string"/>
+        <xs:attribute name="SendRestaurants" type="xs:string"/>
+      </xs:complexType>
+      <xs:complexType name="ArrayOfGuestRoom">
+        <xs:sequence>
+          <xs:element minOccurs="0" maxOccurs="unbounded" name="GuestRoom" nillable="true" type="tns:GuestRoom"/>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="GuestRoom">
+        <xs:all>
+          <xs:element minOccurs="0" maxOccurs="1" name="TypeRoom" type="tns:TypeRoom"/>
+          <xs:element minOccurs="0" maxOccurs="1" name="MultimediaDescriptions" type="tns:ArrayOfMultimediaDescription"/>
+          <xs:element minOccurs="0" maxOccurs="1" name="Amenities" type="tns:ArrayOfAmenity"/>
+          <xs:element minOccurs="0" maxOccurs="1" name="PetsPolicies" type="tns:ArrayOfPetsPolicy"/>
+          <xs:element minOccurs="0" maxOccurs="1" name="Features" type="tns:ArrayOfFeature"/>
+        </xs:all>
+        <xs:attribute name="Code" type="xs:string"/>
+        <xs:attribute name="CodeContext" type="xs:string"/>
+        <xs:attribute name="Quantity" type="xs:string"/>
+        <xs:attribute name="RoomTypeName" type="xs:string"/>
+        <xs:attribute name="MaxOccupancy" type="xs:string"/>
+        <xs:attribute name="LoyaltyClassCode" type="xs:string"/>
+        <xs:attribute name="LoyaltyClassName" type="xs:string"/>
+      </xs:complexType>
+      <xs:complexType name="TypeRoom">
+        <xs:attribute name="StandardNumBeds" type="xs:string"/>
+        <xs:attribute name="StandardOccupancy" type="xs:string"/>
+        <xs:attribute name="MaxRollaways" type="xs:string"/>
+        <xs:attribute name="BedTypeCode" type="xs:string"/>
+        <xs:attribute name="RoomViewCode" type="xs:string"/>
+        <xs:attribute name="Quantity" type="xs:int" use="required"/>
+      </xs:complexType>
+      <xs:complexType name="ArrayOfPetsPolicy">
+        <xs:sequence>
+          <xs:element minOccurs="0" maxOccurs="unbounded" name="PetsPolicy" nillable="true" type="tns:PetsPolicy"/>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="PetsPolicy">
+        <xs:all>
+          <xs:element minOccurs="0" maxOccurs="1" name="Description" type="tns:Description"/>
+          <xs:element minOccurs="0" maxOccurs="1" name="MultimediaDescriptions" type="tns:ArrayOfMultimediaDescription"/>
+        </xs:all>
+        <xs:attribute name="PetsPolicyCode" type="xs:string"/>
+        <xs:attribute name="CodeDetail" type="xs:string"/>
+      </xs:complexType>
+      <xs:complexType name="MeetingRooms">
+        <xs:sequence>
+          <xs:element minOccurs="0" maxOccurs="unbounded" name="MeetingRoom" type="tns:MeetingRoom"/>
+        </xs:sequence>
+        <xs:attribute name="MeetingRoomCount" type="xs:int"/>
+        <xs:attribute name="LargestRoomSpace" type="xs:int"/>
+        <xs:attribute name="UnitOfMeasure" type="xs:string"/>
+        <xs:attribute name="UnitOfMeasureCode" type="xs:string"/>
+        <xs:attribute name="SmallestRoomSpace" type="xs:int"/>
+        <xs:attribute name="TotalRoomSpace" type="xs:int"/>
+        <xs:attribute name="LargestSeatingCapacity" type="xs:int"/>
+        <xs:attribute name="SecondLargestSeatingCapacity" type="xs:int"/>
+        <xs:attribute name="SmallestSeatingCapacity" type="xs:int"/>
+      </xs:complexType>
+      <xs:complexType name="MeetingRoom">
+        <xs:sequence>
+          <xs:element minOccurs="0" maxOccurs="1" name="Codes" type="tns:ArrayOfMeetingRoomCode"/>
+          <xs:element minOccurs="0" maxOccurs="1" name="AvailableCapacities" type="tns:ArrayOfMeetingRoomCapacity"/>
+          <xs:element minOccurs="0" maxOccurs="1" name="Dimension" type="tns:Dimension"/>
+          <xs:element minOccurs="0" maxOccurs="1" name="Description" type="tns:Description"/>
+        </xs:sequence>
+        <xs:attribute name="RoomName" type="xs:string"/>
+      </xs:complexType>
+      <xs:complexType name="ArrayOfMeetingRoomCode">
+        <xs:sequence>
+          <xs:element minOccurs="0" maxOccurs="unbounded" name="Code" nillable="true" type="tns:MeetingRoomCode"/>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="MeetingRoomCode">
+        <xs:sequence>
+          <xs:element minOccurs="0" maxOccurs="1" name="Charge" type="tns:Fee"/>
+        </xs:sequence>
+        <xs:attribute name="Code" type="xs:int" use="required"/>
+        <xs:attribute name="CodeDetail" type="xs:string"/>
+        <xs:attribute name="Quantity" type="xs:string"/>
+      </xs:complexType>
+      <xs:complexType name="ArrayOfMeetingRoomCapacity">
+        <xs:sequence>
+          <xs:element minOccurs="0" maxOccurs="unbounded" name="MeetingRoomCapacity" type="tns:MeetingRoomCapacity"/>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="MeetingRoomCapacity">
+        <xs:sequence>
+          <xs:element minOccurs="0" maxOccurs="1" name="Occupancy" type="tns:Occupancy"/>
+        </xs:sequence>
+        <xs:attribute name="MeetingRoomFormatCode" type="xs:string"/>
+      </xs:complexType>
+      <xs:complexType name="Dimension">
+        <xs:attribute name="Area" type="xs:string"/>
+        <xs:attribute name="Height" type="xs:string"/>
+        <xs:attribute name="Length" type="xs:string"/>
+        <xs:attribute name="Width" type="xs:string"/>
+        <xs:attribute name="Units" type="xs:string"/>
+      </xs:complexType>
+      <xs:complexType name="ArrayOfRestaurant">
+        <xs:sequence>
+          <xs:element minOccurs="0" maxOccurs="unbounded" name="Restaurant" nillable="true" type="tns:Restaurant"/>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="Restaurant">
+        <xs:sequence>
+          <xs:element minOccurs="0" maxOccurs="1" name="DescriptiveText" type="xs:string"/>
+          <xs:element minOccurs="0" maxOccurs="1" name="InfoCodes" type="tns:ArrayOfInfoCode"/>
+          <xs:element minOccurs="0" maxOccurs="1" name="SrvcInfoCodes" type="tns:ArrayOfSrvcInfoCode"/>
+        </xs:sequence>
+        <xs:attribute name="RestaurantName" type="xs:string"/>
+        <xs:attribute name="ProximityCode" type="xs:string"/>
+        <xs:attribute name="OfferBreakfast" type="xs:boolean" use="required"/>
+        <xs:attribute name="OfferBrunch" type="xs:boolean" use="required"/>
+        <xs:attribute name="OfferLunch" type="xs:boolean" use="required"/>
+        <xs:attribute name="OfferDinner" type="xs:boolean" use="required"/>
+      </xs:complexType>
+      <xs:complexType name="ArrayOfInfoCode">
+        <xs:sequence>
+          <xs:element minOccurs="0" maxOccurs="unbounded" name="InfoCode" nillable="true" type="tns:InfoCode"/>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="InfoCode">
+        <xs:attribute name="Code" type="xs:string"/>
+        <xs:attribute name="CodeDetail" type="xs:string"/>
+      </xs:complexType>
+      <xs:complexType name="ArrayOfSrvcInfoCode">
+        <xs:sequence>
+          <xs:element minOccurs="0" maxOccurs="unbounded" name="SrvcInfoCode" nillable="true" type="tns:SrvcInfoCode"/>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="SrvcInfoCode">
+        <xs:attribute name="Code" type="xs:string"/>
+        <xs:attribute name="CodeDetail" type="xs:string"/>
+      </xs:complexType>
+      <xs:complexType name="Policies">
+        <xs:sequence>
+          <xs:element minOccurs="0" maxOccurs="1" name="Policy" type="tns:Policy"/>
+        </xs:sequence>
+        <xs:attribute name="SendPolicies" type="xs:string"/>
+      </xs:complexType>
+      <xs:complexType name="Policy">
+        <xs:complexContent mixed="false">
+          <xs:extension base="tns:DateTimeSpanGroup">
+            <xs:sequence>
+              <xs:element minOccurs="0" maxOccurs="1" name="CancelPolicy" type="tns:ArrayOfCancelPenalty1"/>
+              <xs:element minOccurs="0" maxOccurs="1" name="PaymentPolicy" type="tns:PaymentPolicy"/>
+              <xs:element minOccurs="0" maxOccurs="1" name="PolicyInfo" type="tns:PolicyInfo"/>
+              <xs:element minOccurs="0" maxOccurs="1" name="FeePolicies" type="tns:ArrayOfFeePolicy"/>
+              <xs:element minOccurs="0" maxOccurs="1" name="GuaranteePaymentPolicy" type="tns:GuaranteePaymentPolicy"/>
+              <xs:element minOccurs="0" maxOccurs="1" name="PetsPolicies" type="tns:ArrayOfPetsPolicy"/>
+              <xs:element minOccurs="0" maxOccurs="1" name="PolicyInfoCodes" type="tns:ArrayOfPolicyInfoCode"/>
+              <xs:element minOccurs="0" maxOccurs="1" name="CommissionPolicy" type="tns:CommissionPolicy"/>
+            </xs:sequence>
+          </xs:extension>
+        </xs:complexContent>
+      </xs:complexType>
+      <xs:complexType name="DateTimeSpanGroup">
+        <xs:attribute name="Start" type="xs:string"/>
+        <xs:attribute name="End" type="xs:string"/>
+        <xs:attribute name="Duration" type="xs:string"/>
+      </xs:complexType>
+      <xs:complexType name="BookingRule">
+        <xs:complexContent mixed="false">
+          <xs:extension base="tns:DateTimeSpanGroup">
+            <xs:sequence>
+              <xs:element minOccurs="0" maxOccurs="unbounded" name="RestrictionStatus" type="tns:RestrictionStatus"/>
+              <xs:element minOccurs="0" maxOccurs="1" name="LengthsOfStay" type="tns:ArrayOfLengthOfStay"/>
+              <xs:element minOccurs="0" maxOccurs="1" name="DOW_Restrictions" type="tns:DOW_Restrictions"/>
+            </xs:sequence>
+            <xs:attribute name="PriceViewable" type="xs:boolean" use="required"/>
+            <xs:attribute name="Code" type="xs:string"/>
+          </xs:extension>
+        </xs:complexContent>
+      </xs:complexType>
+      <xs:complexType name="RestrictionStatus">
+        <xs:attribute name="Restriction" type="xs:string"/>
+        <xs:attribute name="Status" type="xs:string"/>
+      </xs:complexType>
+      <xs:complexType name="DOW_Restrictions">
+        <xs:sequence>
+          <xs:element minOccurs="0" maxOccurs="1" name="AvailableDaysOfWeek" type="tns:AvailableDaysOfWeek"/>
+          <xs:element minOccurs="0" maxOccurs="1" name="ArrivalDaysOfWeek" type="tns:ArrivalDaysOfWeek"/>
+          <xs:element minOccurs="0" maxOccurs="1" name="DepartureDaysOfWeek" type="tns:DepartureDaysOfWeek"/>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="Attraction">
+        <xs:complexContent mixed="false">
+          <xs:extension base="tns:DateTimeSpanGroup">
+            <xs:sequence>
+              <xs:element minOccurs="0" maxOccurs="1" name="AttractionName" type="xs:string"/>
+              <xs:element minOccurs="0" maxOccurs="unbounded" name="Description" type="tns:Description"/>
+              <xs:element minOccurs="0" maxOccurs="unbounded" name="RefPoints" type="tns:RefPoint"/>
+            </xs:sequence>
+            <xs:attribute name="AttractionCategoryCode" type="xs:string"/>
+            <xs:attribute name="CodeDetail" type="xs:string"/>
+          </xs:extension>
+        </xs:complexContent>
+      </xs:complexType>
+      <xs:complexType name="RefPoint">
+        <xs:sequence>
+          <xs:element minOccurs="0" maxOccurs="1" name="RefPoint" type="tns:RefPointDetail"/>
+          <xs:element minOccurs="0" maxOccurs="1" name="Direction" type="xs:string"/>
+          <xs:element minOccurs="0" maxOccurs="1" name="Distance" type="xs:string"/>
+          <xs:element minOccurs="0" maxOccurs="1" name="DistanceUnitName" type="xs:string"/>
+          <xs:element minOccurs="0" maxOccurs="1" name="Latitude" type="xs:string"/>
+          <xs:element minOccurs="0" maxOccurs="1" name="Longitude" type="xs:string"/>
+          <xs:element minOccurs="0" maxOccurs="1" name="Altitude" type="xs:string"/>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="RefPointDetail">
+        <xs:sequence>
+          <xs:element minOccurs="0" maxOccurs="1" name="Transportations" type="tns:ArrayOfTransportation"/>
+        </xs:sequence>
+        <xs:attribute name="Code" type="xs:string"/>
+        <xs:attribute name="PrimaryIndicator" type="xs:string"/>
+        <xs:attribute name="Direction" type="xs:string"/>
+      </xs:complexType>
+      <xs:complexType name="PaymentPolicy">
+        <xs:sequence>
+          <xs:element minOccurs="0" maxOccurs="1" name="RequiredPayment" type="tns:RequiredPayment"/>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="RequiredPayment">
+        <xs:sequence>
+          <xs:element minOccurs="0" maxOccurs="1" name="AmountPercent" type="tns:AmountPercent"/>
+          <xs:element minOccurs="0" maxOccurs="1" name="Deadline" type="tns:Deadline"/>
+          <xs:element minOccurs="0" maxOccurs="1" name="PaymentDescription" type="tns:ParagraphType"/>
+          <xs:element minOccurs="0" maxOccurs="1" name="AcceptedPayments" type="tns:ArrayOfArrayOfPaymentCard"/>
+        </xs:sequence>
+        <xs:attribute name="RetributionType" type="xs:string"/>
+        <xs:attribute name="PaymentCode" type="xs:string"/>
+      </xs:complexType>
+      <xs:complexType name="ArrayOfArrayOfPaymentCard">
+        <xs:sequence>
+          <xs:element minOccurs="0" maxOccurs="unbounded" name="AcceptedPayment" nillable="true" type="tns:ArrayOfPaymentCard"/>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="PolicyInfo">
+        <xs:sequence>
+          <xs:element minOccurs="0" maxOccurs="1" name="Description" type="tns:Description"/>
+        </xs:sequence>
+        <xs:attribute name="CheckInTime" type="xs:string"/>
+        <xs:attribute name="CheckOutTime" type="xs:string"/>
+        <xs:attribute name="KidsStayFree" type="xs:boolean"/>
+        <xs:attribute name="MaxChildAge" type="xs:int"/>
+      </xs:complexType>
+      <xs:complexType name="ArrayOfFeePolicy">
+        <xs:sequence>
+          <xs:element minOccurs="0" maxOccurs="unbounded" name="FeePolicy" nillable="true" type="tns:FeePolicy"/>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="FeePolicy">
+        <xs:sequence>
+          <xs:element minOccurs="0" maxOccurs="1" name="Description" type="tns:Description"/>
+        </xs:sequence>
+        <xs:attribute name="Code" type="xs:string"/>
+      </xs:complexType>
+      <xs:complexType name="GuaranteePaymentPolicy">
+        <xs:complexContent mixed="false">
+          <xs:extension base="tns:RequiredPaymentsType"/>
+        </xs:complexContent>
+      </xs:complexType>
+      <xs:complexType name="RequiredPaymentsType">
+        <xs:sequence>
+          <xs:element minOccurs="0" maxOccurs="unbounded" name="GuaranteePayment" type="tns:GuaranteePayment"/>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="GuaranteePayment">
+        <xs:sequence>
+          <xs:element minOccurs="0" maxOccurs="1" name="Description" type="tns:Description"/>
+          <xs:element minOccurs="0" maxOccurs="1" name="AcceptedPayments" type="tns:ArrayOfAcceptedPayment"/>
+          <xs:element minOccurs="0" maxOccurs="1" name="TPA_Extensions" type="tns:TPA_Extensions"/>
+        </xs:sequence>
+        <xs:attribute name="Type" type="xs:string"/>
+      </xs:complexType>
+      <xs:complexType name="ArrayOfPolicyInfoCode">
+        <xs:sequence>
+          <xs:element minOccurs="0" maxOccurs="unbounded" name="PolicyInfoCode" nillable="true" type="tns:PolicyInfoCode"/>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="PolicyInfoCode">
+        <xs:sequence>
+          <xs:element minOccurs="0" maxOccurs="1" name="Description" type="tns:Description"/>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="CommissionPolicy">
+        <xs:complexContent mixed="false">
+          <xs:extension base="tns:FeeType"/>
+        </xs:complexContent>
+      </xs:complexType>
+      <xs:complexType name="FeeType">
+        <xs:sequence>
+          <xs:element minOccurs="0" maxOccurs="1" name="Description" type="tns:Description"/>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="AreaInfo">
+        <xs:sequence>
+          <xs:element minOccurs="0" maxOccurs="1" name="Attractions" type="tns:ArrayOfAttraction"/>
+          <xs:element minOccurs="0" maxOccurs="1" name="Recreations" type="tns:ArrayOfRecreation"/>
+        </xs:sequence>
+        <xs:attribute name="SendRefPoints" type="xs:string"/>
+        <xs:attribute name="SendAttractions" type="xs:string"/>
+        <xs:attribute name="SendRecreations" type="xs:string"/>
+      </xs:complexType>
+      <xs:complexType name="ArrayOfAttraction">
+        <xs:sequence>
+          <xs:element minOccurs="0" maxOccurs="unbounded" name="Attraction" nillable="true" type="tns:Attraction"/>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="ArrayOfRecreation">
+        <xs:sequence>
+          <xs:element minOccurs="0" maxOccurs="unbounded" name="Recreation" nillable="true" type="tns:Recreation"/>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="Recreation">
+        <xs:all>
+          <xs:element minOccurs="0" maxOccurs="1" name="RecreationDetails" type="tns:ArrayOfRecreationDetail"/>
+        </xs:all>
+        <xs:attribute name="Code" type="xs:string"/>
+        <xs:attribute name="CodeDetail" type="xs:string"/>
+        <xs:attribute name="ProximityCode" type="xs:string"/>
+      </xs:complexType>
+      <xs:complexType name="ArrayOfRecreationDetail">
+        <xs:sequence>
+          <xs:element minOccurs="0" maxOccurs="unbounded" name="RecreationDetail" nillable="true" type="tns:RecreationDetail"/>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="RecreationDetail">
+        <xs:attribute name="Code" type="xs:string"/>
+        <xs:attribute name="CodeDetail" type="xs:string"/>
+      </xs:complexType>
+      <xs:complexType name="AffiliationInfo">
+        <xs:sequence>
+          <xs:element minOccurs="0" maxOccurs="1" name="Awards" type="tns:ArrayOfAward"/>
+        </xs:sequence>
+        <xs:attribute name="SendAwards" type="xs:string"/>
+      </xs:complexType>
+      <xs:complexType name="ArrayOfAward">
+        <xs:sequence>
+          <xs:element minOccurs="0" maxOccurs="unbounded" name="Award" nillable="true" type="tns:Award"/>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="Award">
+        <xs:attribute name="Provider" type="xs:string"/>
+        <xs:attribute name="Rating" type="xs:string"/>
+      </xs:complexType>
+      <xs:complexType name="MultimediaObjects">
+        <xs:attribute name="SendData" type="xs:boolean" use="required"/>
+      </xs:complexType>
+      <xs:complexType name="ArrayOfContactInfo">
+        <xs:sequence>
+          <xs:element minOccurs="0" maxOccurs="unbounded" name="ContactInfo" nillable="true" type="tns:ContactInfo"/>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="ContactInfo">
+        <xs:sequence>
+          <xs:element minOccurs="0" maxOccurs="1" name="Names" type="tns:ArrayOfName"/>
+          <xs:element minOccurs="0" maxOccurs="1" name="Addresses" type="tns:ArrayOfAddress"/>
+          <xs:element minOccurs="0" maxOccurs="1" name="Phones" type="tns:ArrayOfTelephoneInfo1"/>
+          <xs:element minOccurs="0" maxOccurs="1" name="Emails" type="tns:ArrayOfEmail"/>
+          <xs:element minOccurs="0" maxOccurs="1" name="URLs" type="tns:ArrayOfURL"/>
+        </xs:sequence>
+        <xs:attribute name="SendData" type="xs:string"/>
+      </xs:complexType>
+      <xs:complexType name="ArrayOfName">
+        <xs:sequence>
+          <xs:element minOccurs="0" maxOccurs="unbounded" name="Name" nillable="true" type="tns:Name"/>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="ArrayOfAddress">
+        <xs:sequence>
+          <xs:element minOccurs="0" maxOccurs="unbounded" name="Address" nillable="true" type="tns:Address"/>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="ArrayOfTelephoneInfo1">
+        <xs:sequence>
+          <xs:element minOccurs="0" maxOccurs="unbounded" name="Phone" nillable="true" type="tns:TelephoneInfo"/>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="ArrayOfEmail">
+        <xs:sequence>
+          <xs:element minOccurs="0" maxOccurs="unbounded" name="Email" nillable="true" type="tns:Email"/>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="ArrayOfURL">
+        <xs:sequence>
+          <xs:element minOccurs="0" maxOccurs="unbounded" name="URL" nillable="true" type="tns:URL"/>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="TPA_Extensions_Type">
+        <xs:all>
+          <xs:element minOccurs="0" maxOccurs="1" name="HoldTime" type="xs:string"/>
+          <xs:element minOccurs="0" maxOccurs="1" name="RollawayAdultCharge" type="xs:string"/>
+          <xs:element minOccurs="0" maxOccurs="1" name="RollawayChildCharge" type="xs:string"/>
+          <xs:element minOccurs="0" maxOccurs="1" name="FrequentGuestInfo" type="xs:string"/>
+          <xs:element minOccurs="0" maxOccurs="1" name="RatePlans" type="tns:ArrayOfRatePlan"/>
+          <xs:element minOccurs="0" maxOccurs="1" name="LoyaltyTiers" type="tns:ArrayOfLoyaltyTier"/>
+          <xs:element minOccurs="0" maxOccurs="1" name="GuestRooms" type="tns:ArrayOfGuestRoom"/>
+        </xs:all>
+      </xs:complexType>
+      <xs:complexType name="ArrayOfLoyaltyTier">
+        <xs:sequence>
+          <xs:element minOccurs="0" maxOccurs="unbounded" name="LoyaltyTier" nillable="true" type="tns:LoyaltyTier"/>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="LoyaltyTier">
+        <xs:all>
+          <xs:element minOccurs="0" maxOccurs="1" name="LoyaltyClasses" type="tns:ArrayOfLoyaltyClass"/>
+          <xs:element minOccurs="0" maxOccurs="1" name="CashPortionForPAC" type="tns:CashPortionForPac"/>
+          <xs:element minOccurs="0" maxOccurs="1" name="LoyaltyTierDescription" type="tns:LoyaltyTierDescription"/>
+          <xs:element minOccurs="0" maxOccurs="1" name="LoyaltyPrograms" type="tns:ArrayOfLoyaltyProgram"/>
+        </xs:all>
+        <xs:attribute name="Code" type="xs:string"/>
+        <xs:attribute name="Name" type="xs:string"/>
+        <xs:attribute name="FNSPoints" type="xs:int" use="required"/>
+        <xs:attribute name="AccrualRate" type="xs:decimal" use="required"/>
+        <xs:attribute name="AccrualCurrencyCode" type="xs:string"/>
+        <xs:attribute name="PACPoints" type="xs:int" use="required"/>
+        <xs:attribute name="UpdateDate" type="xs:string"/>
+        <xs:attribute name="UpdateUser" type="xs:string"/>
+      </xs:complexType>
+      <xs:complexType name="ArrayOfLoyaltyClass">
+        <xs:sequence>
+          <xs:element minOccurs="0" maxOccurs="unbounded" name="LoyaltyClass" nillable="true" type="tns:LoyaltyClass"/>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="LoyaltyClass">
+        <xs:sequence>
+          <xs:element minOccurs="0" maxOccurs="1" name="CashPortionForPAC" type="tns:CashPortionForPac"/>
+        </xs:sequence>
+        <xs:attribute name="LoyaltyClassCode" type="xs:string"/>
+        <xs:attribute name="LoyaltyClassName" type="xs:string"/>
+        <xs:attribute name="FNSPoints" type="xs:int" use="required"/>
+        <xs:attribute name="PACPoints" type="xs:int" use="required"/>
+      </xs:complexType>
+      <xs:complexType name="CashPortionForPac">
+        <xs:sequence>
+          <xs:element minOccurs="0" maxOccurs="1" name="Currencies" type="tns:ArrayOfCurrency"/>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="ArrayOfCurrency">
+        <xs:sequence>
+          <xs:element minOccurs="0" maxOccurs="unbounded" name="Currency" nillable="true" type="tns:Currency"/>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="Currency">
+        <xs:attribute name="Code" type="xs:string"/>
+        <xs:attribute name="CashValue" type="xs:decimal" use="required"/>
+      </xs:complexType>
+      <xs:complexType name="LoyaltyTierDescription">
+        <xs:sequence>
+          <xs:element minOccurs="0" maxOccurs="1" name="TextItems" type="tns:ArrayOfTextItem"/>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="ArrayOfLoyaltyProgram">
+        <xs:sequence>
+          <xs:element minOccurs="0" maxOccurs="unbounded" name="LoyaltyProgram" nillable="true" type="tns:LoyaltyProgram"/>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="LoyaltyProgram">
+        <xs:attribute name="Code" type="xs:string"/>
+        <xs:attribute name="Name" type="xs:string"/>
+        <xs:attribute name="Active" type="xs:boolean" use="required"/>
+      </xs:complexType>
+      <xs:complexType name="ArrayOfComment">
+        <xs:sequence>
+          <xs:element minOccurs="0" maxOccurs="unbounded" name="Comment" nillable="true" type="tns:Comment"/>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="ArrayOfRequiredPayment">
+        <xs:sequence>
+          <xs:element minOccurs="0" maxOccurs="unbounded" name="RequiredPayment" nillable="true" type="tns:RequiredPayment"/>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="ArrayOfResGuestRPH">
+        <xs:sequence>
+          <xs:element minOccurs="0" maxOccurs="unbounded" name="ResGuestRPH" nillable="true" type="tns:ResGuestRPH"/>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="ResGuestRPH">
+        <xs:attribute name="RPH" type="xs:string"/>
+      </xs:complexType>
+      <xs:complexType name="ArrayOfServiceRPH">
+        <xs:sequence>
+          <xs:element minOccurs="0" maxOccurs="unbounded" name="ServiceRPH" nillable="true" type="tns:ServiceRPH"/>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="ServiceRPH">
+        <xs:attribute name="RPH" type="xs:string"/>
+      </xs:complexType>
+      <xs:complexType name="ArrayOfMembership">
+        <xs:sequence>
+          <xs:element minOccurs="0" maxOccurs="unbounded" name="Membership" nillable="true" type="tns:Membership"/>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="Membership">
+        <xs:attribute name="ProgramCode" type="xs:string"/>
+        <xs:attribute name="BonusCode" type="xs:string"/>
+        <xs:attribute name="AccountID" type="xs:string"/>
+        <xs:attribute name="MembershipID" type="xs:string"/>
+        <xs:attribute name="TravelSector" type="xs:string"/>
+        <xs:attribute name="PointsEarned" type="xs:string"/>
+      </xs:complexType>
+      <xs:complexType name="ArrayOfHotelStay">
+        <xs:sequence>
+          <xs:element minOccurs="0" maxOccurs="unbounded" name="HotelStay" nillable="true" type="tns:HotelStay"/>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="HotelStay">
+        <xs:sequence>
+          <xs:element minOccurs="0" maxOccurs="1" name="Availability" type="tns:Availability"/>
+          <xs:element minOccurs="0" maxOccurs="unbounded" name="Price" type="tns:Price"/>
+          <xs:element minOccurs="0" maxOccurs="1" name="BasicPropertyInfo" type="tns:HotelReferenceGroup"/>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="Price">
+        <xs:attribute name="Start" type="xs:string"/>
+        <xs:attribute name="End" type="xs:string"/>
+        <xs:attribute name="AmountBeforeTax" type="xs:string"/>
+        <xs:attribute name="AmountAfterTax" type="xs:string"/>
+        <xs:attribute name="CurrencyCode" type="xs:string"/>
+        <xs:attribute name="Duration" type="xs:string"/>
+        <xs:attribute name="MinIndicator" type="xs:boolean"/>
+        <xs:attribute name="MaxIndicator" type="xs:boolean"/>
+      </xs:complexType>
+      <xs:complexType name="ArrayOfHotelSearchCriterion">
+        <xs:sequence>
+          <xs:element minOccurs="0" maxOccurs="unbounded" name="Criterion" nillable="true" type="tns:HotelSearchCriterion"/>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="HotelSearchCriterion">
+        <xs:sequence>
+          <xs:element minOccurs="0" maxOccurs="1" name="RatePlanCandidates" type="tns:ArrayOfRatePlanCandidate"/>
+          <xs:element minOccurs="0" maxOccurs="1" name="Position" type="tns:Position"/>
+          <xs:element minOccurs="0" maxOccurs="1" name="HotelRef" type="tns:HotelReferenceGroup"/>
+          <xs:element minOccurs="0" maxOccurs="1" name="Radius" type="tns:Radius"/>
+          <xs:element minOccurs="0" maxOccurs="1" name="StayDateRange" type="tns:StayDateRangeType"/>
+          <xs:element minOccurs="0" maxOccurs="1" name="RoomStayCandidates" type="tns:ArrayOfRoomStayCandidate"/>
+          <xs:element minOccurs="0" maxOccurs="1" name="AcceptedPayments" type="tns:ArrayOfAcceptedPayment"/>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="ArrayOfRatePlanCandidate">
+        <xs:sequence>
+          <xs:element minOccurs="0" maxOccurs="unbounded" name="RatePlanCandidate" nillable="true" type="tns:RatePlanCandidate"/>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="RatePlanCandidate">
+        <xs:sequence>
+          <xs:element minOccurs="0" maxOccurs="1" name="ArrivalPolicy" type="tns:ArrivalPolicy"/>
+          <xs:element minOccurs="0" maxOccurs="1" name="RatePlanCommission" type="tns:RatePlanCommission"/>
+        </xs:sequence>
+        <xs:attribute name="PromotionCode" type="xs:string"/>
+        <xs:attribute name="RatePlanCode" type="xs:string"/>
+        <xs:attribute name="RatePlanType" type="xs:string"/>
+        <xs:attribute name="RatePlanId" type="xs:string"/>
+        <xs:attribute name="RatePlanQualifier" type="xs:string"/>
+        <xs:attribute name="RatePlanCategory" type="xs:string"/>
+        <xs:attribute name="RatePlanFilterCode" type="xs:string"/>
+      </xs:complexType>
+      <xs:complexType name="ArrivalPolicy">
+        <xs:attribute name="GuaranteePolicyIndicator" type="xs:boolean"/>
+        <xs:attribute name="DepositPolicyIndicator" type="xs:boolean"/>
+        <xs:attribute name="HoldTimePolicyIndicator" type="xs:boolean"/>
+      </xs:complexType>
+      <xs:complexType name="RatePlanCommission">
+        <xs:attribute name="CommissionableIndicator" type="xs:boolean"/>
+        <xs:attribute name="MinCommissionPercentage" type="xs:string"/>
+        <xs:attribute name="MaxCommissionPercentage" type="xs:string"/>
+      </xs:complexType>
+      <xs:complexType name="Radius">
+        <xs:attribute name="Distance" type="xs:string"/>
+        <xs:attribute name="DistanceMeasure" type="xs:string"/>
+        <xs:attribute name="Direction" type="xs:string"/>
+      </xs:complexType>
+      <xs:complexType name="StayDateRangeType">
+        <xs:attribute name="Start" type="xs:string"/>
+        <xs:attribute name="End" type="xs:string"/>
+        <xs:attribute name="Duration" type="xs:string"/>
+      </xs:complexType>
+      <xs:complexType name="ArrayOfRoomStayCandidate">
+        <xs:sequence>
+          <xs:element minOccurs="0" maxOccurs="unbounded" name="RoomStayCandidate" nillable="true" type="tns:RoomStayCandidate"/>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="RoomStayCandidate">
+        <xs:sequence>
+          <xs:element minOccurs="0" maxOccurs="1" name="GuestCounts" type="tns:ArrayOfGuestCount"/>
+        </xs:sequence>
+        <xs:attribute name="Quantity" type="xs:string"/>
+        <xs:attribute name="RoomType" type="xs:string"/>
+        <xs:attribute name="RoomTypeCode" type="xs:string"/>
+        <xs:attribute name="RoomCategory" type="xs:string"/>
+        <xs:attribute name="PromotionCode" type="xs:string"/>
+        <xs:attribute name="NonSmoking" type="xs:string"/>
+      </xs:complexType>
+      <xs:complexType name="ArrayOfGuestCount">
+        <xs:sequence>
+          <xs:element minOccurs="0" maxOccurs="unbounded" name="GuestCount" nillable="true" type="tns:GuestCount"/>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="OTA_HotelCacheChangeRS">
+        <xs:complexContent mixed="false">
+          <xs:extension base="tns:OtaResponseMessage">
+            <xs:sequence>
+              <xs:element minOccurs="0" maxOccurs="unbounded" name="CacheChangeInfo" type="tns:CacheChangeInfo"/>
+            </xs:sequence>
+          </xs:extension>
+        </xs:complexContent>
+      </xs:complexType>
+      <xs:complexType name="CacheChangeInfo">
+        <xs:sequence>
+          <xs:element minOccurs="0" maxOccurs="1" name="TimeSpan" type="tns:CacheChangeTimeSpan"/>
+        </xs:sequence>
+        <xs:attribute name="HotelCode" type="xs:string"/>
+        <xs:attribute name="AvailabilityInd" type="xs:boolean"/>
+        <xs:attribute name="RatesInd" type="xs:boolean"/>
+        <xs:attribute name="HotelContentInd" type="xs:boolean"/>
+      </xs:complexType>
+      <xs:complexType name="OTA_HotelResRS">
+        <xs:complexContent mixed="false">
+          <xs:extension base="tns:OtaResponseMessage">
+            <xs:sequence>
+              <xs:element minOccurs="0" maxOccurs="1" name="HotelReservation" type="tns:HotelReservation"/>
+              <xs:element minOccurs="0" maxOccurs="1" name="HotelReservations" type="tns:ArrayOfHotelReservation"/>
+              <xs:element minOccurs="0" maxOccurs="1" name="WrittenConf" type="tns:WrittenConfInst"/>
+            </xs:sequence>
+            <xs:attribute name="ResResponseType" type="xs:string"/>
+          </xs:extension>
+        </xs:complexContent>
+      </xs:complexType>
+      <xs:complexType name="HotelReservation">
+        <xs:sequence>
+          <xs:element minOccurs="0" maxOccurs="1" name="UniqueID" type="tns:UniqueID"/>
+          <xs:element minOccurs="0" maxOccurs="1" name="RoomStays" type="tns:ArrayOfRoomStay"/>
+          <xs:element minOccurs="0" maxOccurs="1" name="ResGuests" type="tns:ArrayOfResGuest"/>
+          <xs:element minOccurs="0" maxOccurs="1" name="ResGlobalInfo" type="tns:ResGlobalInfo"/>
+          <xs:element minOccurs="0" maxOccurs="1" name="TPA_Extensions" type="tns:TPA_Extensions"/>
+          <xs:element minOccurs="0" maxOccurs="1" name="WrittenConfInst" type="tns:WrittenConfInst"/>
+          <xs:element minOccurs="0" maxOccurs="1" name="Services" type="tns:ArrayOfService"/>
+          <xs:element minOccurs="0" maxOccurs="1" name="POS" type="tns:POS"/>
+        </xs:sequence>
+        <xs:attribute name="CreateDateTime" type="xs:string"/>
+        <xs:attribute name="RoomStayReservation" type="xs:boolean"/>
+        <xs:attribute name="CreatorID" type="xs:string"/>
+        <xs:attribute name="LastModifyDateTime" type="xs:string"/>
+        <xs:attribute name="LastModifierID" type="xs:string"/>
+        <xs:attribute name="ResStatus" type="xs:string"/>
+      </xs:complexType>
+      <xs:complexType name="ArrayOfResGuest">
+        <xs:sequence>
+          <xs:element minOccurs="0" maxOccurs="unbounded" name="ResGuest" nillable="true" type="tns:ResGuest"/>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="ResGuest">
+        <xs:sequence>
+          <xs:element minOccurs="0" maxOccurs="1" name="InHouseTimeSpan" type="tns:DateTimeSpanType"/>
+          <xs:element minOccurs="0" maxOccurs="1" name="Profiles" type="tns:ArrayOfProfileInfo"/>
+          <xs:element minOccurs="0" maxOccurs="1" name="ArrivalTransport" type="tns:TransportInfoType"/>
+          <xs:element minOccurs="0" maxOccurs="1" name="DepartureTransport" type="tns:TransportInfoType"/>
+          <xs:element minOccurs="0" maxOccurs="1" name="TPA_Extensions" type="tns:TPA_Extensions"/>
+        </xs:sequence>
+        <xs:attribute name="PrimaryIndicator" type="xs:boolean"/>
+        <xs:attribute name="ResGuestRPH" type="xs:string"/>
+        <xs:attribute name="ArrivalTime" type="xs:string"/>
+      </xs:complexType>
+      <xs:complexType name="ArrayOfProfileInfo">
+        <xs:sequence>
+          <xs:element minOccurs="0" maxOccurs="unbounded" name="ProfileInfo" nillable="true" type="tns:ProfileInfo"/>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="ProfileInfo">
+        <xs:sequence>
+          <xs:element minOccurs="0" maxOccurs="unbounded" name="UniqueID" type="tns:UniqueID"/>
+          <xs:element minOccurs="0" maxOccurs="1" name="Profile" type="tns:Profile"/>
+          <xs:element minOccurs="0" maxOccurs="1" name="CompanyInfo" type="tns:CompanyInfo"/>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="TransportInfoType">
+        <xs:sequence>
+          <xs:element minOccurs="0" maxOccurs="1" name="TransportInfo" type="tns:TransportInfo"/>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="TransportInfo">
+        <xs:attribute name="Type" type="xs:string"/>
+        <xs:attribute name="ID" type="xs:string"/>
+        <xs:attribute name="LocationCode" type="xs:string"/>
+        <xs:attribute name="Time" type="xs:string"/>
+      </xs:complexType>
+      <xs:complexType name="ResGlobalInfo">
+        <xs:all>
+          <xs:element minOccurs="0" maxOccurs="1" name="Comments" type="tns:ArrayOfComment"/>
+          <xs:element minOccurs="0" maxOccurs="1" name="Guarantee" type="tns:Guarantee"/>
+          <xs:element minOccurs="0" maxOccurs="1" name="Total" type="tns:Total"/>
+          <xs:element minOccurs="0" maxOccurs="1" name="BookingRules" type="tns:ArrayOfBookingRule"/>
+          <xs:element minOccurs="0" maxOccurs="1" name="HotelReservationIDs" type="tns:ArrayOfHotelReservationID"/>
+          <xs:element minOccurs="0" maxOccurs="1" name="Profiles" type="tns:ArrayOfProfileInfo"/>
+          <xs:element minOccurs="0" maxOccurs="1" name="GuestCounts" type="tns:GuestCounts"/>
+          <xs:element minOccurs="0" maxOccurs="1" name="TimeSpan" type="tns:DateTimeSpanGroup"/>
+          <xs:element minOccurs="0" maxOccurs="1" name="SpecialRequests" type="tns:ArrayOfSpecialRequest"/>
+          <xs:element minOccurs="0" maxOccurs="1" name="TPA_Extensions" type="tns:TPA_Extensions"/>
+          <xs:element minOccurs="0" maxOccurs="1" name="DepositPayments" type="tns:DepositPayment"/>
+        </xs:all>
+      </xs:complexType>
+      <xs:complexType name="ArrayOfBookingRule">
+        <xs:sequence>
+          <xs:element minOccurs="0" maxOccurs="unbounded" name="BookingRule" nillable="true" type="tns:BookingRule"/>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="ArrayOfHotelReservationID">
+        <xs:sequence>
+          <xs:element minOccurs="0" maxOccurs="unbounded" name="HotelReservationID" nillable="true" type="tns:HotelReservationID"/>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="HotelReservationID">
+        <xs:attribute name="ResID_Type" type="xs:string"/>
+        <xs:attribute name="ResID_Value" type="xs:string"/>
+        <xs:attribute name="ResID_Source" type="xs:string"/>
+        <xs:attribute name="ResID_SourceContext" type="xs:string"/>
+        <xs:attribute name="ResID_Date" type="xs:string"/>
+        <xs:attribute name="CancellationDate" type="xs:string"/>
+      </xs:complexType>
+      <xs:complexType name="DepositPayment">
+        <xs:sequence>
+          <xs:element minOccurs="0" maxOccurs="1" name="GuaranteePayment" type="tns:GuaranteePayment"/>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="POS">
+        <xs:sequence>
+          <xs:element minOccurs="0" maxOccurs="1" name="Source" type="tns:Source"/>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="Source">
+        <xs:sequence>
+          <xs:element minOccurs="0" maxOccurs="1" name="BookingChannel" type="tns:BookingChannel"/>
+          <xs:element minOccurs="0" maxOccurs="1" name="RequestorId" type="tns:RequestorID"/>
+          <xs:element minOccurs="0" maxOccurs="1" name="RequestorID" type="tns:RequestorID"/>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="HotelResModify">
+        <xs:complexContent mixed="false">
+          <xs:extension base="tns:HotelReservation">
+            <xs:sequence>
+              <xs:element minOccurs="0" maxOccurs="1" name="Verification" type="tns:Verification"/>
+            </xs:sequence>
+          </xs:extension>
+        </xs:complexContent>
+      </xs:complexType>
+      <xs:complexType name="Verification">
+        <xs:sequence>
+          <xs:element minOccurs="0" maxOccurs="1" name="PersonName" type="tns:PersonName"/>
+          <xs:element minOccurs="0" maxOccurs="1" name="PaymentCard" type="tns:PaymentCard"/>
+          <xs:element minOccurs="0" maxOccurs="1" name="ReservationTimeSpan" type="tns:DateTimeSpanType"/>
+          <xs:element minOccurs="0" maxOccurs="1" name="TelephoneInfo" type="tns:TelephoneInfo"/>
+          <xs:element minOccurs="0" maxOccurs="1" name="AddressInfo" type="tns:AddressInfo"/>
+          <xs:element minOccurs="0" maxOccurs="1" name="Email" type="tns:Email"/>
+          <xs:element minOccurs="0" maxOccurs="1" name="TPA_Extensions" type="tns:TPA_Extensions"/>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="ArrayOfHotelReservation">
+        <xs:sequence>
+          <xs:element minOccurs="0" maxOccurs="unbounded" name="HotelReservation" nillable="true" type="tns:HotelReservation"/>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="OTA_HotelResModifyRS">
+        <xs:complexContent mixed="false">
+          <xs:extension base="tns:OtaResponseMessage">
+            <xs:sequence>
+              <xs:element minOccurs="0" maxOccurs="1" name="HotelResModifies" type="tns:ArrayOfHotelResModify"/>
+            </xs:sequence>
+            <xs:attribute name="ResResponseType" type="xs:string"/>
+          </xs:extension>
+        </xs:complexContent>
+      </xs:complexType>
+      <xs:complexType name="ArrayOfHotelResModify">
+        <xs:sequence>
+          <xs:element minOccurs="0" maxOccurs="unbounded" name="HotelResModify" nillable="true" type="tns:HotelResModify"/>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="OTA_HotelResNotifRS">
+        <xs:complexContent mixed="false">
+          <xs:extension base="tns:OtaResponseMessage">
+            <xs:sequence>
+              <xs:element minOccurs="0" maxOccurs="1" name="HotelReservations" type="tns:ArrayOfHotelReservation"/>
+              <xs:element minOccurs="0" maxOccurs="unbounded" name="UniqueID" type="tns:UniqueID"/>
+            </xs:sequence>
+            <xs:attribute name="ResResponseType" type="xs:string"/>
+          </xs:extension>
+        </xs:complexContent>
+      </xs:complexType>
+      <xs:complexType name="OTA_HotelResModifyNotifRS">
+        <xs:complexContent mixed="false">
+          <xs:extension base="tns:OtaResponseMessage">
+            <xs:sequence>
+              <xs:element minOccurs="0" maxOccurs="unbounded" name="UniqueID" type="tns:UniqueID"/>
+              <xs:element minOccurs="0" maxOccurs="1" name="HotelResModifies" type="tns:ArrayOfHotelResModify"/>
+            </xs:sequence>
+            <xs:attribute name="ResResponseType" type="xs:string"/>
+          </xs:extension>
+        </xs:complexContent>
+      </xs:complexType>
+      <xs:complexType name="OTA_CancelRS">
+        <xs:complexContent mixed="false">
+          <xs:extension base="tns:OtaResponseMessage">
+            <xs:sequence>
+              <xs:element minOccurs="0" maxOccurs="unbounded" name="UniqueID" type="tns:UniqueID"/>
+              <xs:element minOccurs="0" maxOccurs="1" name="CancelInfoRS" type="tns:CancelInfoRS"/>
+            </xs:sequence>
+            <xs:attribute name="ResResponseType" type="xs:string"/>
+          </xs:extension>
+        </xs:complexContent>
+      </xs:complexType>
+      <xs:complexType name="CancelInfoRS">
+        <xs:sequence>
+          <xs:element minOccurs="0" maxOccurs="1" name="UniqueID" type="tns:UniqueID"/>
+          <xs:element minOccurs="0" maxOccurs="1" name="CancelRules" type="tns:CancelRules"/>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="CancelRules">
+        <xs:sequence>
+          <xs:element minOccurs="0" maxOccurs="1" name="CancelRule" type="tns:CancelRule"/>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="CancelRule">
+        <xs:attribute name="Amount" type="xs:decimal" use="required"/>
+        <xs:attribute name="CurrencyCode" type="xs:string"/>
+      </xs:complexType>
+      <xs:complexType name="OTA_HotelDescriptiveInfoRS">
+        <xs:complexContent mixed="false">
+          <xs:extension base="tns:OtaResponseMessage">
+            <xs:sequence>
+              <xs:element minOccurs="0" maxOccurs="1" name="HotelDescriptiveContents" type="tns:ArrayOfHotelDescriptiveContent"/>
+            </xs:sequence>
+          </xs:extension>
+        </xs:complexContent>
+      </xs:complexType>
+      <xs:complexType name="ArrayOfHotelDescriptiveContent">
+        <xs:sequence>
+          <xs:element minOccurs="0" maxOccurs="unbounded" name="HotelDescriptiveContent" nillable="true" type="tns:HotelDescriptiveContent"/>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="OTA_PingRS">
+        <xs:complexContent mixed="false">
+          <xs:extension base="tns:OtaResponseMessage">
+            <xs:sequence>
+              <xs:element minOccurs="0" maxOccurs="1" name="EchoData" type="xs:string"/>
+            </xs:sequence>
+          </xs:extension>
+        </xs:complexContent>
+      </xs:complexType>
+      <xs:complexType name="OTA_ReadRQ">
+        <xs:complexContent mixed="false">
+          <xs:extension base="tns:OtaRequestMessage">
+            <xs:sequence>
+              <xs:element minOccurs="0" maxOccurs="1" name="ReadRequests" type="tns:ReadRequests"/>
+              <xs:element minOccurs="0" maxOccurs="1" name="UniqueID" type="tns:UniqueID"/>
+              <xs:element minOccurs="0" maxOccurs="1" name="POS" type="tns:POS"/>
+            </xs:sequence>
+            <xs:attribute name="ReturnListIndicator" type="xs:string"/>
+            <xs:attribute name="PrimaryLangId" type="xs:string"/>
+            <xs:attribute name="MaxResponses" type="xs:int" use="required"/>
+          </xs:extension>
+        </xs:complexContent>
+      </xs:complexType>
+      <xs:complexType name="ReadRequests">
+        <xs:sequence>
+          <xs:element minOccurs="0" maxOccurs="unbounded" name="ReadRequest" type="tns:ReadRequest"/>
+          <xs:element minOccurs="0" maxOccurs="unbounded" name="HotelReadRequest" type="tns:HotelReadRequest"/>
+          <xs:element minOccurs="0" maxOccurs="unbounded" name="GlobalReservationReadRequest" type="tns:GlobalReservationReadRequest"/>
+          <xs:element minOccurs="0" maxOccurs="unbounded" name="ProfileReadRequest" type="tns:ProfileReadRequest"/>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="ReadRequest">
+        <xs:sequence>
+          <xs:element minOccurs="0" maxOccurs="1" name="UniqueID" type="tns:UniqueID"/>
+          <xs:element minOccurs="0" maxOccurs="1" name="Verification" type="tns:Verification"/>
+          <xs:element minOccurs="0" maxOccurs="1" name="UserID" type="tns:UserID"/>
+          <xs:element minOccurs="0" maxOccurs="1" name="TPA_Extensions" type="tns:TPA_Extensions"/>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="HotelReadRequest">
+        <xs:sequence>
+          <xs:element minOccurs="0" maxOccurs="1" name="UserID" type="tns:UserID"/>
+          <xs:element minOccurs="0" maxOccurs="1" name="CityName" type="xs:string"/>
+          <xs:element minOccurs="0" maxOccurs="1" name="Verification" type="tns:Verification"/>
+          <xs:element minOccurs="0" maxOccurs="unbounded" name="SelectionCriteria" type="tns:SelectionCriteria"/>
+          <xs:element minOccurs="0" maxOccurs="1" name="TPA_Extensions" type="tns:TPA_Extensions"/>
+        </xs:sequence>
+        <xs:attribute name="HotelName" type="xs:string"/>
+        <xs:attribute name="HotelCode" type="xs:string"/>
+        <xs:attribute name="ChainCode" type="xs:string"/>
+        <xs:attribute name="BrandName" type="xs:string"/>
+        <xs:attribute name="ChainName" type="xs:string"/>
+        <xs:attribute name="BrandCode" type="xs:string"/>
+      </xs:complexType>
+      <xs:complexType name="SelectionCriteria">
+        <xs:attribute name="DateType" type="xs:string"/>
+        <xs:attribute name="Start" type="xs:dateTime" use="required"/>
+        <xs:attribute name="End" type="xs:dateTime" use="required"/>
+      </xs:complexType>
+      <xs:complexType name="GlobalReservationReadRequest">
+        <xs:sequence>
+          <xs:element minOccurs="0" maxOccurs="1" name="TravelerName" type="tns:PersonName"/>
+        </xs:sequence>
+        <xs:attribute name="Start" type="xs:string"/>
+        <xs:attribute name="End" type="xs:string"/>
+        <xs:attribute name="Duration" type="xs:string"/>
+      </xs:complexType>
+      <xs:complexType name="ProfileReadRequest">
+        <xs:sequence>
+          <xs:element minOccurs="0" maxOccurs="1" name="UniqueID" type="tns:UniqueID"/>
+          <xs:element minOccurs="0" maxOccurs="1" name="CompanyInfo" type="tns:CompanyInfo"/>
+          <xs:element minOccurs="0" maxOccurs="1" name="Customer" type="tns:Customer"/>
+        </xs:sequence>
+        <xs:attribute name="Start" type="xs:string"/>
+        <xs:attribute name="End" type="xs:string"/>
+        <xs:attribute name="Duration" type="xs:string"/>
+      </xs:complexType>
+      <xs:complexType name="OTA_HotelCacheChangeRQ">
+        <xs:complexContent mixed="false">
+          <xs:extension base="tns:OtaRequestMessage">
+            <xs:sequence>
+              <xs:element minOccurs="0" maxOccurs="1" name="CacheSearchCriteria" type="tns:CacheSearchCriteria"/>
+            </xs:sequence>
+          </xs:extension>
+        </xs:complexContent>
+      </xs:complexType>
+      <xs:complexType name="CacheSearchCriteria">
+        <xs:sequence>
+          <xs:element minOccurs="0" maxOccurs="unbounded" name="CacheSearchCriterion" nillable="true" type="tns:CacheSearchCriterion"/>
+        </xs:sequence>
+        <xs:attribute name="AvailabilityInd" type="xs:boolean"/>
+        <xs:attribute name="RatesInd" type="xs:boolean"/>
+        <xs:attribute name="HotelContentInd" type="xs:boolean"/>
+        <xs:attribute name="CacheFromTimestamp" type="xs:dateTime"/>
+      </xs:complexType>
+      <xs:complexType name="CacheSearchCriterion">
+        <xs:attribute name="HotelCode" type="xs:string"/>
+        <xs:attribute name="CacheStartDateTime" type="xs:dateTime"/>
+        <xs:attribute name="CacheEndDateTime" type="xs:dateTime"/>
+      </xs:complexType>
+      <xs:complexType name="OTA_HotelResRQ">
+        <xs:complexContent mixed="false">
+          <xs:extension base="tns:OtaRequestMessage">
+            <xs:sequence>
+              <xs:element minOccurs="0" maxOccurs="1" name="POS" type="tns:POS"/>
+              <xs:element minOccurs="0" maxOccurs="1" name="HotelReservations" type="tns:ArrayOfHotelReservation"/>
+              <xs:element minOccurs="0" maxOccurs="1" name="UniqueID" type="tns:UniqueID"/>
+            </xs:sequence>
+            <xs:attribute name="ResStatus" type="xs:string"/>
+            <xs:attribute name="RetransmissionIndicator" type="xs:boolean"/>
+          </xs:extension>
+        </xs:complexContent>
+      </xs:complexType>
+      <xs:complexType name="OTA_HotelResModifyRQ">
+        <xs:complexContent mixed="false">
+          <xs:extension base="tns:OtaRequestMessage">
+            <xs:sequence>
+              <xs:element minOccurs="0" maxOccurs="1" name="POS" type="tns:POS"/>
+              <xs:element minOccurs="0" maxOccurs="1" name="HotelResModifies" type="tns:ArrayOfHotelResModify"/>
+            </xs:sequence>
+          </xs:extension>
+        </xs:complexContent>
+      </xs:complexType>
+      <xs:complexType name="OTA_HotelResNotifRQ">
+        <xs:complexContent mixed="false">
+          <xs:extension base="tns:OtaRequestMessage">
+            <xs:sequence>
+              <xs:element minOccurs="0" maxOccurs="1" name="POS" type="tns:POS"/>
+              <xs:element minOccurs="0" maxOccurs="1" name="HotelReservations" type="tns:ArrayOfHotelReservation"/>
+            </xs:sequence>
+            <xs:attribute name="ResStatus" type="xs:string"/>
+          </xs:extension>
+        </xs:complexContent>
+      </xs:complexType>
+      <xs:complexType name="OTA_HotelResModifyNotifRQ">
+        <xs:complexContent mixed="false">
+          <xs:extension base="tns:OtaRequestMessage">
+            <xs:sequence>
+              <xs:element minOccurs="0" maxOccurs="1" name="POS" type="tns:POS"/>
+              <xs:element minOccurs="0" maxOccurs="1" name="HotelResModifies" type="tns:ArrayOfHotelResModify"/>
+            </xs:sequence>
+            <xs:attribute name="ResStatus" type="xs:string"/>
+          </xs:extension>
+        </xs:complexContent>
+      </xs:complexType>
+      <xs:complexType name="OTA_CancelRQ">
+        <xs:complexContent mixed="false">
+          <xs:extension base="tns:OtaRequestMessage">
+            <xs:sequence>
+              <xs:element minOccurs="0" maxOccurs="unbounded" name="UniqueID" type="tns:UniqueID"/>
+              <xs:element minOccurs="0" maxOccurs="1" name="Verification" type="tns:Verification"/>
+              <xs:element minOccurs="0" maxOccurs="1" name="POS" type="tns:POS"/>
+              <xs:element minOccurs="0" maxOccurs="1" name="CancellationContactPerson" type="tns:ContactPerson"/>
+              <xs:element minOccurs="0" maxOccurs="1" name="Reasons" type="tns:ArrayOfReason"/>
+            </xs:sequence>
+            <xs:attribute name="CancelType" type="xs:string"/>
+          </xs:extension>
+        </xs:complexContent>
+      </xs:complexType>
+      <xs:complexType name="ArrayOfReason">
+        <xs:sequence>
+          <xs:element minOccurs="0" maxOccurs="unbounded" name="Reason" nillable="true" type="tns:Reason"/>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="Reason">
+        <xs:simpleContent>
+          <xs:extension base="xs:string">
+            <xs:attribute name="Type" type="xs:string"/>
+          </xs:extension>
+        </xs:simpleContent>
+      </xs:complexType>
+      <xs:complexType name="OTA_HotelDescriptiveInfoRQ">
+        <xs:complexContent mixed="false">
+          <xs:extension base="tns:OtaRequestMessage">
+            <xs:sequence>
+              <xs:element minOccurs="0" maxOccurs="1" name="HotelDescriptiveInfos" type="tns:ArrayOfHotelDescriptiveInfo"/>
+              <xs:element minOccurs="0" maxOccurs="1" name="POS" type="tns:POS"/>
+            </xs:sequence>
+          </xs:extension>
+        </xs:complexContent>
+      </xs:complexType>
+      <xs:complexType name="ArrayOfHotelDescriptiveInfo">
+        <xs:sequence>
+          <xs:element minOccurs="0" maxOccurs="unbounded" name="HotelDescriptiveInfo" nillable="true" type="tns:HotelDescriptiveInfo"/>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="HotelDescriptiveInfo">
+        <xs:sequence>
+          <xs:element minOccurs="0" maxOccurs="1" name="HotelInfo" type="tns:HotelInfo"/>
+          <xs:element minOccurs="0" maxOccurs="1" name="FacilityInfo" type="tns:FacilityInfo"/>
+          <xs:element minOccurs="0" maxOccurs="1" name="Policies" type="tns:Policies"/>
+          <xs:element minOccurs="0" maxOccurs="1" name="AreaInfo" type="tns:AreaInfo"/>
+          <xs:element minOccurs="0" maxOccurs="1" name="AffiliationInfo" type="tns:AffiliationInfo"/>
+          <xs:element minOccurs="0" maxOccurs="1" name="ContactInfo" type="tns:ContactInfo"/>
+          <xs:element minOccurs="0" maxOccurs="1" name="MultimediaObjects" type="tns:MultimediaObjects"/>
+        </xs:sequence>
+        <xs:attribute name="ChainCode" type="xs:string"/>
+        <xs:attribute name="BrandCode" type="xs:string"/>
+        <xs:attribute name="HotelCode" type="xs:string"/>
+        <xs:attribute name="HotelCityCode" type="xs:string"/>
+        <xs:attribute name="HotelName" type="xs:string"/>
+        <xs:attribute name="HotelCodeContext" type="xs:string"/>
+      </xs:complexType>
+      <xs:element name="OTA_HotelInvCountRQ" type="tns:OTA_HotelInvCountRQ" />
+      <xs:complexType name="OTA_HotelInvCountRQ">
+        <xs:complexContent mixed="false">
+          <xs:extension base="tns:OtaRequestMessage">
+            <xs:sequence>
+              <xs:element minOccurs="1" maxOccurs="1" name="POS" type="tns:POS" />
+              <xs:element minOccurs="1" maxOccurs="1" name="HotelInvCountRequests" type="tns:ArrayOfHotelInvCountRequest" />
+            </xs:sequence>
+          </xs:extension>
+        </xs:complexContent>
+      </xs:complexType>
+      <xs:complexType name="ArrayOfHotelInvCountRequest">
+        <xs:sequence>
+          <xs:element minOccurs="1" maxOccurs="unbounded" name="HotelInvCountRequest" nillable="true" type="tns:HotelInvCountRequest"/>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="HotelInvCountRequest">
+        <xs:sequence>
+          <xs:element minOccurs="1" maxOccurs="1" name="DateRange" type="tns:DateRange" />
+          <xs:element minOccurs="0" maxOccurs="1" name="RoomTypeCandidates" type="tns:ArrayOfRoomTypeCandidate" />
+          <xs:element minOccurs="1" maxOccurs="1" name="HotelRef" type="tns:HotelReferenceGroup" />
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="DateRange">
+        <xs:attribute name="Start" type="xs:string" />
+        <xs:attribute name="End" type="xs:string" />
+      </xs:complexType>
+      <xs:complexType name="ArrayOfRoomTypeCandidate">
+        <xs:sequence>
+          <xs:element minOccurs="1" maxOccurs="unbounded" name="RoomTypeCandidate" nillable="true" type="tns:RoomTypeCandidate" />
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="RoomTypeCandidate">
+        <xs:attribute name="RoomTypeCode" type="xs:string" />
+      </xs:complexType>
+      <xs:element name="OTA_HotelInvCountRS" type="tns:OTA_HotelInvCountRS" />
+      <xs:complexType name="OTA_HotelInvCountRS">
+        <xs:complexContent mixed="false">
+          <xs:extension base="tns:OtaResponseMessage">
+            <xs:sequence>
+              <xs:element minOccurs="0" maxOccurs="1" name="Inventories" type="tns:InvCountType" />
+            </xs:sequence>
+          </xs:extension>
+        </xs:complexContent>
+      </xs:complexType>
+      <xs:complexType name="InvCountType">
+        <xs:complexContent mixed="false">
+          <xs:extension base="tns:HotelReferenceGroup">
+            <xs:sequence>
+              <xs:element minOccurs="0" maxOccurs="unbounded" name="Inventory" type="tns:BaseInvCountType" />
+            </xs:sequence>
+          </xs:extension>
+        </xs:complexContent>
+      </xs:complexType>
+      <xs:complexType name="BaseInvCountType">
+        <xs:sequence>
+          <xs:element minOccurs="0" maxOccurs="1" name="StatusApplicationControl" type="tns:StatusApplicationControlType" />
+          <xs:element minOccurs="0" maxOccurs="1" name="InvCounts" type="tns:ArrayOfInvCount" />
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="StatusApplicationControlType">
+        <xs:attribute name="Start" type="xs:string" />
+        <xs:attribute name="End" type="xs:string" />
+        <xs:attribute name="InvCode" type="xs:string" />
+        <xs:attribute name="IsRoom" type="xs:boolean" use="required" />
+      </xs:complexType>
+      <xs:complexType name="ArrayOfInvCount">
+        <xs:sequence>
+          <xs:element minOccurs="0" maxOccurs="unbounded" name="InvCount" nillable="true" type="tns:InvCount" />
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="InvCount">
+        <xs:attribute name="Count" type="xs:int" />
+        <xs:attribute name="CountType" type="xs:string" />
+      </xs:complexType>
+      <xs:complexType name="OTA_PingRQ">
+        <xs:complexContent mixed="false">
+          <xs:extension base="tns:OtaRequestMessage">
+            <xs:sequence>
+              <xs:element minOccurs="0" maxOccurs="1" name="EchoData" type="xs:string"/>
+            </xs:sequence>
+          </xs:extension>
+        </xs:complexContent>
+      </xs:complexType>
+      <xs:complexType name="ArrayOfAvailRequestSegment">
+        <xs:sequence>
+          <xs:element minOccurs="0" maxOccurs="unbounded" name="AvailRequestSegment" nillable="true" type="tns:AvailRequestSegment"/>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="AvailRequestSegment">
+        <xs:sequence>
+          <xs:element minOccurs="0" maxOccurs="1" name="StayDateRange" type="tns:StayDateRangeType"/>
+          <xs:element minOccurs="0" maxOccurs="1" name="RateRange" type="tns:RateRange"/>
+          <xs:element minOccurs="0" maxOccurs="1" name="RatePlanCandidates" type="tns:ArrayOfRatePlanCandidate"/>
+          <xs:element minOccurs="0" maxOccurs="1" name="Profiles" type="tns:ArrayOfProfile"/>
+          <xs:element minOccurs="0" maxOccurs="1" name="RoomStayCandidates" type="tns:ArrayOfRoomStayCandidate"/>
+          <xs:element minOccurs="0" maxOccurs="1" name="HotelSearchCriteria" type="tns:ArrayOfHotelSearchCriterion"/>
+          <xs:element minOccurs="0" maxOccurs="1" name="TPA_Extensions" type="tns:AvailabilityTpaExtensions"/>
+        </xs:sequence>
+        <xs:attribute name="ResponseType" type="xs:string"/>
+        <xs:attribute name="AvailReqType" type="xs:string"/>
+        <xs:attribute name="MoreDataEchoToken" type="xs:string"/>
+      </xs:complexType>
+      <xs:complexType name="RateRange">
+        <xs:sequence>
+          <xs:element minOccurs="0" maxOccurs="1" name="MinRate" type="xs:string"/>
+          <xs:element minOccurs="0" maxOccurs="1" name="MaxRate" type="xs:string"/>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:element name="OTA_HotelAvailRS" type="tns:OTA_HotelAvailRS"/>
+      <xs:element name="OTA_ReadRQ" type="tns:OTA_ReadRQ"/>
+      <xs:element name="OTA_HotelResRS" type="tns:OTA_HotelResRS"/>
+      <xs:element name="OTA_HotelResRQ" type="tns:OTA_HotelResRQ"/>
+      <xs:element name="OTA_HotelCacheChangeRQ" type="tns:OTA_HotelCacheChangeRQ"/>
+      <xs:element name="OTA_HotelCacheChangeRS" type="tns:OTA_HotelCacheChangeRS"/>
+      <xs:element name="OTA_HotelResModifyRQ" type="tns:OTA_HotelResModifyRQ"/>
+      <xs:element name="OTA_HotelResModifyRS" type="tns:OTA_HotelResModifyRS"/>
+      <xs:element name="OTA_HotelResNotifRQ" type="tns:OTA_HotelResNotifRQ"/>
+      <xs:element name="OTA_HotelResNotifRS" type="tns:OTA_HotelResNotifRS"/>
+      <xs:element name="OTA_HotelResModifyNotifRQ" type="tns:OTA_HotelResModifyNotifRQ"/>
+      <xs:element name="OTA_HotelResModifyNotifRS" type="tns:OTA_HotelResModifyNotifRS"/>
+      <xs:element name="OTA_CancelRQ" type="tns:OTA_CancelRQ"/>
+      <xs:element name="OTA_CancelRS" type="tns:OTA_CancelRS"/>
+      <xs:element name="OTA_HotelDescriptiveInfoRQ" type="tns:OTA_HotelDescriptiveInfoRQ"/>
+      <xs:element name="OTA_HotelDescriptiveInfoRS" type="tns:OTA_HotelDescriptiveInfoRS"/>
+      <xs:element name="OTA_PingRQ" type="tns:OTA_PingRQ"/>
+      <xs:element name="OTA_PingRS" type="tns:OTA_PingRS"/>
+    </xs:schema>
+    <xs:schema elementFormDefault="qualified" targetNamespace="http://htng.org/1.1/Header/"
+        xmlns:xs="http://www.w3.org/2001/XMLSchema"
+        xmlns:tns="http://htng.org/1.1/Header/">
+      <xs:element name="HTNGHeader" type="tns:HtngHeader1"/>
+      <xs:complexType name="HtngHeader1">
+        <xs:sequence>
+          <xs:element minOccurs="0" maxOccurs="1" name="From" type="tns:From"/>
+          <xs:element minOccurs="0" maxOccurs="1" name="ReplyTo" type="tns:Endpoint"/>
+          <xs:element minOccurs="0" maxOccurs="1" name="To" type="tns:To"/>
+          <xs:element minOccurs="0" maxOccurs="1" name="timeStamp" type="xs:string"/>
+          <xs:element minOccurs="0" maxOccurs="1" name="echoToken" type="xs:string"/>
+          <xs:element minOccurs="0" maxOccurs="1" name="transactionId" type="xs:string"/>
+          <xs:element minOccurs="0" maxOccurs="1" name="action" type="xs:string"/>
+        </xs:sequence>
+        <xs:anyAttribute/>
+      </xs:complexType>
+      <xs:complexType name="From">
+        <xs:sequence>
+          <xs:element minOccurs="0" maxOccurs="1" name="systemId" type="xs:string"/>
+          <xs:element minOccurs="0" maxOccurs="1" name="Credential" type="tns:Credential"/>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="Credential">
+        <xs:sequence>
+          <xs:element minOccurs="0" maxOccurs="1" name="userName" type="xs:string"/>
+          <xs:element minOccurs="0" maxOccurs="1" name="password" type="xs:string"/>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="Endpoint">
+        <xs:sequence>
+          <xs:element minOccurs="0" maxOccurs="1" name="address" type="xs:string"/>
+          <xs:element minOccurs="0" maxOccurs="1" name="systemId" type="xs:string"/>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="To">
+        <xs:sequence>
+          <xs:element minOccurs="0" maxOccurs="1" name="systemId" type="xs:string"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:schema>
+  </wsdl:types>
+  <wsdl:message name="CheckAvailabilityRequest">
+    <wsdl:part name="OTA_HotelAvailRQ" element="q1:OTA_HotelAvailRQ"
+        xmlns:q1="http://www.opentravel.org/OTA/2003/05"/>
+  </wsdl:message>
+  <wsdl:message name="CheckAvailabilityRequest_Headers">
+    <wsdl:part name="HTNGHeader" element="q2:HTNGHeader"
+        xmlns:q2="http://htng.org/1.1/Header/"/>
+  </wsdl:message>
+  <wsdl:message name="CheckAvailabilityResponse">
+    <wsdl:part name="OTA_HotelAvailRS" element="q3:OTA_HotelAvailRS"
+        xmlns:q3="http://www.opentravel.org/OTA/2003/05"/>
+  </wsdl:message>
+  <wsdl:message name="ReadReservationsRequest">
+    <wsdl:part name="OTA_ReadRQ" element="q4:OTA_ReadRQ"
+        xmlns:q4="http://www.opentravel.org/OTA/2003/05"/>
+  </wsdl:message>
+  <wsdl:message name="ReadReservationsRequest_Headers">
+    <wsdl:part name="HTNGHeader" element="q5:HTNGHeader"
+        xmlns:q5="http://htng.org/1.1/Header/"/>
+  </wsdl:message>
+  <wsdl:message name="ReadReservationsResponse">
+    <wsdl:part name="OTA_HotelResRS" element="q6:OTA_HotelResRS"
+        xmlns:q6="http://www.opentravel.org/OTA/2003/05"/>
+  </wsdl:message>
+  <wsdl:message name="VerifyReservationsRequest">
+    <wsdl:part name="OTA_ReadRQ" element="q7:OTA_ReadRQ"
+        xmlns:q7="http://www.opentravel.org/OTA/2003/05"/>
+  </wsdl:message>
+  <wsdl:message name="VerifyReservationsRequest_Headers">
+    <wsdl:part name="HTNGHeader" element="q8:HTNGHeader"
+        xmlns:q8="http://htng.org/1.1/Header/"/>
+  </wsdl:message>
+  <wsdl:message name="VerifyReservationsResponse">
+    <wsdl:part name="OTA_HotelResRS" element="q9:OTA_HotelResRS"
+        xmlns:q9="http://www.opentravel.org/OTA/2003/05"/>
+  </wsdl:message>
+  <wsdl:message name="CreateReservationsRequest">
+    <wsdl:part name="OTA_HotelResRQ" element="q10:OTA_HotelResRQ"
+        xmlns:q10="http://www.opentravel.org/OTA/2003/05"/>
+  </wsdl:message>
+  <wsdl:message name="CreateReservationsRequest_Headers">
+    <wsdl:part name="HTNGHeader" element="q11:HTNGHeader"
+        xmlns:q11="http://htng.org/1.1/Header/"/>
+  </wsdl:message>
+  <wsdl:message name="CreateReservationsResponse">
+    <wsdl:part name="OTA_HotelResRS" element="q12:OTA_HotelResRS"
+        xmlns:q12="http://www.opentravel.org/OTA/2003/05"/>
+  </wsdl:message>
+  <wsdl:message name="ModifyReservationsRequest">
+    <wsdl:part name="OTA_HotelResModifyRQ" element="q13:OTA_HotelResModifyRQ"
+        xmlns:q13="http://www.opentravel.org/OTA/2003/05"/>
+  </wsdl:message>
+  <wsdl:message name="ModifyReservationsRequest_Headers">
+    <wsdl:part name="HTNGHeader" element="q14:HTNGHeader"
+        xmlns:q14="http://htng.org/1.1/Header/"/>
+  </wsdl:message>
+  <wsdl:message name="ModifyReservationsResponse">
+    <wsdl:part name="OTA_HotelResModifyRS" element="q15:OTA_HotelResModifyRS"
+        xmlns:q15="http://www.opentravel.org/OTA/2003/05"/>
+  </wsdl:message>
+  <wsdl:message name="CreateReservationsNotificationRequest">
+    <wsdl:part name="OTA_HotelResNotifRQ" element="q16:OTA_HotelResNotifRQ"
+        xmlns:q16="http://www.opentravel.org/OTA/2003/05"/>
+  </wsdl:message>
+  <wsdl:message name="CreateReservationsNotificationRequest_Headers">
+    <wsdl:part name="HTNGHeader" element="q17:HTNGHeader"
+        xmlns:q17="http://htng.org/1.1/Header/"/>
+  </wsdl:message>
+  <wsdl:message name="CreateReservationsNotificationResponse">
+    <wsdl:part name="OTA_HotelResNotifRS" element="q18:OTA_HotelResNotifRS"
+        xmlns:q18="http://www.opentravel.org/OTA/2003/05"/>
+  </wsdl:message>
+  <wsdl:message name="ModifyReservationsNotificationRequest">
+    <wsdl:part name="OTA_HotelResModifyNotifRQ" element="q19:OTA_HotelResModifyNotifRQ"
+        xmlns:q19="http://www.opentravel.org/OTA/2003/05"/>
+  </wsdl:message>
+  <wsdl:message name="ModifyReservationsNotificationRequest_Headers">
+    <wsdl:part name="HTNGHeader" element="q20:HTNGHeader"
+        xmlns:q20="http://htng.org/1.1/Header/"/>
+  </wsdl:message>
+  <wsdl:message name="ModifyReservationsNotificationResponse">
+    <wsdl:part name="OTA_HotelResModifyNotifRS" element="q21:OTA_HotelResModifyNotifRS"
+        xmlns:q21="http://www.opentravel.org/OTA/2003/05"/>
+  </wsdl:message>
+  <wsdl:message name="CancelReservationsNotificationRequest">
+    <wsdl:part name="OTA_CancelRQ" element="q22:OTA_CancelRQ"
+        xmlns:q22="http://www.opentravel.org/OTA/2003/05"/>
+  </wsdl:message>
+  <wsdl:message name="CancelReservationsNotificationRequest_Headers">
+    <wsdl:part name="HTNGHeader" element="q23:HTNGHeader"
+        xmlns:q23="http://htng.org/1.1/Header/"/>
+  </wsdl:message>
+  <wsdl:message name="CancelReservationsNotificationResponse">
+    <wsdl:part name="OTA_CancelRS" element="q24:OTA_CancelRS"
+        xmlns:q24="http://www.opentravel.org/OTA/2003/05"/>
+  </wsdl:message>
+  <wsdl:message name="CancelReservationsRequest">
+    <wsdl:part name="OTA_CancelRQ" element="q25:OTA_CancelRQ"
+        xmlns:q25="http://www.opentravel.org/OTA/2003/05"/>
+  </wsdl:message>
+  <wsdl:message name="CancelReservationsRequest_Headers">
+    <wsdl:part name="HTNGHeader" element="q26:HTNGHeader"
+        xmlns:q26="http://htng.org/1.1/Header/"/>
+  </wsdl:message>
+  <wsdl:message name="CancelReservationsResponse">
+    <wsdl:part name="OTA_CancelRS" element="q27:OTA_CancelRS"
+        xmlns:q27="http://www.opentravel.org/OTA/2003/05"/>
+  </wsdl:message>
+  <wsdl:message name="GetHotelDetailsRequest">
+    <wsdl:part name="OTA_HotelDescriptiveInfoRQ" element="q28:OTA_HotelDescriptiveInfoRQ"
+        xmlns:q28="http://www.opentravel.org/OTA/2003/05"/>
+  </wsdl:message>
+  <wsdl:message name="GetHotelDetailsRequest_Headers">
+    <wsdl:part name="HTNGHeader" element="q29:HTNGHeader"
+        xmlns:q29="http://htng.org/1.1/Header/"/>
+  </wsdl:message>
+  <wsdl:message name="GetHotelDetailsResponse">
+    <wsdl:part name="OTA_HotelDescriptiveInfoRS" element="q30:OTA_HotelDescriptiveInfoRS"
+        xmlns:q30="http://www.opentravel.org/OTA/2003/05"/>
+  </wsdl:message>
+  <wsdl:message name="PingRequest">
+    <wsdl:part name="OTA_PingRQ" element="q31:OTA_PingRQ"
+        xmlns:q31="http://www.opentravel.org/OTA/2003/05"/>
+  </wsdl:message>
+  <wsdl:message name="PingRequest_Headers">
+    <wsdl:part name="HTNGHeader" element="q32:HTNGHeader"
+        xmlns:q32="http://htng.org/1.1/Header/"/>
+  </wsdl:message>
+  <wsdl:message name="PingResponse">
+    <wsdl:part name="OTA_PingRS" element="q33:OTA_PingRS"
+        xmlns:q33="http://www.opentravel.org/OTA/2003/05"/>
+  </wsdl:message>
+  <wsdl:message name="GetSoldRoomCountsRequest">
+    <wsdl:part name="OTA_HotelInvCountRQ" element="q34:OTA_HotelInvCountRQ"
+            xmlns:q34="http://www.opentravel.org/OTA/2003/05"/>
+  </wsdl:message>
+  <wsdl:message name="GetSoldRoomCounts_Headers">
+    <wsdl:part name="HTNGHeader" element="q35:HTNGHeader"
+            xmlns:q35="http://htng.org/1.1/Header/"/>
+  </wsdl:message>
+  <wsdl:message name="GetSoldRoomCountsResponse">
+    <wsdl:part name="OTA_HotelInvCountRS" element="q36:OTA_HotelInvCountRS"
+            xmlns:q36="http://www.opentravel.org/OTA/2003/05"/>
+  </wsdl:message>
+  <wsdl:message name="GetAllRoomCountsRequest">
+    <wsdl:part name="OTA_HotelInvCountRQ" element="q37:OTA_HotelInvCountRQ"
+        xmlns:q37="http://www.opentravel.org/OTA/2003/05"/>
+  </wsdl:message>
+  <wsdl:message name="GetAllRoomCounts_Headers">
+    <wsdl:part name="HTNGHeader" element="q38:HTNGHeader"
+        xmlns:q38="http://htng.org/1.1/Header/"/>
+  </wsdl:message>
+  <wsdl:message name="GetAllRoomCountsResponse">
+    <wsdl:part name="OTA_HotelInvCountRS" element="q39:OTA_HotelInvCountRS"
+          xmlns:q39="http://www.opentravel.org/OTA/2003/05"/>
+  </wsdl:message>
+  <wsdl:message name="GetHotelCacheChangeRequest">
+    <wsdl:part name="OTA_HotelCacheChangeRQ" element="q40:OTA_HotelCacheChangeRQ"
+          xmlns:q40="http://www.opentravel.org/OTA/2003/05"/>
+  </wsdl:message>
+  <wsdl:message name="GetHotelCacheChange_Headers">
+    <wsdl:part name="HTNGHeader" element="q41:HTNGHeader"
+          xmlns:q41="http://htng.org/1.1/Header/"/>
+  </wsdl:message>
+  <wsdl:message name="GetHotelCacheChangeResponse">
+    <wsdl:part name="OTA_HotelCacheChangeRS" element="q42:OTA_HotelCacheChangeRS"
+          xmlns:q42="http://www.opentravel.org/OTA/2003/05"/>
+  </wsdl:message>
+  <wsdl:portType name="Ota2004AServiceSoap">
+    <wsdl:operation name="CheckAvailability">
+      <wsdl:input wsaw:Action="http://synxis.com/OTA2004AService/CheckAvailability" name="CheckAvailabilityRequest" message="tns:CheckAvailabilityRequest"/>
+      <wsdl:output wsaw:Action="http://synxis.com/OTA2004AService/Ota2004AServiceSoap/CheckAvailabilityResponse" name="CheckAvailabilityResponse" message="tns:CheckAvailabilityResponse"/>
+    </wsdl:operation>
+    <wsdl:operation name="ReadReservations">
+      <wsdl:input wsaw:Action="http://synxis.com/OTA2004AService/ReadReservations" name="ReadReservationsRequest" message="tns:ReadReservationsRequest"/>
+      <wsdl:output wsaw:Action="http://synxis.com/OTA2004AService/Ota2004AServiceSoap/ReadReservationsResponse" name="ReadReservationsResponse" message="tns:ReadReservationsResponse"/>
+    </wsdl:operation>
+    <wsdl:operation name="VerifyReservations">
+      <wsdl:input wsaw:Action="http://synxis.com/OTA2004AService/VerifyReservations" name="VerifyReservationsRequest" message="tns:VerifyReservationsRequest"/>
+      <wsdl:output wsaw:Action="http://synxis.com/OTA2004AService/Ota2004AServiceSoap/VerifyReservationsResponse" name="VerifyReservationsResponse" message="tns:VerifyReservationsResponse"/>
+    </wsdl:operation>
+    <wsdl:operation name="CreateReservations">
+      <wsdl:input wsaw:Action="http://synxis.com/OTA2004AService/CreateReservations" name="CreateReservationsRequest" message="tns:CreateReservationsRequest"/>
+      <wsdl:output wsaw:Action="http://synxis.com/OTA2004AService/Ota2004AServiceSoap/CreateReservationsResponse" name="CreateReservationsResponse" message="tns:CreateReservationsResponse"/>
+    </wsdl:operation>
+    <wsdl:operation name="ModifyReservations">
+      <wsdl:input wsaw:Action="http://synxis.com/OTA2004AService/ModifyReservations" name="ModifyReservationsRequest" message="tns:ModifyReservationsRequest"/>
+      <wsdl:output wsaw:Action="http://synxis.com/OTA2004AService/Ota2004AServiceSoap/ModifyReservationsResponse" name="ModifyReservationsResponse" message="tns:ModifyReservationsResponse"/>
+    </wsdl:operation>
+    <wsdl:operation name="CreateReservationsNotification">
+      <wsdl:input wsaw:Action="http://synxis.com/OTA2004AService/CreateReservationsNotification" name="CreateReservationsNotificationRequest" message="tns:CreateReservationsNotificationRequest"/>
+      <wsdl:output wsaw:Action="http://synxis.com/OTA2004AService/Ota2004AServiceSoap/CreateReservationsNotificationResponse" name="CreateReservationsNotificationResponse" message="tns:CreateReservationsNotificationResponse"/>
+    </wsdl:operation>
+    <wsdl:operation name="ModifyReservationsNotification">
+      <wsdl:input wsaw:Action="http://synxis.com/OTA2004AService/ModifyReservationsNotification" name="ModifyReservationsNotificationRequest" message="tns:ModifyReservationsNotificationRequest"/>
+      <wsdl:output wsaw:Action="http://synxis.com/OTA2004AService/Ota2004AServiceSoap/ModifyReservationsNotificationResponse" name="ModifyReservationsNotificationResponse" message="tns:ModifyReservationsNotificationResponse"/>
+    </wsdl:operation>
+    <wsdl:operation name="CancelReservationsNotification">
+      <wsdl:input wsaw:Action="http://synxis.com/OTA2004AService/CancelReservationsNotification" name="CancelReservationsNotificationRequest" message="tns:CancelReservationsNotificationRequest"/>
+      <wsdl:output wsaw:Action="http://synxis.com/OTA2004AService/Ota2004AServiceSoap/CancelReservationsNotificationResponse" name="CancelReservationsNotificationResponse" message="tns:CancelReservationsNotificationResponse"/>
+    </wsdl:operation>
+    <wsdl:operation name="CancelReservations">
+      <wsdl:input wsaw:Action="http://synxis.com/OTA2004AService/CancelReservations" name="CancelReservationsRequest" message="tns:CancelReservationsRequest"/>
+      <wsdl:output wsaw:Action="http://synxis.com/OTA2004AService/Ota2004AServiceSoap/CancelReservationsResponse" name="CancelReservationsResponse" message="tns:CancelReservationsResponse"/>
+    </wsdl:operation>
+    <wsdl:operation name="GetHotelDetails">
+      <wsdl:input wsaw:Action="http://synxis.com/OTA2004AService/GetHotelDetails" name="GetHotelDetailsRequest" message="tns:GetHotelDetailsRequest"/>
+      <wsdl:output wsaw:Action="http://synxis.com/OTA2004AService/Ota2004AServiceSoap/GetHotelDetailsResponse" name="GetHotelDetailsResponse" message="tns:GetHotelDetailsResponse"/>
+    </wsdl:operation>
+    <wsdl:operation name="Ping">
+      <wsdl:input wsaw:Action="http://synxis.com/OTA2004AService/Ping" name="PingRequest" message="tns:PingRequest"/>
+      <wsdl:output wsaw:Action="http://synxis.com/OTA2004AService/Ota2004AServiceSoap/PingResponse" name="PingResponse" message="tns:PingResponse"/>
+    </wsdl:operation>
+    <wsdl:operation name="GetSoldRoomCounts">
+      <wsdl:input wsaw:Action="http://synxis.com/OTA2004AService/GetSoldRoomCounts" name="GetSoldRoomCountsRequest" message="tns:GetSoldRoomCountsRequest"/>
+      <wsdl:output wsaw:Action="http://synxis.com/OTA2004AService/Ota2004AServiceSoap/GetSoldRoomCountsResponse" name="GetSoldRoomCountsResponse" message="tns:GetSoldRoomCountsResponse"/>
+    </wsdl:operation>
+    <wsdl:operation name="GetAllRoomCounts">
+      <wsdl:input wsaw:Action="http://synxis.com/OTA2004AService/GetAllRoomCounts" name="GetAllRoomCountsRequest" message="tns:GetAllRoomCountsRequest"/>
+      <wsdl:output wsaw:Action="http://synxis.com/OTA2004AService/Ota2004AServiceSoap/GetAllRoomCountsResponse" name="GetAllRoomCountsResponse" message="tns:GetAllRoomCountsResponse"/>
+    </wsdl:operation>
+    <wsdl:operation name="GetHotelCacheChange">
+      <wsdl:input wsaw:Action="http://synxis.com/OTA2004AService/GetHotelCacheChange" name="GetHotelCacheChangeRequest" message="tns:GetHotelCacheChangeRequest"/>
+      <wsdl:output wsaw:Action="http://synxis.com/OTA2004AService/Ota2004AServiceSoap/GetHotelCacheChangeResponse" name="GetHotelCacheChangeResponse" message="tns:GetHotelCacheChangeResponse"/>
+    </wsdl:operation>
+  </wsdl:portType>
+  <wsdl:binding name="BasicHttpBinding_Ota2004AServiceSoap" type="tns:Ota2004AServiceSoap">
+    <soap:binding transport="http://schemas.xmlsoap.org/soap/http"/>
+    <wsdl:operation name="CheckAvailability">
+      <soap:operation soapAction="http://synxis.com/OTA2004AService/CheckAvailability" style="document"/>
+      <wsdl:input name="CheckAvailabilityRequest">
+        <soap:header message="tns:CheckAvailabilityRequest_Headers" part="HTNGHeader" use="literal"/>
+        <soap:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output name="CheckAvailabilityResponse">
+        <soap:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="ReadReservations">
+      <soap:operation soapAction="http://synxis.com/OTA2004AService/ReadReservations" style="document"/>
+      <wsdl:input name="ReadReservationsRequest">
+        <soap:header message="tns:ReadReservationsRequest_Headers" part="HTNGHeader" use="literal"/>
+        <soap:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output name="ReadReservationsResponse">
+        <soap:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="VerifyReservations">
+      <soap:operation soapAction="http://synxis.com/OTA2004AService/VerifyReservations" style="document"/>
+      <wsdl:input name="VerifyReservationsRequest">
+        <soap:header message="tns:VerifyReservationsRequest_Headers" part="HTNGHeader" use="literal"/>
+        <soap:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output name="VerifyReservationsResponse">
+        <soap:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="CreateReservations">
+      <soap:operation soapAction="http://synxis.com/OTA2004AService/CreateReservations" style="document"/>
+      <wsdl:input name="CreateReservationsRequest">
+        <soap:header message="tns:CreateReservationsRequest_Headers" part="HTNGHeader" use="literal"/>
+        <soap:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output name="CreateReservationsResponse">
+        <soap:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="ModifyReservations">
+      <soap:operation soapAction="http://synxis.com/OTA2004AService/ModifyReservations" style="document"/>
+      <wsdl:input name="ModifyReservationsRequest">
+        <soap:header message="tns:ModifyReservationsRequest_Headers" part="HTNGHeader" use="literal"/>
+        <soap:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output name="ModifyReservationsResponse">
+        <soap:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="CreateReservationsNotification">
+      <soap:operation soapAction="http://synxis.com/OTA2004AService/CreateReservationsNotification" style="document"/>
+      <wsdl:input name="CreateReservationsNotificationRequest">
+        <soap:header message="tns:CreateReservationsNotificationRequest_Headers" part="HTNGHeader" use="literal"/>
+        <soap:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output name="CreateReservationsNotificationResponse">
+        <soap:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="ModifyReservationsNotification">
+      <soap:operation soapAction="http://synxis.com/OTA2004AService/ModifyReservationsNotification" style="document"/>
+      <wsdl:input name="ModifyReservationsNotificationRequest">
+        <soap:header message="tns:ModifyReservationsNotificationRequest_Headers" part="HTNGHeader" use="literal"/>
+        <soap:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output name="ModifyReservationsNotificationResponse">
+        <soap:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="CancelReservationsNotification">
+      <soap:operation soapAction="http://synxis.com/OTA2004AService/CancelReservationsNotification" style="document"/>
+      <wsdl:input name="CancelReservationsNotificationRequest">
+        <soap:header message="tns:CancelReservationsNotificationRequest_Headers" part="HTNGHeader" use="literal"/>
+        <soap:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output name="CancelReservationsNotificationResponse">
+        <soap:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="CancelReservations">
+      <soap:operation soapAction="http://synxis.com/OTA2004AService/CancelReservations" style="document"/>
+      <wsdl:input name="CancelReservationsRequest">
+        <soap:header message="tns:CancelReservationsRequest_Headers" part="HTNGHeader" use="literal"/>
+        <soap:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output name="CancelReservationsResponse">
+        <soap:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetHotelDetails">
+      <soap:operation soapAction="http://synxis.com/OTA2004AService/GetHotelDetails" style="document"/>
+      <wsdl:input name="GetHotelDetailsRequest">
+        <soap:header message="tns:GetHotelDetailsRequest_Headers" part="HTNGHeader" use="literal"/>
+        <soap:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output name="GetHotelDetailsResponse">
+        <soap:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="Ping">
+      <soap:operation soapAction="http://synxis.com/OTA2004AService/Ping" style="document"/>
+      <wsdl:input name="PingRequest">
+        <soap:header message="tns:PingRequest_Headers" part="HTNGHeader" use="literal"/>
+        <soap:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output name="PingResponse">
+        <soap:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetSoldRoomCounts">
+      <soap:operation soapAction="http://synxis.com/OTA2004AService/GetSoldRoomCounts" style="document"/>
+      <wsdl:input name="GetSoldRoomCountsRequest">
+        <soap:header message="tns:GetSoldRoomCounts_Headers" part="HTNGHeader" use="literal"/>
+        <soap:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output name="GetSoldRoomCountsResponse">
+        <soap:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetAllRoomCounts">
+      <soap:operation soapAction="http://synxis.com/OTA2004AService/GetAllRoomCounts" style="document"/>
+      <wsdl:input name="GetAllRoomCountsRequest">
+        <soap:header message="tns:GetAllRoomCounts_Headers" part="HTNGHeader" use="literal"/>
+        <soap:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output name="GetAllRoomCountsResponse">
+        <soap:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetHotelCacheChange">
+      <soap:operation soapAction="http://synxis.com/OTA2004AService/GetHotelCacheChange" style="document"/>
+      <wsdl:input name="GetHotelCacheChangeRequest">
+        <soap:header message="tns:GetHotelCacheChange_Headers" part="HTNGHeader" use="literal"/>
+        <soap:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output name="GetHotelCacheChangeResponse">
+        <soap:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+  </wsdl:binding>
+  <wsdl:binding name="WsHttpBinding_Ota2004AServiceSoap" type="tns:Ota2004AServiceSoap">
+    <soap12:binding transport="http://schemas.xmlsoap.org/soap/http"/>
+    <wsdl:operation name="CheckAvailability">
+      <soap12:operation soapAction="http://synxis.com/OTA2004AService/CheckAvailability" style="document"/>
+      <wsdl:input name="CheckAvailabilityRequest">
+        <soap12:header message="tns:CheckAvailabilityRequest_Headers" part="HTNGHeader" use="literal"/>
+        <soap12:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output name="CheckAvailabilityResponse">
+        <soap12:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="ReadReservations">
+      <soap12:operation soapAction="http://synxis.com/OTA2004AService/ReadReservations" style="document"/>
+      <wsdl:input name="ReadReservationsRequest">
+        <soap12:header message="tns:ReadReservationsRequest_Headers" part="HTNGHeader" use="literal"/>
+        <soap12:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output name="ReadReservationsResponse">
+        <soap12:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="VerifyReservations">
+      <soap12:operation soapAction="http://synxis.com/OTA2004AService/VerifyReservations" style="document"/>
+      <wsdl:input name="VerifyReservationsRequest">
+        <soap12:header message="tns:VerifyReservationsRequest_Headers" part="HTNGHeader" use="literal"/>
+        <soap12:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output name="VerifyReservationsResponse">
+        <soap12:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="CreateReservations">
+      <soap12:operation soapAction="http://synxis.com/OTA2004AService/CreateReservations" style="document"/>
+      <wsdl:input name="CreateReservationsRequest">
+        <soap12:header message="tns:CreateReservationsRequest_Headers" part="HTNGHeader" use="literal"/>
+        <soap12:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output name="CreateReservationsResponse">
+        <soap12:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="ModifyReservations">
+      <soap12:operation soapAction="http://synxis.com/OTA2004AService/ModifyReservations" style="document"/>
+      <wsdl:input name="ModifyReservationsRequest">
+        <soap12:header message="tns:ModifyReservationsRequest_Headers" part="HTNGHeader" use="literal"/>
+        <soap12:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output name="ModifyReservationsResponse">
+        <soap12:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="CreateReservationsNotification">
+      <soap12:operation soapAction="http://synxis.com/OTA2004AService/CreateReservationsNotification" style="document"/>
+      <wsdl:input name="CreateReservationsNotificationRequest">
+        <soap12:header message="tns:CreateReservationsNotificationRequest_Headers" part="HTNGHeader" use="literal"/>
+        <soap12:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output name="CreateReservationsNotificationResponse">
+        <soap12:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="ModifyReservationsNotification">
+      <soap12:operation soapAction="http://synxis.com/OTA2004AService/ModifyReservationsNotification" style="document"/>
+      <wsdl:input name="ModifyReservationsNotificationRequest">
+        <soap12:header message="tns:ModifyReservationsNotificationRequest_Headers" part="HTNGHeader" use="literal"/>
+        <soap12:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output name="ModifyReservationsNotificationResponse">
+        <soap12:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="CancelReservationsNotification">
+      <soap12:operation soapAction="http://synxis.com/OTA2004AService/CancelReservationsNotification" style="document"/>
+      <wsdl:input name="CancelReservationsNotificationRequest">
+        <soap12:header message="tns:CancelReservationsNotificationRequest_Headers" part="HTNGHeader" use="literal"/>
+        <soap12:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output name="CancelReservationsNotificationResponse">
+        <soap12:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="CancelReservations">
+      <soap12:operation soapAction="http://synxis.com/OTA2004AService/CancelReservations" style="document"/>
+      <wsdl:input name="CancelReservationsRequest">
+        <soap12:header message="tns:CancelReservationsRequest_Headers" part="HTNGHeader" use="literal"/>
+        <soap12:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output name="CancelReservationsResponse">
+        <soap12:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetHotelDetails">
+      <soap12:operation soapAction="http://synxis.com/OTA2004AService/GetHotelDetails" style="document"/>
+      <wsdl:input name="GetHotelDetailsRequest">
+        <soap12:header message="tns:GetHotelDetailsRequest_Headers" part="HTNGHeader" use="literal"/>
+        <soap12:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output name="GetHotelDetailsResponse">
+        <soap12:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="Ping">
+      <soap12:operation soapAction="http://synxis.com/OTA2004AService/Ping" style="document"/>
+      <wsdl:input name="PingRequest">
+        <soap12:header message="tns:PingRequest_Headers" part="HTNGHeader" use="literal"/>
+        <soap12:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output name="PingResponse">
+        <soap12:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetSoldRoomCounts">
+      <soap12:operation soapAction="http://synxis.com/OTA2004AService/GetSoldRoomCounts" style="document"/>
+      <wsdl:input name="GetSoldRoomCountsRequest">
+        <soap12:header message="tns:GetSoldRoomCounts_Headers" part="HTNGHeader" use="literal"/>
+        <soap12:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output name="GetSoldRoomCountsResponse">
+        <soap12:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetAllRoomCounts">
+      <soap12:operation soapAction="http://synxis.com/OTA2004AService/GetAllRoomCounts" style="document"/>
+      <wsdl:input name="GetAllRoomCountsRequest">
+        <soap12:header message="tns:GetAllRoomCounts_Headers" part="HTNGHeader" use="literal"/>
+        <soap12:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output name="GetAllRoomCountsResponse">
+        <soap12:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetHotelCacheChange">
+      <soap12:operation soapAction="http://synxis.com/OTA2004AService/GetHotelCacheChange" style="document"/>
+      <wsdl:input name="GetHotelCacheChangeRequest">
+        <soap12:header message="tns:GetHotelCacheChange_Headers" part="HTNGHeader" use="literal"/>
+        <soap12:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output name="GetHotelCacheChangeResponse">
+        <soap12:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+  </wsdl:binding>
+   <wsdl:service name="ChannelConnectService">
+    <wsdl:port name="BasicHttpBinding_Ota2004AServiceSoap" binding="tns:BasicHttpBinding_Ota2004AServiceSoap">
+      <soap:address location="https://interface.synxis.com/channelconnect/v1_8/api"/>
+    </wsdl:port>
+    <wsdl:port name="WsHttpBinding_Ota2004AServiceSoap" binding="tns:WsHttpBinding_Ota2004AServiceSoap">
+      <soap12:address location="https://interface.synxis.com/channelconnect/v1_8/api/soap12"/>
+    </wsdl:port>
+  </wsdl:service>
+</wsdl:definitions>

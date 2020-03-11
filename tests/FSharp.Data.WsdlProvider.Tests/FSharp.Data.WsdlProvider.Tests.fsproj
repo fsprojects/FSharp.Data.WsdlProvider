@@ -7,7 +7,14 @@
   </PropertyGroup>
   <ItemGroup>
     <None Include="Eutax.wsdl" />
+    <None Include="Planning.wsdl" />
+    <None Include="Synxis.wsdl" />
     <None Include="Translator.wsdl" />
+    <None Include="Translator0.wsdl" />
+    <None Include="Translator0.xsd" />
+    <None Include="Translator1.xsd" />
+    <None Include="Translator2.xsd" />
+    <None Include="Translator3.xsd" />
     <None Include="Weather.wsdl">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>

@@ -8,6 +8,27 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Include="..\FSharp.Data.WsdlProvider.Tests\Translator0.wsdl" Link="Translator0.wsdl">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\FSharp.Data.WsdlProvider.Tests\Translator0.xsd" Link="Translator0.xsd">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\FSharp.Data.WsdlProvider.Tests\Translator1.xsd" Link="Translator1.xsd">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\FSharp.Data.WsdlProvider.Tests\Translator2.xsd" Link="Translator2.xsd">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\FSharp.Data.WsdlProvider.Tests\Translator3.xsd" Link="Translator3.xsd">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\FSharp.Data.WsdlProvider.Tests\Planning.wsdl" Link="Planning.wsdl">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\FSharp.Data.WsdlProvider.Tests\Synxis.wsdl" Link="Synxis.wsdl">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Include="..\FSharp.Data.WsdlProvider.Tests\Eutax.wsdl" Link="Eutax.wsdl">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>

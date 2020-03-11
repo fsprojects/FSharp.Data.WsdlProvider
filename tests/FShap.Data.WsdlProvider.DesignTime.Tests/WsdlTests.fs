@@ -35,7 +35,7 @@ let ``Weather Wsld loading should succeed`` () =
 
 [<Test>]
 let ``Synxis Wsld loading should succeed`` () =
-    let wsdl = loadWsdl "https://interface.synxis.com/ChannelConnect/v1_8/ChannelConnectService.svc.wsdl"
+    let wsdl = loadWsdl "./Synxis.wsdl"
     
     Assert.NotNull(wsdl)
 
@@ -48,8 +48,7 @@ let ``Translator Wsld loading should succeed`` () =
 
 [<Test>]
 let ``Planning Wsld loading should succeed`` () =
-    let wsdl = loadWsdl "https://ws.availpro.com/planning/2012A/planningService.asmx?wsdl"
-    //let wsdl = loadWsdl "http://api.microsofttranslator.com/V2/soap.svc"
+    let wsdl = loadWsdl "./Planning.wsdl"
     
     Assert.NotNull(wsdl)
 
