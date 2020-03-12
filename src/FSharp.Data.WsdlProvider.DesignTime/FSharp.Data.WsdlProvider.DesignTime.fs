@@ -6,14 +6,12 @@ open System.IO
 open System.Reflection
 open FSharp.Quotations
 open FSharp.Core.CompilerServices
-open ProviderImplementation
 open ProviderImplementation.ProvidedTypes
 open System.ServiceModel
 open FSharp.Data.Wsdl
 open FSharp.Data.Xsd
 open System.Threading.Tasks
 open System.Xml.Linq
-open System.Xml.Schema
 open System.Collections.Concurrent
 
 module String =
@@ -53,8 +51,6 @@ module Provided =
         mkProvidedAttribute<XmlArrayItemAttribute> [typeof<string>, box name] 
                 [ "IsNullable", box isNullable ]
 
-
-
     let mkXmlTypeAttribute (ns: string, anonymous) =
         mkProvidedAttribute<XmlTypeAttribute> []
             [ if anonymous then
@@ -74,7 +70,6 @@ module Provided =
         mkProvidedAttribute<MessageBodyMemberAttribute> [] 
             [ "Namespace", box ns
               "Order", box order ]
-        
 
     let mkXmlSerializerFormatAttribute() =
         mkProvidedAttribute<XmlSerializerFormatAttribute> [] [ "SupportFaults", box true]
@@ -102,7 +97,9 @@ module Provided =
                 let location = location
                 let binding = DefaultBinding.SelectBinding(location)
                 let parentCtorCall (args: Expr list) = 
-                    [ args.[0] 
+                    [ args.[0] // this
+                      // the SelectBinding methods selects binding 
+                      // matching location uri scheme
                       <@@ DefaultBinding.SelectBinding(location) @@>
                       <@@ EndpointAddress(location) @@> ]
 
@@ -114,7 +111,9 @@ module Provided =
                 let args = [ ProvidedParameter("remoteAddress", typeof<string>) ]
                 let c = ProvidedConstructor(args, (fun _ -> <@@ () @@>))
                 let parentCtorCall (args: Expr list) = 
-                    [ args.[0]
+                    [ args.[0] // this
+                      // the SelectBinding methods selects binding 
+                      // matching location uri scheme
                       <@@ DefaultBinding.SelectBinding(%%(args.[1])) @@>
                       <@@ EndpointAddress( %%(args.[1]) ) @@> ]
 
@@ -141,7 +140,13 @@ module Provided =
 
         client.AddMember(location)
 
-    let defineOperationMethod (op: Operation,input, output) channel (itf: ProvidedTypeDefinition) (soapItf: ProvidedTypeDefinition) (client: ProvidedTypeDefinition)  =
+    type ClientContext =
+        { Channel: Expr -> Expr
+          ClientInterface: ProvidedTypeDefinition
+          SoapInterface: ProvidedTypeDefinition
+          Client: ProvidedTypeDefinition }
+
+    let defineOperationMethod (op: Operation,input, output) clientCtx =
         let name = op.PortOperation.Name
         let outputType =
             if output = typeof<Unit> then
@@ -155,26 +160,26 @@ module Provided =
         soapItfMeth.AddCustomAttribute (mkOperationContractAttribute op.SoapAction "*")
         soapItfMeth.AddCustomAttribute(mkXmlSerializerFormatAttribute())
        
-        soapItf.AddMember(soapItfMeth)
+        clientCtx.SoapInterface.AddMember(soapItfMeth)
 
         // method on the user facing interface
         let itfMeth = ProvidedMethod(name, input , outputType)
-        itf.AddMember(itfMeth)
+        clientCtx.ClientInterface.AddMember(itfMeth)
 
         let code = 
             fun (args: Expr list) ->
-                Expr.Call(channel args.[0], soapItfMeth, args.[1..])
+                Expr.Call(clientCtx.Channel args.[0], soapItfMeth, args.[1..])
 
         // method implementation
         let clientMeth = ProvidedMethod(name, input, outputType, code)
 
-        client.AddMember(clientMeth)
-        let itfImpl = ProvidedMethod(itf.FullName + "." + name, input , outputType, invokeCode = ( fun args -> Expr.Call(args.[0], clientMeth, args.[1..])))
+        clientCtx.Client.AddMember(clientMeth)
+        let itfImpl = ProvidedMethod(clientCtx.ClientInterface.FullName + "." + name, input , outputType, invokeCode = ( fun args -> Expr.Call(args.[0], clientMeth, args.[1..])))
         itfImpl.SetMethodAttrs(MethodAttributes.Private ||| MethodAttributes.HideBySig ||| MethodAttributes.NewSlot ||| MethodAttributes.Virtual ||| MethodAttributes.Final)
-        client.DefineMethodOverride(itfImpl, itfMeth)
-        client.AddMember(itfImpl)
+        clientCtx.Client.DefineMethodOverride(itfImpl, itfMeth)
+        clientCtx.Client.AddMember(itfImpl)
 
-    let defineAsyncOperationMethod (op: Operation,input, output) channel (itf: ProvidedTypeDefinition) (soapItf: ProvidedTypeDefinition) (client: ProvidedTypeDefinition)  =
+    let defineAsyncOperationMethod (op: Operation,input, output) clientCtx =
         let name = op.PortOperation.Name + "Async"
 
         // method on soap interface alwasy use tasks (include soap attributes)
@@ -187,30 +192,30 @@ module Provided =
         soapItfMeth.AddCustomAttribute (mkOperationContractAttribute op.SoapAction "*")
         soapItfMeth.AddCustomAttribute(mkXmlSerializerFormatAttribute())
 
-        soapItf.AddMember(soapItfMeth)
+        clientCtx.SoapInterface.AddMember(soapItfMeth)
 
         // method on front facing interface using task
         let itfTaskMeth = ProvidedMethod(name, input , taskOutput)
-        itf.AddMember(itfTaskMeth)
+        clientCtx.ClientInterface.AddMember(itfTaskMeth)
 
         // implementation of the task method
         let code = 
             fun (args: Expr list) ->
-                Expr.Call(channel args.[0], soapItfMeth, args.[1..])
+                Expr.Call(clientCtx.Channel args.[0], soapItfMeth, args.[1..])
 
         let clientMeth = ProvidedMethod(name, input, taskOutput, code)
 
-        client.AddMember(clientMeth)
-        let itfImpl = ProvidedMethod(itf.FullName + "." + name, input , taskOutput, invokeCode = ( fun args -> Expr.Call(args.[0], clientMeth, args.[1..])))
+        clientCtx.Client.AddMember(clientMeth)
+        let itfImpl = ProvidedMethod(clientCtx.ClientInterface.FullName + "." + name, input , taskOutput, invokeCode = ( fun args -> Expr.Call(args.[0], clientMeth, args.[1..])))
         itfImpl.SetMethodAttrs(MethodAttributes.Private ||| MethodAttributes.HideBySig ||| MethodAttributes.NewSlot ||| MethodAttributes.Virtual ||| MethodAttributes.Final)
-        client.DefineMethodOverride(itfImpl, itfTaskMeth)
-        client.AddMember(itfImpl)
+        clientCtx.Client.DefineMethodOverride(itfImpl, itfTaskMeth)
+        clientCtx.Client.AddMember(itfImpl)
 
         // method on front facing interface using Async
         let asyncName = "Async" + op.PortOperation.Name
         let asyncOutput = ProvidedTypeBuilder.MakeGenericType(typedefof<Async<_>>, [ output ])
         let itfAsyncMeth = ProvidedMethod(asyncName, input , asyncOutput)
-        itf.AddMember(itfAsyncMeth)
+        clientCtx.ClientInterface.AddMember(itfAsyncMeth)
 
         let code = 
 
@@ -230,28 +235,30 @@ module Provided =
                     ProvidedTypeBuilder.MakeGenericMethod(awaitTaskGen, [output])
 
             fun (args: Expr list) ->
-                  Expr.Call(awaitTask, [ Expr.Call(channel args.[0], soapItfMeth, args.[1..] )])
+                  Expr.Call(awaitTask, [ Expr.Call(clientCtx.Channel args.[0], soapItfMeth, args.[1..] )])
 
         let clientMeth = ProvidedMethod(asyncName, input, asyncOutput, code)
 
-        client.AddMember(clientMeth)
-        let itfImpl = ProvidedMethod(itf.FullName + "." + asyncName, input , asyncOutput, invokeCode = ( fun args -> Expr.Call(args.[0], clientMeth, args.[1..])))
+        clientCtx.Client.AddMember(clientMeth)
+        let itfImpl = ProvidedMethod(clientCtx.ClientInterface.FullName + "." + asyncName, input , asyncOutput, invokeCode = ( fun args -> Expr.Call(args.[0], clientMeth, args.[1..])))
         itfImpl.SetMethodAttrs(MethodAttributes.Private ||| MethodAttributes.HideBySig ||| MethodAttributes.NewSlot ||| MethodAttributes.Virtual ||| MethodAttributes.Final)
-        client.DefineMethodOverride(itfImpl, itfAsyncMeth)
-        client.AddMember(itfImpl)
+        clientCtx.Client.DefineMethodOverride(itfImpl, itfAsyncMeth)
+        clientCtx.Client.AddMember(itfImpl)
 
 
-
-
-
-    let rec makeSequencial (exprs: Expr list) =
+    // builds a log2 deep Sequential tree from expression list
+    // this is required for constructors that take many arguments.
+    // The output sequence is used by a non-tail call function that will
+    // raise stackoverflow if the nesting is too deep. Using a binary split
+    // enables lower depth.
+    let rec makeSequential (exprs: Expr list) =
         match exprs with
         | [] -> <@@ () @@>
         | [ e ] -> e
         | [ ex; ey] -> Expr.Sequential(ex,ey)
         | _ ->
             let left, right = List.splitAt(exprs.Length / 2) exprs
-            Expr.Sequential( makeSequencial left, makeSequencial right)
+            Expr.Sequential( makeSequential left, makeSequential right)
 
 
     type CTChildKind =
@@ -264,6 +271,7 @@ module Provided =
         | XmlType of XName
         | Anonymous of XName
         | NoName
+
     let buildWsdlTypes nsp (asm: ProvidedAssembly) name wsdl =
         let p = ProvidedTypeDefinition(asm, nsp, name, Some typeof<obj>, isSealed = false, isErased = false)
         asm.AddTypes([p])
@@ -271,6 +279,16 @@ module Provided =
         let types = Dictionary<XName,ProvidedTypeDefinition>()
         let typeNames = Dictionary<string,int>()
 
+        // avoid name clashes by adding a number suffix to existing type names
+        let fixTypeName name =
+            match typeNames.TryGetValue(name) with
+            | false, _ ->
+                typeNames.[name] <- 0
+                name
+            | true, n ->
+                let newN = n + 1
+                typeNames.[name] <- newN
+                name + string newN
 
         let rec buildComplexType contract name (xmlname: CTXmlName) (t: XsComplexType) = 
             match xmlname with
@@ -285,16 +303,7 @@ module Provided =
                | Some t -> t
                | None ->
             
-                let typeName =
-                    match typeNames.TryGetValue(name) with
-                    | false, _ ->
-                        typeNames.[name] <- 0
-                        name
-                    | true, n ->
-                        let newN = n + 1
-                        typeNames.[name] <- newN
-                        name + string newN
-
+                let typeName = fixTypeName name 
                 let pt = ProvidedTypeDefinition(asm, nsp , typeName, Some typeof<obj>, isErased = false)
                 match xmlname with
                 | XmlType n ->
@@ -336,8 +345,6 @@ module Provided =
                                     let propType = pt.MakeArrayType()
                                     yield (e.Name.LocalName, e.Name, propType, CTArray itemName.LocalName)
 
-
-
                                 | _ ->
 
                                     let propType = 
@@ -362,19 +369,20 @@ module Provided =
                                 yield (e.Name.LocalName, e.Name, propType, CTElement)
                             | XsAny _ -> () ]
                     | _ -> []
+
                 let elementNames = set [ for (n,_,_,_) in elements -> n ]
+                let fixAttributeName name  = 
+                    if Set.contains name elementNames then
+                        name + "Attribute"
+                    else
+                        name
 
                 let attributes =
                     [ for a in t.Attributes do
                         let attrType = attributeTypeRef a.Type
-                        let name = 
-                            if Set.contains a.Name.LocalName elementNames then
-                                a.Name.LocalName + "Attribute"
-                            else
-                                a.Name.LocalName
+                        let name = fixAttributeName a.Name.LocalName
 
                         name, a.Name, attrType, CTAttribute ]
-
 
                 let all = elements @ attributes
 
@@ -417,7 +425,7 @@ module Provided =
                                 fields |> List.mapi (fun i field ->
                                     Expr.FieldSet(this, field, args.[i+1] ))
 
-                            makeSequencial sets
+                            makeSequential sets
                             
                         )
 
@@ -431,15 +439,8 @@ module Provided =
             match types.TryGetValue(name) with
             | true, t -> t :> Type
             | false, _ ->
-                let typeName =
-                    match typeNames.TryGetValue(name.LocalName) with
-                    | false, _ ->
-                        typeNames.[name.LocalName] <- 0
-                        name.LocalName 
-                    | true, n ->
-                        let newN = n + 1
-                        typeNames.[name.LocalName] <- newN
-                        name.LocalName + string newN
+                let typeName = fixTypeName name.LocalName
+
                 let pt = ProvidedTypeDefinition(asm, nsp , typeName, Some typeof<Enum>, isErased = false)
                 pt.SetEnumUnderlyingType(typeof<int>)
                 pt.AddCustomAttribute(mkXmlTypeAttribute(name.NamespaceName,false))
@@ -455,7 +456,6 @@ module Provided =
                 |> pt.AddMembers
 
                 pt :> Type
-
 
 
         and buildType contract (typeDef: XsTypeDef) =
@@ -478,6 +478,7 @@ module Provided =
                 | true, t -> t :> Type
                 | false,_ ->                    
                     buildType false wsdl.Schemas.Types.[name]
+
 
         and attributeTypeRef (t: XsAttributeType) =
             match t with
@@ -503,6 +504,16 @@ module Provided =
                 
 
  
+        let buildParameters contract (name: XName) (t: XsTypeRef) =
+            match t with
+            | InlineType (XsComplexType { Elements = NoContent; BaseType = None}) ->
+                // no content, this is a void method
+                []
+            | InlineType (XsComplexType { Elements = Sequence [ XsElement ({ Type = tn} as elt) ]}) ->
+                // No need for all this wrapping. Just use the element/type inside
+                [ ProvidedParameter(elt.Name.LocalName, buildMessage contract name tn) ]
+            | tn ->
+                [ ProvidedParameter(name.LocalName, buildMessage contract name tn ) ]
 
         let buildElement contract (e: XsElement) =
             match e with
@@ -519,7 +530,33 @@ module Provided =
                 
             | _ -> failwithf "Canot build toplevel element %O" e.Name
             
-            
+        let buildOperation op clientCtx =
+            let contract = op.PortOperation.RequireContract
+            let input = 
+                match op.PortOperation.Input with
+                | None  -> []
+                | Some {Element = Element { Name = n; Type = t }} -> 
+                    buildParameters contract n t
+                | Some { Name = n; Element = SimpleType t } ->
+                    buildParameters contract (XName.Get n) (TypeRef t)
+
+            let output = 
+                match op.PortOperation.Output with
+                | Some {Element = Element e } ->
+                    buildElement contract e 
+                | Some {Element = SimpleType t } ->
+                    typeRef t
+                | None ->
+                    typeof<unit>
+
+            // synchronous method
+            defineOperationMethod (op,input,output) clientCtx
+
+            // task method
+            defineAsyncOperationMethod (op,input, output) clientCtx
+
+            ()
+
         let buildPort serviceName (port: Port) = 
             try
 
@@ -552,48 +589,14 @@ module Provided =
             let channel this = 
                 Expr.PropertyGet(this, channelProp)
 
-
-
-            let buildParameters contract (name: XName) (t: XsTypeRef) =
-                match t with
-                | InlineType (XsComplexType { Elements = Sequence [ XsElement ({ Type = tn} as elt) ]}) ->
-                    [ ProvidedParameter(elt.Name.LocalName, buildMessage contract name tn) ]
-                | InlineType (XsComplexType { Elements = NoContent; BaseType = None}) ->
-                    []
-                | tn ->
-                    [ ProvidedParameter(name.LocalName, buildMessage contract name tn ) ]
-
-
+            let clientCtx =
+                { Channel = channel
+                  ClientInterface = itf
+                  SoapInterface = soapItf
+                  Client = client }
 
             for op in port.Binding.Operations do
-                let contract = op.PortOperation.RequireContract
-                let input = 
-                    match op.PortOperation.Input with
-                    | None  -> []
-                    | Some {Element = Element { Name = n; Type = t }} -> 
-                        buildParameters contract n t
-                    | Some { Name = n; Element = SimpleType t } ->
-                        buildParameters contract (XName.Get n) (TypeRef t)
-
-
-
-                    
-                let output = 
-                    match op.PortOperation.Output with
-                    | Some {Element = Element e } ->
-                        buildElement contract e 
-                    | Some {Element = SimpleType t } ->
-                        typeRef t
-                    | None ->
-                        typeof<unit>
-
-                // synchronous method
-                defineOperationMethod (op,input,output) channel itf soapItf client  
-
-                // task method
-                defineAsyncOperationMethod (op,input, output) channel itf soapItf client  
-
-                ()
+                buildOperation op clientCtx
 
             
             [itf; soapItf ; client]
