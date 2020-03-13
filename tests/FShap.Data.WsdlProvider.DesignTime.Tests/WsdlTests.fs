@@ -17,8 +17,10 @@ open System.Xml.Linq
 open NUnit.Framework
 
 let loadWsdl name = 
-    XDocument.Load(name: string)
-    |> parse 
+    let doc = XDocument.Load(name: string)
+    parse doc (Uri(IO.Path.Combine(Environment.CurrentDirectory, name))) dontSave
+
+
 
 [<SetUp>]
 let setup() =
@@ -60,7 +62,7 @@ let ``Element can be lists (with min=0 and max=unbounded)`` () =
     let ns = XNamespace.Get "http://ws.cdyne.com/WeatherWS/"
 
     let t = 
-        wsdl.Schemas.Types.[ ns + "ArrayOfWeatherDescription"]
+        wsdl.Schemas.Types.[ ns + "ArrayOfWeatherDescription"] 
 
     let expected =
         { Name = ns + "ArrayOfWeatherDescription"
@@ -84,7 +86,7 @@ let ``Element can be lists (with min=0 and max=unbounded)`` () =
 [<Test>]
 let ``Element can have empty complex type`` () =
     // this is used for actions that take no inupt parameters
-    let wsdl = loadWsdl "./Weather.wsdl"
+    let wsdl = loadWsdl "./Weather.wsdl" 
     let ns = XNamespace.Get "http://ws.cdyne.com/WeatherWS/"
 
     let element = 
@@ -133,7 +135,7 @@ let ``ComplexType contains elements``() =
 [<Test>]
 let ``Services contains declares services`` () =
     // this is used for actions that take no inupt parameters
-    let wsdl = loadWsdl "./Weather.wsdl"
+    let wsdl = loadWsdl "./Weather.wsdl" 
     
     Assert.AreEqual(1, wsdl.Services.Length)
     Assert.AreEqual("Weather", wsdl.Services.[0].Name)
@@ -159,3 +161,41 @@ let ``Document style wsdl is detected`` () =
     let binding = service.Ports.[0].Binding
     Assert.AreEqual(Document, binding.Style)
 
+
+
+[<Test>]
+let ``Local schema is writen correctly`` () =
+    // this is used for actions that take no inupt parameters
+    let fullPath = IO.Path.Combine(Environment.CurrentDirectory,"./Translator.wsdl" )
+    let wsdl = XDocument.Load(fullPath)
+    let writer = new IO.StringWriter()
+    let _ = parse wsdl (Uri fullPath) (writeLocalSchema writer)
+
+    let doc = XDocument.Parse(writer.ToString())
+    Assert.AreEqual(XName.Get "ServiceMetadataFiles", doc.Root.Name)
+    let names = 
+        [ "api.microsofttranslator.com.V2.wsdl"
+          "tempuri.org.wsdl"
+          "api.microsofttranslator.com.V2.xsd"
+          "Microsoft.MT.Web.Service.V2.xsd"
+          "schemas.microsoft.com.2003.10.Serialization.Arrays.xsd"
+          "schemas.microsoft.com.2003.10.Serialization.xsd" ]
+
+    CollectionAssert.AreEquivalent(names, doc.Root.Elements( XName.Get "ServiceMetadataFile").Attributes(XName.Get "name") |> Seq.map (fun a -> a.Value) )
+
+
+    
+[<Test>]
+let ``Local schema can roundtrip`` () =
+    // this is used for actions that take no inupt parameters
+    let fullPath = IO.Path.Combine(Environment.CurrentDirectory,"./Translator.wsdl" )
+    let wsdl = XDocument.Load(fullPath)
+    let writer = new IO.StringWriter()
+    let parsedWsdl = parse wsdl (Uri fullPath) (writeLocalSchema writer)
+
+    let localSchema = XDocument.Parse(writer.ToString())
+    let localfullPath = IO.Path.Combine(Environment.CurrentDirectory, "Translator.wsdlschema")
+
+    let parsedLocalWsdl = parseWsdlSchema localSchema (Uri localfullPath)
+
+    Assert.AreEqual(parsedWsdl, parsedLocalWsdl)

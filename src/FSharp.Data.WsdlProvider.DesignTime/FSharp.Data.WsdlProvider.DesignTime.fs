@@ -629,10 +629,13 @@ type WsdlProvider (config : TypeProviderConfig) as this =
 
     do service.DefineStaticParameters(
 
-        [ ProvidedStaticParameter("ServiceUri", typeof<string>) ],
+        [ ProvidedStaticParameter("ServiceUri", typeof<string>)
+          ProvidedStaticParameter("LocalSchemaFile", typeof<string>, "")
+          ProvidedStaticParameter("ForceUpdate", typeof<bool>, false)],
         fun name args ->
             let uri = unbox<string> args.[0]
-
+            let localSchemaFile = unbox<string> args.[1]
+            let forceUpdate = unbox<bool> args.[2]
             match cache.TryGetValue(name) with
             | true, (existingUri, providedType)
                 when existingUri = uri ->
@@ -640,7 +643,21 @@ type WsdlProvider (config : TypeProviderConfig) as this =
             | _ ->
                 let wsdl = 
                     try
-                        Wsdl.parse (System.Xml.Linq.XDocument.Load uri)
+                        if localSchemaFile = "" then 
+                            
+                            Wsdl.parse (System.Xml.Linq.XDocument.Load uri) (Uri uri) dontSave
+                        else
+                            let fullPath = 
+                                if Path.IsPathRooted localSchemaFile then
+                                    localSchemaFile
+                                else
+                                    Path.Combine(Environment.CurrentDirectory, localSchemaFile)
+                            if File.Exists fullPath && not forceUpdate then
+                                
+                                Wsdl.parseWsdlSchema (System.Xml.Linq.XDocument.Load fullPath) (Uri fullPath)
+                            else
+                                Wsdl.parse (System.Xml.Linq.XDocument.Load uri) (Uri uri) (saveLocalSchema fullPath)
+
                     with
                     | ex -> failwithf "Error while loading wsdl:\n%O" ex
 

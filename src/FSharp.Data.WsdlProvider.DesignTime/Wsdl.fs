@@ -1,5 +1,6 @@
 ﻿module FSharp.Data.Wsdl
 
+open System
 open System.Xml
 open System.Xml.Linq
 open FSharp.Data.Xsd
@@ -165,8 +166,8 @@ let parseMessage (tns: XNamespace) (msg: XElement ) (schemas: XsSet) =
       Part =  part }
             
 
-let parseMessages tns (wsdl: XDocument) (schemas: XsSet) =
-    [ for e in  wsdl.Root.Elements(Wsdl.message) ->
+let parseMessages tns (wsdl: XElement) (schemas: XsSet) =
+    [ for e in  wsdl.Elements(Wsdl.message) ->
         parseMessage tns e schemas ]
 
 
@@ -203,8 +204,8 @@ let parseOperation (messages: Message list) (portOp: XElement) (*wsdlOp: XElemen
       Input = input.Part
       Output = output.Part  }
 
-let parsePortTypes (tns: XNamespace) (wsdl: XDocument) messages =
-    [ for p in wsdl.Root.Elements(Wsdl.portType) ->
+let parsePortTypes (tns: XNamespace) (wsdl: XElement) messages =
+    [ for p in wsdl.Elements(Wsdl.portType) ->
         let name = Xml.attr "name" p
         { PortType.Name = tns + name
           Operations = 
@@ -247,8 +248,8 @@ let parseBinding (tns: XNamespace) (binding: XElement) (portTypes: PortType list
       Style = style }
 
 
-let parseBindings tns (wsdl: XDocument) portTypes =
-    [ for b in wsdl.Root.Elements(Wsdl.binding) ->
+let parseBindings tns (wsdl: XElement) portTypes =
+    [ for b in wsdl.Elements(Wsdl.binding) ->
         parseBinding tns b portTypes ]
 
     
@@ -273,8 +274,8 @@ let parsePort (bindings: SoapBinding list) (tns: XNamespace) (e: XElement)  =
               Location = location
               Binding = binding }
 
-let parseServices bindings tns (wsdl: XDocument)  = 
-    [ for e in wsdl.Root.Elements(Wsdl.service) ->
+let parseServices bindings tns (wsdl: XElement)  = 
+    [ for e in wsdl.Elements(Wsdl.service) ->
         { Name = e.Attribute(Wsdl.Attr.name).Value
           Ports = 
             e.Elements(Wsdl.port)
@@ -283,37 +284,84 @@ let parseServices bindings tns (wsdl: XDocument)  =
     ]
 
 
-let rec parseWsdlImports (wsdl: XDocument) docs =
-    wsdl.Root.Elements(Wsdl.ns + "import")
+let rec parseWsdlImports (wsdl: XElement) baseUri (resolver: XmlResolver) docs =
+    wsdl.Elements(Wsdl.ns + "import")
     |> Seq.fold 
         (fun docs import ->
             let ns = Xml.attr "namespace" import
             if Map.containsKey ns docs then
                 docs
             else
-                let location = Xml.attr "location" import 
-                let doc = XDocument.Load(location)
+                let location = Uri(Xml.attr "location" import, UriKind.RelativeOrAbsolute)
+                let uri =
+                    if location.IsAbsoluteUri then
+                        location
+                    else
+                        Uri(baseUri, location)
+
+
+                let doc = 
+                    resolver.GetEntity(uri, "wsdl", null)
+                    |> unbox<IO.Stream>
+                    |> XDocument.Load
 
                 docs
-                |> Map.add ns doc
-                |> parseWsdlImports doc ) 
+                |> Map.add ns doc.Root
+                |> parseWsdlImports doc.Root uri resolver ) 
         docs
 
 open System.Xml.Schema
 
-let parse (wsdl: XDocument) =
-    let tns = wsdl.Root.Attribute(Wsdl.Attr.targetNamespace).Value |> XNamespace.Get
+let nsName (ns: string) suffix =
+    let uri = Uri ns
+    if uri.AbsoluteUri.StartsWith("http://schemas.datacontract.org/2004/07/",StringComparison.Ordinal) then
+        uri.LocalPath.Substring(9).Replace("/",".").TrimEnd('.') + suffix
+    else
+        uri.Authority + uri.LocalPath.Replace("/",".").TrimEnd('.') + suffix
+
+
+let writeLocalSchema (writer: IO.TextWriter) (imports: (string * XElement) list) (schemas: XmlSchemaSet) =
+    let w = new XmlTextWriter(writer)
+    w.WriteStartDocument()
+    w.WriteStartElement("ServiceMetadataFiles")
+
+    let importsXsdNs =
+        set [ for _,wsdl in imports do
+              for tns in wsdl.Descendants(Xsd.ns + "schema").Attributes(XName.Get "targetNamespace") ->
+              tns.Value ]
+
+    for ns,wsdl in imports do
+        w.WriteStartElement("ServiceMetadataFile")
+        w.WriteAttributeString("name", nsName ns ".wsdl" )
+        wsdl.WriteTo(w)
+        w.WriteEndElement()
+    for s  in schemas.Schemas() |> Seq.cast<XmlSchema> do
+        if not (Set.contains s.TargetNamespace importsXsdNs) then
+            w.WriteStartElement("ServiceMetadataFile")
+            w.WriteAttributeString("name", nsName s.TargetNamespace ".xsd" )
+            s.Write(w)
+            w.WriteEndElement()
+    w.WriteEndElement()
+
+let saveLocalSchema file imports schemas =
+    use writer = IO.File.CreateText(file)
+    writeLocalSchema writer imports schemas
+
+let dontSave _ _ = ()
+
+let parseWithLoader (wsdl: XElement) documentUri loader saveSchema =
+    let tns = wsdl.Attribute(Wsdl.Attr.targetNamespace).Value |> XNamespace.Get
 
     let imports = 
         Map.empty
         |> Map.add tns.NamespaceName wsdl
-        |> parseWsdlImports wsdl
+        |> parseWsdlImports wsdl documentUri loader
         |> Map.toList
 
 
-    let schemas = XmlSchemaSet(XmlResolver = XmlUrlResolver() )
-    for ns,wsdl in imports  do
-        let types = wsdl.Root.Element(Wsdl.types)
+    let schemas = XmlSchemaSet(XmlResolver = loader )
+    for _,wsdl in imports  do
+        let types = wsdl.Element(Wsdl.types)
         for schema in types.Elements(XmlSchema.schema) do
             schemas.Add(null, schema.CreateReader()) |> ignore
 
@@ -332,15 +380,87 @@ let parse (wsdl: XDocument) =
         [ for ns, wsdl in imports do
             yield! parseBindings (XNamespace.Get ns) wsdl portTypes]
 
-
     let services = 
         [ for ns, wsdl in imports do
             yield! parseServices bindings (XNamespace.Get ns) wsdl  ]
 
+    saveSchema imports schemas
+
     { Schemas = schemaSet
       Services = services }
 
+let parse (wsdl: XDocument) documentUri saveSchema =
+    parseWithLoader wsdl.Root documentUri (XmlUrlResolver()) saveSchema
 
+type DocUri =
+    | XsdUri of string
+    | WsdlUri of string
+
+type XmlLocalResolver(files: Map<DocUri, byte[]>) =
+    inherit XmlResolver()
+    override this.GetEntity(uri, role, ofObjectToReturn) =
+        let key = 
+            match role with
+            | "wsdl" -> WsdlUri (string uri)
+            | _ -> XsdUri (string uri)
+        let bytes = files.[key]
+        new IO.MemoryStream(bytes) |> box
+            
+        // api.microsofttranslator.com.V2.wsdl
+        //"http://api.microsofttranslator.com/V2/soap.svc?wsdl=wsdl0"
+
+
+let parseWsdlSchema (schema: XDocument) documentUri =
+    let root = 
+        schema.Root.Elements()
+        |> Seq.filter(fun e ->  e.Descendants(Wsdl.service) |> Seq.isEmpty |> not)
+        |> Seq.map (fun e -> e.Element(Wsdl.ns + "definitions"))
+        |> Seq.head
+
+    let docs = 
+        [ for f in schema.Root.Elements() -> 
+            let name = f.Attribute(XName.Get "name").Value
+            let element = 
+                if name.EndsWith(".wsdl") then
+                    f.Element(Wsdl.ns + "definitions")
+                else
+                    f.Element(Xsd.ns + "schema")
+            let tns = element.Attribute(XName.Get "targetNamespace").Value
+
+            use stream = new IO.MemoryStream()
+            element.Save(stream)
+            let bytes = stream.ToArray()
+            if name.EndsWith(".wsdl") then
+                WsdlUri tns, bytes
+            else
+                XsdUri tns, bytes
+        ] |> Map.ofList
+
+    let files = 
+        [ for import in schema.Root.Descendants(Wsdl.ns + "import") ->
+            let ns = import.Attribute(XName.Get "namespace").Value
+                
+            let location = 
+                let l =  Uri(import.Attribute(XName.Get "location").Value, UriKind.RelativeOrAbsolute)
+                if l.IsAbsoluteUri then
+                    l
+                else
+                    Uri(documentUri, l)
+            WsdlUri location.AbsoluteUri, docs.[WsdlUri ns]
+       
+          for import in schema.Root.Descendants(Xsd.ns + "import") ->
+            let ns = import.Attribute(XName.Get "namespace").Value
+            let location =
+                let l = Uri(import.Attribute(XName.Get "schemaLocation").Value, UriKind.RelativeOrAbsolute)
+                if l.IsAbsoluteUri then
+                    l
+                else
+                    Uri(documentUri, l)
+            XsdUri location.AbsoluteUri, docs.[XsdUri ns]
+        ] 
+        |> Map.ofList
+
+    parseWithLoader root documentUri (XmlLocalResolver(files)) (fun _ _ -> ())
 
 type PortOperation with
     member this.RequireContract =

@@ -1,3 +1,6 @@
+## 0.4-alpha
+* LocalFileSchema and ForceUpdate to allow CI without fetching schemas from internet
+
 ## 0.3-alpha
 * Un-nest arrays
 * Automatically detect BasicHttpsBinding

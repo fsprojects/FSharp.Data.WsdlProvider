@@ -232,9 +232,41 @@ and parseTypeDef (t: XmlSchemaType) =
       Type = parseType t}
    
 open System.Collections.Generic
+[<CustomEquality; NoComparison>]
 type XsSet =
     { Types: IDictionary<XName, XsTypeDef>
       Elements: IDictionary<XName, XsElement> }
+    
+    interface System.Collections.IStructuralEquatable with
+        member this.Equals(other, comparer) =
+            match other with
+            | :? XsSet as s ->
+                if s.Types.Count <> this.Types.Count || s.Elements.Count <> this.Elements.Count then
+                    false
+                else
+                    this.Types
+                    |> Seq.forall (fun (KeyValue(k,v)) -> 
+                        match s.Types.TryGetValue(k) with
+                        | false, _ -> false
+                        | true, v' -> comparer.Equals(v,v'))
+                    && this.Elements
+                       |> Seq.forall (fun (KeyValue(k,v)) -> 
+                           match s.Elements.TryGetValue(k) with
+                           | false, _ -> false
+                           | true, v' -> comparer.Equals(v,v'))
+
+            | _ -> false
+
+        member this.GetHashCode(comparer) =
+            let t = 
+                this.Types
+                |> Seq.fold (fun h (KeyValue(k,v)) -> (h * 357 + comparer.GetHashCode(k)) * 13 + comparer.GetHashCode(v) ) 0
+            let e = 
+                this.Elements
+                |> Seq.fold (fun h (KeyValue(k,v)) -> (h * 357 + comparer.GetHashCode(k)) * 13 + comparer.GetHashCode(v) ) 0
+
+            357 * e + t
+
     
 module Schema =
     let element (xname: XName) (set: XmlSchemaSet) = 
@@ -277,4 +309,5 @@ module Schema =
         |> not
 
             
+let ns = XNamespace.Get XmlSchema.Namespace
 
