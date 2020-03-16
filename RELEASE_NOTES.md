@@ -1,3 +1,6 @@
+## 0.5-alpha
+* ResolutionFolder
+
 ## 0.4-alpha
 * LocalFileSchema and ForceUpdate to allow CI without fetching schemas from internet
 

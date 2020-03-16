@@ -40,11 +40,10 @@ let ``Client implements Soap service interface`` () =
 
 [<Test>]
 let ``Soap client provides location as a static member`` () =
-    //use client = new Weather.WeatherSoapClient(BasicHttpBinding(), EndpointAddress("http://example.com"))
     let location = Weather.WeatherSoapClient.Location
 
 
     Assert.AreEqual("http://wsf.cdyne.com/WeatherWS/Weather.asmx", location)
     ()
 
-
+ 

@@ -389,8 +389,22 @@ let parseWithLoader (wsdl: XElement) documentUri loader saveSchema =
     { Schemas = schemaSet
       Services = services }
 
+
+type XmlRelativeResolver(baseUri: Uri) =
+    inherit XmlUrlResolver()
+
+    override _.ResolveUri(_, uri) =
+        let uri = Uri(uri, UriKind.Relative)
+        if uri.IsAbsoluteUri then
+            uri
+        else
+            Uri(baseUri, uri)
+        
+      
+
 let parse (wsdl: XDocument) documentUri saveSchema =
-    parseWithLoader wsdl.Root documentUri (XmlUrlResolver()) saveSchema
+    let resolver = XmlRelativeResolver(documentUri)
+    parseWithLoader wsdl.Root documentUri resolver saveSchema
 
 type DocUri =
     | XsdUri of string
