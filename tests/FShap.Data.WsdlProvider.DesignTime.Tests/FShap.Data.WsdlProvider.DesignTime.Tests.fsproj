@@ -8,6 +8,45 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Include="..\FSharp.Data.WsdlProvider.Tests\NationalRail.wsdl" Link="NationalRail.wsdl">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\FSharp.Data.WsdlProvider.Tests\darwin_token_types_2013-11-28.wsdl" Link="darwin_token_types_2013-11-28.wsdl">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\FSharp.Data.WsdlProvider.Tests\darwin_token_types_2013-11-28.xsd" Link="darwin_token_types_2013-11-28.xsd">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\FSharp.Data.WsdlProvider.Tests\rtti_2007-10-10_ldb_common_types.xsd" Link="rtti_2007-10-10_ldb_common_types.xsd">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\FSharp.Data.WsdlProvider.Tests\rtti_2012-01-13_ldb_types.xsd" Link="rtti_2012-01-13_ldb_types.xsd">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\FSharp.Data.WsdlProvider.Tests\rtti_2015-11-27_ldb_common_types.xsd" Link="rtti_2015-11-27_ldb_common_types.xsd">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\FSharp.Data.WsdlProvider.Tests\rtti_2015-11-27_ldb_types.xsd" Link="rtti_2015-11-27_ldb_types.xsd">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\FSharp.Data.WsdlProvider.Tests\rtti_2016-02-16_ldb_common_types.xsd" Link="rtti_2016-02-16_ldb_common_types.xsd">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\FSharp.Data.WsdlProvider.Tests\rtti_2016-02-16_ldb_types.xsd" Link="rtti_2016-02-16_ldb_types.xsd">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\FSharp.Data.WsdlProvider.Tests\rtti_2017-02-02_ldb_common_types.xsd" Link="rtti_2017-02-02_ldb_common_types.xsd">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\FSharp.Data.WsdlProvider.Tests\rtti_2017-10-01_ldb.wsdl" Link="rtti_2017-10-01_ldb.wsdl">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\FSharp.Data.WsdlProvider.Tests\rtti_2017-10-01_ldb_common_types.xsd" Link="rtti_2017-10-01_ldb_common_types.xsd">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\FSharp.Data.WsdlProvider.Tests\rtti_2017-10-01_ldb_types.xsd" Link="rtti_2017-10-01_ldb_types.xsd">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Include="..\FSharp.Data.WsdlProvider.Tests\Translator0.wsdl" Link="Translator0.wsdl">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>

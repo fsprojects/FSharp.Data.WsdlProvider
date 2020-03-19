@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:tns="http://thalesgroup.com/RTTI/2017-02-02/ldb/commontypes" targetNamespace="http://thalesgroup.com/RTTI/2017-02-02/ldb/commontypes" elementFormDefault="qualified" attributeFormDefault="unqualified" id="RTTI_2017-02-02_ldb_common_types">
+	<!-- Simple types -->
+	<xs:simpleType name="LoadingValue">
+		<xs:annotation>
+			<xs:documentation>A value representing the loading of a train coach as a percentage (0-100%).</xs:documentation>
+		</xs:annotation>
+		<xs:restriction base="xs:unsignedInt">
+			<xs:maxInclusive value="100"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="CoachNumberType">
+		<xs:annotation>
+			<xs:documentation>A Coach number/identifier in a train formation. E.g. "A" or "12".</xs:documentation>
+		</xs:annotation>
+		<xs:restriction base="xs:string">
+			<xs:minLength value="1"/>
+			<xs:maxLength value="2"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="CoachClassType">
+		<xs:annotation>
+			<xs:documentation>An indication of the class of a coach in a train formation. E.g. "First", "Standard" or "Mixed".</xs:documentation>
+		</xs:annotation>
+		<xs:restriction base="xs:string"/>
+	</xs:simpleType>
+	<!-- Complex types -->
+</xs:schema>

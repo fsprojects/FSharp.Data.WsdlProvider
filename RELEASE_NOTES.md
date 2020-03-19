@@ -1,5 +1,7 @@
 ## 0.5-alpha
 * ResolutionFolder
+* Fix #6 NullRef exception due to wsdl without wsdl:types element
+* Wsdl imports in same namespace
 
 ## 0.4-alpha
 * LocalFileSchema and ForceUpdate to allow CI without fetching schemas from internet

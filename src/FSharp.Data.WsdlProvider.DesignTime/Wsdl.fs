@@ -289,24 +289,22 @@ let rec parseWsdlImports (wsdl: XElement) baseUri (resolver: XmlResolver) docs =
     |> Seq.fold 
         (fun docs import ->
             let ns = Xml.attr "namespace" import
-            if Map.containsKey ns docs then
+            let location = Uri(Xml.attr "location" import, UriKind.RelativeOrAbsolute)
+            let uri =
+                if location.IsAbsoluteUri then
+                    location
+                else
+                    Uri(baseUri, location)
+            if Map.containsKey (ns, string uri) docs then
                 docs
             else
-                let location = Uri(Xml.attr "location" import, UriKind.RelativeOrAbsolute)
-                let uri =
-                    if location.IsAbsoluteUri then
-                        location
-                    else
-                        Uri(baseUri, location)
-
-
                 let doc = 
                     resolver.GetEntity(uri, "wsdl", null)
                     |> unbox<IO.Stream>
                     |> XDocument.Load
 
                 docs
-                |> Map.add ns doc.Root
+                |> Map.add (ns, string uri) doc.Root
                 |> parseWsdlImports doc.Root uri resolver ) 
         docs
 
@@ -320,7 +318,7 @@ let nsName (ns: string) suffix =
         uri.Authority + uri.LocalPath.Replace("/",".").TrimEnd('.') + suffix
 
 
-let writeLocalSchema (writer: IO.TextWriter) (imports: (string * XElement) list) (schemas: XmlSchemaSet) =
+let writeLocalSchema (writer: IO.TextWriter) (imports: ((string * string) * XElement) list) (schemas: XmlSchemaSet) =
     let w = new XmlTextWriter(writer)
     w.WriteStartDocument()
     w.WriteStartElement("ServiceMetadataFiles")
@@ -330,7 +328,7 @@ let writeLocalSchema (writer: IO.TextWriter) (imports: (string * XElement) list)
               for tns in wsdl.Descendants(Xsd.ns + "schema").Attributes(XName.Get "targetNamespace") ->
               tns.Value ]
 
-    for ns,wsdl in imports do
+    for (ns,_),wsdl in imports do
         w.WriteStartElement("ServiceMetadataFile")
         w.WriteAttributeString("name", nsName ns ".wsdl" )
         wsdl.WriteTo(w)
@@ -354,14 +352,14 @@ let parseWithLoader (wsdl: XElement) documentUri loader saveSchema =
 
     let imports = 
         Map.empty
-        |> Map.add tns.NamespaceName wsdl
+        |> Map.add (tns.NamespaceName, string documentUri) wsdl
         |> parseWsdlImports wsdl documentUri loader
         |> Map.toList
 
 
     let schemas = XmlSchemaSet(XmlResolver = loader )
     for _,wsdl in imports  do
-        let types = wsdl.Element(Wsdl.types)
+        let types = wsdl.Elements(Wsdl.types)
         for schema in types.Elements(XmlSchema.schema) do
             schemas.Add(null, schema.CreateReader()) |> ignore
 
@@ -369,19 +367,19 @@ let parseWithLoader (wsdl: XElement) documentUri loader saveSchema =
     let schemaSet = Schema.set schemas
 
     let messages =
-        [ for ns,wsdl in imports do
+        [ for (ns,_),wsdl in imports do
             yield! parseMessages (XNamespace.Get ns) wsdl schemaSet ]
 
     let portTypes =
-        [ for ns,wsdl in imports do
+        [ for (ns,_),wsdl in imports do
             yield! parsePortTypes (XNamespace.Get ns) wsdl messages ] 
 
     let bindings =
-        [ for ns, wsdl in imports do
+        [ for (ns,_), wsdl in imports do
             yield! parseBindings (XNamespace.Get ns) wsdl portTypes]
 
     let services = 
-        [ for ns, wsdl in imports do
+        [ for (ns,_), wsdl in imports do
             yield! parseServices bindings (XNamespace.Get ns) wsdl  ]
 
     saveSchema imports schemas
@@ -394,7 +392,8 @@ type XmlRelativeResolver(baseUri: Uri) =
     inherit XmlUrlResolver()
 
     override _.ResolveUri(_, uri) =
-        let uri = Uri(uri, UriKind.Relative)
+
+        let uri = Uri(uri, UriKind.RelativeOrAbsolute)
         if uri.IsAbsoluteUri then
             uri
         else
