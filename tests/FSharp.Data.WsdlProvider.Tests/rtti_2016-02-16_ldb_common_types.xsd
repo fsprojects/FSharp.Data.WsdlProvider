@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:tns="http://thalesgroup.com/RTTI/2016-02-16/ldb/commontypes" targetNamespace="http://thalesgroup.com/RTTI/2016-02-16/ldb/commontypes" elementFormDefault="qualified" attributeFormDefault="unqualified" id="RTTI_2016-02-16_ldb_common_types">
+	<!-- Simple types -->
+	<xs:simpleType name="RSIDType">
+		<xs:annotation>
+			<xs:documentation>A Retail Service Identifier</xs:documentation>
+		</xs:annotation>
+		<xs:restriction base="xs:string">
+			<xs:minLength value="6"/>
+			<xs:maxLength value="8"/>
+		</xs:restriction>
+	</xs:simpleType>
+</xs:schema>

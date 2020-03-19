@@ -54,6 +54,13 @@ let ``Planning Wsld loading should succeed`` () =
     
     Assert.NotNull(wsdl)
 
+[<Test>]
+let ``Bug #6: NationalRail Wsld loading should succeed`` () =
+    let wsdl = loadWsdl "./NationalRail.wsdl"
+    
+    Assert.NotNull(wsdl)
+    Assert.IsNotEmpty(wsdl.Services)
+    
 
 
 [<Test>]

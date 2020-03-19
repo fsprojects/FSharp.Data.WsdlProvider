@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:tns="http://thalesgroup.com/RTTI/2013-11-28/Token/types" targetNamespace="http://thalesgroup.com/RTTI/2013-11-28/Token/types" elementFormDefault="qualified" attributeFormDefault="unqualified" version="1.0">
+	<!-- ================================================================
+		Complex types 
+	=================================================================== -->
+	<xs:complexType name="AccessToken">
+		<xs:annotation>
+			<xs:documentation>Type representing an access token for a web service call.</xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="TokenValue" type="xs:string">
+				<xs:annotation>
+					<xs:documentation>The value of the token.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType>
+	<!-- ================================================================
+		Elements 
+	=================================================================== -->
+	<xs:element name="AccessToken" type="tns:AccessToken" />
+</xs:schema>

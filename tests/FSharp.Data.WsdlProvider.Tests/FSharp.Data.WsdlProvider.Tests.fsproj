@@ -6,8 +6,21 @@
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
   </PropertyGroup>
   <ItemGroup>
+    <None Include="darwin_token_types_2013-11-28.wsdl" />
+    <None Include="darwin_token_types_2013-11-28.xsd" />
+    <None Include="NationalRail.wsdl" />
     <None Include="Eutax.wsdl" />
     <None Include="Planning.wsdl" />
+    <None Include="rtti_2007-10-10_ldb_common_types.xsd" />
+    <None Include="rtti_2012-01-13_ldb_types.xsd" />
+    <None Include="rtti_2015-11-27_ldb_common_types.xsd" />
+    <None Include="rtti_2015-11-27_ldb_types.xsd" />
+    <None Include="rtti_2016-02-16_ldb_common_types.xsd" />
+    <None Include="rtti_2016-02-16_ldb_types.xsd" />
+    <None Include="rtti_2017-02-02_ldb_common_types.xsd" />
+    <None Include="rtti_2017-10-01_ldb.wsdl" />
+    <None Include="rtti_2017-10-01_ldb_common_types.xsd" />
+    <None Include="rtti_2017-10-01_ldb_types.xsd" />
     <None Include="Synxis.wsdl" />
     <None Include="Translator.wsdl" />
     <None Include="Translator0.wsdl" />
