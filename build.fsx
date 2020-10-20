@@ -1,7 +1,8 @@
 #r "paket:
 source https://api.nuget.org/v3/index.json
 framework: netstandard2.0
-nuget Fake.Core
+nuget FSharp.Core < 5
+nuget Fake.Core 
 nuget Fake.Core.Target
 nuget Fake.Core.ReleaseNotes
 nuget Fake.DotNet.Cli 
@@ -55,11 +56,19 @@ Target.create "Build" <| fun _ ->
 
 
 Target.create "Test" <| fun _ ->
+    let fx =
+        if Environment.isWindows then
+            None
+        else
+            Some "netcoreapp3.1"
+    
     DotNet.test (fun p ->
         { p with
             Configuration = DotNet.BuildConfiguration.Release
             NoBuild = true
-            ResultsDirectory  = Some BuildPath.test } )
+            Framework = fx
+            ResultsDirectory  = Some BuildPath.test
+            } )
         BuildPath.sln
 
 

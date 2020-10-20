@@ -1,3 +1,6 @@
+## 0.6-alpha
+* Get rid of net45 for simpler packaging
+
 ## 0.5-alpha
 * ResolutionFolder
 * Fix #6 NullRef exception due to wsdl without wsdl:types element

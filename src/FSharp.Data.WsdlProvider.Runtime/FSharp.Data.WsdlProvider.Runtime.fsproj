@@ -5,16 +5,16 @@
   <Import Project="..\..\netfx.props" />
   <PropertyGroup>
     <OutputType>Library</OutputType>
-    <TargetFrameworks>netstandard2.0; net45</TargetFrameworks>
+    <TargetFrameworks>netstandard2.0</TargetFrameworks>
     <DisableImplicitFSharpCoreReference>true</DisableImplicitFSharpCoreReference>
   </PropertyGroup>
   <Import Project="Sdk.targets" Sdk="Microsoft.NET.Sdk" />
   <ItemGroup>
-    <Compile Include="..\..\paket-files\thinkbeforecoding\FSharp.TypeProviders.SDK\src\ProvidedTypes.fsi">
+    <Compile Include="..\..\paket-files\fsprojects\FSharp.TypeProviders.SDK\src\ProvidedTypes.fsi">
       <Paket>True</Paket>
       <Link>paket-files/ProvidedTypes.fsi</Link>
     </Compile>
-    <Compile Include="..\..\paket-files\thinkbeforecoding\FSharp.TypeProviders.SDK\src\ProvidedTypes.fs">
+    <Compile Include="..\..\paket-files\fsprojects\FSharp.TypeProviders.SDK\src\ProvidedTypes.fs">
       <Paket>True</Paket>
       <Link>paket-files/ProvidedTypes.fs</Link>
     </Compile>
@@ -25,23 +25,13 @@
   </ItemGroup>
   <ItemGroup>
     <!-- Be explicit about the version of FSharp.Core since we mention it in the manual nuget package spec -->
-    <PackageReference Include="FSharp.Core" Version="4.3.4" />
+    <PackageReference Include="FSharp.Core" Version="4.7.2" />
   </ItemGroup>
   <Target Name="BeforeBuild">
     <MSBuild Projects="..\FSharp.Data.WsdlProvider.DesignTime\FSharp.Data.WsdlProvider.DesignTime.fsproj" Targets="Restore" />
-    <MSBuild Projects="..\FSharp.Data.WsdlProvider.DesignTime\FSharp.Data.WsdlProvider.DesignTime.fsproj" Targets="Build" Properties="Configuration=$(Configuration);TargetFramework=netcoreapp3.1" />
     <MSBuild Projects="..\FSharp.Data.WsdlProvider.DesignTime\FSharp.Data.WsdlProvider.DesignTime.fsproj" Targets="Build" Properties="Configuration=$(Configuration);TargetFramework=netstandard2.0" />
-    <MSBuild Projects="..\FSharp.Data.WsdlProvider.DesignTime\FSharp.Data.WsdlProvider.DesignTime.fsproj" Targets="Build" Properties="Configuration=$(Configuration);TargetFramework=net45" />
   </Target>
   <Target Name="AfterBuild">
-    <CreateItem Include="..\FSharp.Data.WsdlProvider.DesignTime\bin\$(Configuration)\netcoreapp3.1\*.dll;..\FSharp.Data.WsdlProvider.DesignTime\bin\$(Configuration)\netcoreapp3.1\*.pdb">
-      <Output TaskParameter="Include" ItemName="DesignTimeBinaries1" />
-    </CreateItem>
-    <Copy SourceFiles="@(DesignTimeBinaries1)" DestinationFolder="$(OutputPath)/../typeproviders/fsharp41/netcoreapp3.1" />
-    <CreateItem Include="..\FSharp.Data.WsdlProvider.DesignTime\bin\$(Configuration)\net45\*.dll;..\FSharp.Data.WsdlProvider.DesignTime\bin\$(Configuration)\net45\*.pdb">
-      <Output TaskParameter="Include" ItemName="DesignTimeBinaries2" />
-    </CreateItem>
-    <Copy SourceFiles="@(DesignTimeBinaries2)" DestinationFolder="$(OutputPath)/../typeproviders/fsharp41/net45" />
     <CreateItem Include="..\FSharp.Data.WsdlProvider.DesignTime\bin\$(Configuration)\netstandard2.0\*.dll;..\FSharp.Data.WsdlProvider.DesignTime\bin\$(Configuration)\netstandard2.0\*.pdb">
       <Output TaskParameter="Include" ItemName="DesignTimeBinaries3" />
     </CreateItem>

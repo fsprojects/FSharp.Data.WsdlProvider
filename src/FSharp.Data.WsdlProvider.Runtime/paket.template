@@ -19,11 +19,10 @@ summary
 description
     This is a type provider to generate clients for soap services from wsdl.
 files
-    bin/Release/net45/FSharp.Data.WsdlProvider.Runtime.* ==> lib/net45
-    bin/Release/netstandard2.0/FSharp.Data.WsdlProvider.Runtime.* ==> lib/netstandard2.0
+    bin/Release/netstandard2.0/FSharp.Data.WsdlProvider.*.dll ==> lib/netstandard2.0
+    bin/Release/netstandard2.0/FSharp.Data.WsdlProvider.*.pdb ==> lib/netstandard2.0
     bin/Release/typeproviders/fsharp41/netstandard2.0/*.dll ==> typeproviders/fsharp41/netstandard2.0
-    bin/Release/typeproviders/fsharp41/netcoreapp3.1/*.dll ==> typeproviders/fsharp41/netcoreapp3.1
-    bin/Release/typeproviders/fsharp41/net45/*.dll ==> typeproviders/fsharp41/net45
+    bin/Release/typeproviders/fsharp41/netstandard2.0/*.pdb ==> typeproviders/fsharp41/netstandard2.0
 references
     FSharp.Data.WsdlProvider.Runtime.dll
 dependencies

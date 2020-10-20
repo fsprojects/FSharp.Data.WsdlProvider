@@ -1,6 +1,6 @@
+Microsoft.NETFramework.ReferenceAssemblies
 group Test
 NUnit
 FSharp.Core
 Microsoft.NET.Test.Sdk
 NUnit3TestAdapter
-
