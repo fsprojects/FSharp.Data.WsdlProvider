@@ -433,3 +433,6 @@ $RECYCLE.BIN/
 !.vscode/extensions.json
 
 src/**/Debug.fsx
+
+.ionide/
+
