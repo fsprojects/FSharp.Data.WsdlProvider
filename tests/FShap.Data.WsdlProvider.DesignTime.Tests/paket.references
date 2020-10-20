@@ -1,3 +1,4 @@
+Microsoft.NETFramework.ReferenceAssemblies
 group Test
 NUnit
 FSharp.Core

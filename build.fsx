@@ -56,11 +56,19 @@ Target.create "Build" <| fun _ ->
 
 
 Target.create "Test" <| fun _ ->
+    let fx =
+        if Environment.isWindows then
+            None
+        else
+            Some "netcoreapp3.1"
+    
     DotNet.test (fun p ->
         { p with
             Configuration = DotNet.BuildConfiguration.Release
             NoBuild = true
-            ResultsDirectory  = Some BuildPath.test } )
+            Framework = fx
+            ResultsDirectory  = Some BuildPath.test
+            } )
         BuildPath.sln
 
 
