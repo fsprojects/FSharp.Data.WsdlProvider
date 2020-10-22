@@ -10,6 +10,7 @@
     <None Include="darwin_token_types_2013-11-28.xsd" />
     <None Include="NationalRail.wsdl" />
     <None Include="Eutax.wsdl" />
+    <None Include="Nillable.wsdl" />
     <None Include="Planning.wsdl" />
     <None Include="rtti_2007-10-10_ldb_common_types.xsd" />
     <None Include="rtti_2012-01-13_ldb_types.xsd" />
@@ -33,6 +34,7 @@
     </None>
     <None Include="app.config" />
     <Compile Include="FSharp.Data.WsdlProvider.Tests.fs" />
+    <Compile Include="NillableTest.fs" />
     <None Include="paket.references" />
   </ItemGroup>
   <ItemGroup>

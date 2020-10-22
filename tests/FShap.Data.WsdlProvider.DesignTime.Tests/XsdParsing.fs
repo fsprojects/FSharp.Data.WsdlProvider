@@ -42,6 +42,7 @@ let ``Simple type element``() =
             Type = TypeRef (xs + "string")
             DefaultValue = None
             Occurs = Occurs.once
+            Nillable = false
             SubstitutionGroup = None }
           
     Assert.AreEqual(expected, e )
@@ -67,6 +68,7 @@ let ``Simple type element support default value``() =
             Type = TypeRef (xs + "integer")
             DefaultValue = Some "42"
             Occurs = Occurs.once
+            Nillable = false
             SubstitutionGroup = None }
           
     Assert.AreEqual(expected, e )
@@ -91,6 +93,7 @@ let ``Simple type element support fixed value as default``() =
             Type = TypeRef (xs + "integer")
             DefaultValue = Some "42"
             Occurs = Occurs.once
+            Nillable = false
             SubstitutionGroup = None} 
           
     Assert.AreEqual(expected, e )
@@ -119,6 +122,7 @@ let ``Typeref element``() =
           Type = TypeRef (dedge + "product")
           DefaultValue = None
           Occurs = Occurs.once
+          Nillable = false
           SubstitutionGroup = None }
         
     Assert.AreEqual(expected, e )
@@ -142,6 +146,7 @@ let ``ComplexType element``() =
           Type = InlineType (XsComplexType XsType.empty)
           DefaultValue = None
           Occurs = Occurs.once
+          Nillable = false
           SubstitutionGroup = None }
     
     let e = Schema.element (dedge + "Complex") xsd 
@@ -173,6 +178,7 @@ let ``ComplexType element with attribute element``() =
                         [{ Name = XName.Get "prodid"; Type = XsSimple (xs + "positiveInteger"); DefaultValue = None }] })
           DefaultValue = None
           Occurs = Occurs.once
+          Nillable = false
           SubstitutionGroup = None}
     
     let e = Schema.element (dedge + "WithAttribute") xsd 
@@ -205,10 +211,11 @@ let ``ComplexType element with elements``() =
              ( XsComplexType
                 { XsType.empty with
                       Elements = 
-                        Sequence [ XsElement { Name = dedge + "firstname"; Type = TypeRef (xs + "string"); DefaultValue = None; Occurs = Occurs.once; SubstitutionGroup = None}
-                                   XsElement { Name = dedge + "lastname"; Type = TypeRef (xs + "string"); DefaultValue = None; Occurs = Occurs.once; SubstitutionGroup = None}] } )
+                        Sequence [ XsElement { Name = dedge + "firstname"; Type = TypeRef (xs + "string"); DefaultValue = None; Occurs = Occurs.once; Nillable = false; SubstitutionGroup = None}
+                                   XsElement { Name = dedge + "lastname"; Type = TypeRef (xs + "string"); DefaultValue = None; Occurs = Occurs.once; Nillable = false; SubstitutionGroup = None}] } )
           DefaultValue = None
           Occurs = Occurs.once
+          Nillable = false
           SubstitutionGroup = None } : XsElement 
     
     let e = Schema.element (dedge + "employee") xsd 
@@ -239,6 +246,7 @@ let ``ComplexType definition and element``() =
        Type = TypeRef (dedge + "personinfo") 
        DefaultValue = None
        Occurs = Occurs.once
+       Nillable = false
        SubstitutionGroup = None}
     let expectedType =
         { Name = dedge + "personinfo"
@@ -246,8 +254,8 @@ let ``ComplexType definition and element``() =
             XsComplexType
              { XsType.empty with
                 Elements = 
-                    Sequence[ XsElement { Name = dedge + "firstname"; Type = TypeRef (xs + "string"); DefaultValue = None; Occurs = Occurs.once; SubstitutionGroup = None}
-                              XsElement { Name = dedge + "lastname"; Type = TypeRef (xs + "string"); DefaultValue = None; Occurs = Occurs.once; SubstitutionGroup = None}] } }
+                    Sequence[ XsElement { Name = dedge + "firstname"; Type = TypeRef (xs + "string"); DefaultValue = None; Occurs = Occurs.once; Nillable = false; SubstitutionGroup = None}
+                              XsElement { Name = dedge + "lastname"; Type = TypeRef (xs + "string"); DefaultValue = None; Occurs = Occurs.once; Nillable = false; SubstitutionGroup = None}] } }
         
     let e = Schema.element (dedge + "employee") xsd 
     let t = Schema.typeDef (dedge + "personinfo") xsd 
@@ -292,6 +300,7 @@ let ``ComplexType with base type``() =
        Type = TypeRef (dedge + "fullpersoninfo") 
        DefaultValue = None
        Occurs = Occurs.once
+       Nillable = false
        SubstitutionGroup = None } 
     let expectedType =
         { Name = dedge + "fullpersoninfo"
@@ -300,11 +309,11 @@ let ``ComplexType with base type``() =
              { XsType.empty with
                 BaseType = Some (dedge + "personinfo")
                 Elements =
-                    Sequence [ XsElement { Name = dedge + "firstname"; Type = TypeRef (xs + "string"); DefaultValue = None; Occurs = Occurs.once; SubstitutionGroup = None}
-                               XsElement { Name = dedge + "lastname"; Type = TypeRef (xs + "string"); DefaultValue = None; Occurs = Occurs.once; SubstitutionGroup = None}
-                               XsElement { Name = dedge + "address"; Type = TypeRef (xs + "string"); DefaultValue = None; Occurs = Occurs.once; SubstitutionGroup = None}
-                               XsElement { Name = dedge + "city"; Type = TypeRef (xs + "string"); DefaultValue = None; Occurs = Occurs.once; SubstitutionGroup = None}
-                               XsElement { Name = dedge + "country"; Type = TypeRef (xs + "string"); DefaultValue = None; Occurs = Occurs.once; SubstitutionGroup = None} ] } } 
+                    Sequence [ XsElement { Name = dedge + "firstname"; Type = TypeRef (xs + "string"); DefaultValue = None; Occurs = Occurs.once; Nillable = false; SubstitutionGroup = None}
+                               XsElement { Name = dedge + "lastname"; Type = TypeRef (xs + "string"); DefaultValue = None; Occurs = Occurs.once; Nillable = false; SubstitutionGroup = None}
+                               XsElement { Name = dedge + "address"; Type = TypeRef (xs + "string"); DefaultValue = None; Occurs = Occurs.once; Nillable = false; SubstitutionGroup = None}
+                               XsElement { Name = dedge + "city"; Type = TypeRef (xs + "string"); DefaultValue = None; Occurs = Occurs.once; Nillable = false; SubstitutionGroup = None}
+                               XsElement { Name = dedge + "country"; Type = TypeRef (xs + "string"); DefaultValue = None; Occurs = Occurs.once; Nillable = false; SubstitutionGroup = None} ] } } 
     let e = Schema.element (dedge + "employee") xsd 
     let t = Schema.typeDef (dedge + "fullpersoninfo") xsd 
     Assert.AreEqual(expectedElement , e)
@@ -341,6 +350,7 @@ let ``ComplexType with base simple type``() =
                 Attributes = [ { Name = XName.Get "country"; Type = XsSimple (xs + "string"); DefaultValue = None} ] })
        DefaultValue = None
        Occurs = Occurs.once
+       Nillable = false
        SubstitutionGroup = None } 
         
     let e = Schema.element (dedge + "shoesize") xsd 
@@ -374,12 +384,13 @@ let ``ComplexType with mixed``() =
             { XsType.empty with
                 Mixed = true
                 Elements = 
-                    Sequence [ XsElement { Name = dedge + "name"; Type = TypeRef (xs + "string"); DefaultValue = None; Occurs = Occurs.once; SubstitutionGroup = None } 
-                               XsElement { Name = dedge + "orderid"; Type = TypeRef (xs + "positiveInteger"); DefaultValue = None; Occurs = Occurs.once; SubstitutionGroup = None } 
-                               XsElement { Name = dedge + "shipdate"; Type = TypeRef (xs + "date"); DefaultValue = None; Occurs = Occurs.once; SubstitutionGroup = None } ] })
+                    Sequence [ XsElement { Name = dedge + "name"; Type = TypeRef (xs + "string"); DefaultValue = None; Occurs = Occurs.once; Nillable = false; SubstitutionGroup = None } 
+                               XsElement { Name = dedge + "orderid"; Type = TypeRef (xs + "positiveInteger"); DefaultValue = None; Occurs = Occurs.once; Nillable = false; SubstitutionGroup = None } 
+                               XsElement { Name = dedge + "shipdate"; Type = TypeRef (xs + "date"); DefaultValue = None; Occurs = Occurs.once; Nillable = false; SubstitutionGroup = None } ] })
 
        DefaultValue = None
        Occurs = Occurs.once
+       Nillable = false
        SubstitutionGroup = None }
         
     let e = Schema.element (dedge + "letter") xsd 
@@ -414,11 +425,12 @@ let ``ComplexType with all``() =
         InlineType
             (XsComplexType
                 { XsType.empty with
-                      Elements = All [ XsElement { Name = dedge + "firstname"; Type = TypeRef (xs + "string"); DefaultValue = None; Occurs = Occurs.once; SubstitutionGroup = None } 
-                                       XsElement { Name = dedge + "lastname"; Type = TypeRef (xs + "string"); DefaultValue = None; Occurs = Occurs.once; SubstitutionGroup = None } ] })
+                      Elements = All [ XsElement { Name = dedge + "firstname"; Type = TypeRef (xs + "string"); DefaultValue = None; Occurs = Occurs.once; Nillable = false; SubstitutionGroup = None } 
+                                       XsElement { Name = dedge + "lastname"; Type = TypeRef (xs + "string"); DefaultValue = None; Occurs = Occurs.once; Nillable = false; SubstitutionGroup = None } ] })
 
        DefaultValue = None
        Occurs = Occurs.once
+       Nillable = false
        SubstitutionGroup = None }
         
     let e = Schema.element (dedge + "person") xsd 
@@ -450,10 +462,11 @@ let ``ComplexType with choice``() =
         (XsComplexType
             { XsType.empty with
                   Elements = 
-                    Choice [ XsElement { Name = dedge + "employee"; Type = TypeRef (xs + "string"); DefaultValue = None; Occurs = Occurs.once; SubstitutionGroup = None } 
-                             XsElement { Name = dedge + "member"; Type = TypeRef (xs + "string"); DefaultValue = None; Occurs = Occurs.once; SubstitutionGroup = None } ] })
+                    Choice [ XsElement { Name = dedge + "employee"; Type = TypeRef (xs + "string"); DefaultValue = None; Occurs = Occurs.once; Nillable = false; SubstitutionGroup = None } 
+                             XsElement { Name = dedge + "member"; Type = TypeRef (xs + "string"); DefaultValue = None; Occurs = Occurs.once; Nillable = false; SubstitutionGroup = None } ] })
        DefaultValue = None
        Occurs = Occurs.once
+       Nillable = false
        SubstitutionGroup = None }
         
     let e = Schema.element (dedge + "person") xsd 
@@ -486,11 +499,12 @@ let ``ComplexType with minoccurs/maxoccurs``() =
         (XsComplexType
             { XsType.empty with
                   Elements = 
-                    Sequence [ XsElement { Name = dedge + "full_name"; Type = TypeRef (xs + "string"); DefaultValue = None; Occurs = Occurs.once; SubstitutionGroup = None } 
-                               XsElement { Name = dedge + "child_name"; Type = TypeRef (xs + "string"); DefaultValue = None; Occurs = { Min = MinOccurs 0; Max = MaxOccurs 10 }; SubstitutionGroup = None } ] })
+                    Sequence [ XsElement { Name = dedge + "full_name"; Type = TypeRef (xs + "string"); DefaultValue = None; Occurs = Occurs.once; Nillable = false; SubstitutionGroup = None } 
+                               XsElement { Name = dedge + "child_name"; Type = TypeRef (xs + "string"); DefaultValue = None; Occurs = { Min = MinOccurs 0; Max = MaxOccurs 10 }; Nillable = false; SubstitutionGroup = None } ] })
 
        DefaultValue = None
        Occurs = Occurs.once
+       Nillable = false
        SubstitutionGroup = None }
         
     let e = Schema.element (dedge + "person") xsd 
@@ -524,11 +538,12 @@ let ``ComplexType with minoccurs/ unbounded maxoccurs``() =
         (XsComplexType
             { XsType.empty with
                   Elements = 
-                    Sequence [ XsElement { Name = dedge + "full_name"; Type = TypeRef (xs + "string"); DefaultValue = None; Occurs = Occurs.once; SubstitutionGroup = None } 
-                               XsElement { Name = dedge + "child_name"; Type = TypeRef (xs + "string"); DefaultValue = None; Occurs = { Min = MinOccurs 0; Max = Unbounded }; SubstitutionGroup = None } ] })
+                    Sequence [ XsElement { Name = dedge + "full_name"; Type = TypeRef (xs + "string"); DefaultValue = None; Occurs = Occurs.once; Nillable = false; SubstitutionGroup = None } 
+                               XsElement { Name = dedge + "child_name"; Type = TypeRef (xs + "string"); DefaultValue = None; Occurs = { Min = MinOccurs 0; Max = Unbounded }; Nillable = false; SubstitutionGroup = None } ] })
 
        DefaultValue = None
        Occurs = Occurs.once
+       Nillable = false
        SubstitutionGroup = None }
         
     let e = Schema.element (dedge + "person") xsd 
@@ -568,13 +583,14 @@ let ``ComplexType with element group``() =
         (XsComplexType
             { XsType.empty with
                   Elements = 
-                    Sequence [ XsElement { Name = dedge + "firstname"; Type = TypeRef (xs + "string"); DefaultValue = None; Occurs = Occurs.once; SubstitutionGroup = None } 
-                               XsElement { Name = dedge + "lastname"; Type = TypeRef (xs + "string"); DefaultValue = None; Occurs = Occurs.once; SubstitutionGroup = None }
-                               XsElement { Name = dedge + "birthday"; Type = TypeRef (xs + "date"); DefaultValue = None; Occurs = Occurs.once; SubstitutionGroup = None }
-                               XsElement { Name = dedge + "country"; Type = TypeRef (xs + "string"); DefaultValue = None; Occurs = Occurs.once; SubstitutionGroup = None } ] })
+                    Sequence [ XsElement { Name = dedge + "firstname"; Type = TypeRef (xs + "string"); DefaultValue = None; Occurs = Occurs.once; Nillable = false; SubstitutionGroup = None } 
+                               XsElement { Name = dedge + "lastname"; Type = TypeRef (xs + "string"); DefaultValue = None; Occurs = Occurs.once; Nillable = false; SubstitutionGroup = None }
+                               XsElement { Name = dedge + "birthday"; Type = TypeRef (xs + "date"); DefaultValue = None; Occurs = Occurs.once; Nillable = false; SubstitutionGroup = None }
+                               XsElement { Name = dedge + "country"; Type = TypeRef (xs + "string"); DefaultValue = None; Occurs = Occurs.once; Nillable = false; SubstitutionGroup = None } ] })
 
        DefaultValue = None
        Occurs = Occurs.once
+       Nillable = false
        SubstitutionGroup = None }
         
     let e = Schema.element (dedge + "person") xsd 
@@ -610,12 +626,13 @@ let ``ComplexType with attribute group``() =
         (XsComplexType
             { XsType.empty with
                   Attributes = [ { Name = XName.Get "firstname"; Type = XsSimple(xs + "string"); DefaultValue = None} 
-                                 { Name = XName.Get "lastname"; Type = XsSimple(xs + "string"); DefaultValue = None}
+                                 { Name = XName.Get "lastname"; Type = XsSimple(xs + "string");  DefaultValue = None}
                                  { Name = XName.Get "birthday"; Type = XsSimple(xs + "date"); DefaultValue = None; }
                                  { Name = XName.Get "country"; Type = XsSimple(xs + "string"); DefaultValue = None} ] })
 
        DefaultValue = None
        Occurs = Occurs.once
+       Nillable = false
        SubstitutionGroup = None }
         
     let e = Schema.element (dedge + "person") xsd 
@@ -648,12 +665,13 @@ let ``ComplexType with anyattribute``() =
         (XsComplexType
              { XsType.empty with
                   Elements = 
-                    Sequence [ XsElement { Name = dedge + "firstname"; Type = TypeRef (xs + "string"); DefaultValue = None; Occurs = Occurs.once; SubstitutionGroup = None } 
-                               XsElement { Name = dedge + "lastname"; Type = TypeRef (xs + "string"); DefaultValue = None; Occurs = Occurs.once; SubstitutionGroup = None } ]
+                    Sequence [ XsElement { Name = dedge + "firstname"; Type = TypeRef (xs + "string"); DefaultValue = None; Occurs = Occurs.once; Nillable = false; SubstitutionGroup = None } 
+                               XsElement { Name = dedge + "lastname"; Type = TypeRef (xs + "string"); DefaultValue = None; Occurs = Occurs.once; Nillable = false; SubstitutionGroup = None } ]
                   AnyAttribute = true })
 
        DefaultValue = None
        Occurs = Occurs.once
+       Nillable = false
        SubstitutionGroup = None }
         
     let e = Schema.element (dedge + "person") xsd 
@@ -686,12 +704,13 @@ let ``ComplexType with any element``() =
         (XsComplexType
             { XsType.empty with
                   Elements = 
-                    Sequence [ XsElement { Name = dedge + "firstname"; Type = TypeRef (xs + "string"); DefaultValue = None; Occurs = Occurs.once; SubstitutionGroup = None } 
-                               XsElement { Name = dedge + "lastname"; Type = TypeRef (xs + "string"); DefaultValue = None; Occurs = Occurs.once; SubstitutionGroup = None } 
+                    Sequence [ XsElement { Name = dedge + "firstname"; Type = TypeRef (xs + "string"); DefaultValue = None; Occurs = Occurs.once; Nillable = false; SubstitutionGroup = None } 
+                               XsElement { Name = dedge + "lastname"; Type = TypeRef (xs + "string"); DefaultValue = None; Occurs = Occurs.once; Nillable = false; SubstitutionGroup = None } 
                                XsAny { Min = MinOccurs 0; Max = MaxOccurs 1 } 
                                ] })
        DefaultValue = None
        Occurs = Occurs.once
+       Nillable = false
        SubstitutionGroup = None }
         
     let e = Schema.element (dedge + "person") xsd 
@@ -728,10 +747,11 @@ let ``ComplexType with substitution``() =
         (XsComplexType
             { XsType.empty with
                   Elements = 
-                    Sequence [ XsElement { Name = dedge + "name"; Type = TypeRef (xs + "string"); DefaultValue = None; Occurs = Occurs.once; SubstitutionGroup = None }  ]
+                    Sequence [ XsElement { Name = dedge + "name"; Type = TypeRef (xs + "string"); DefaultValue = None; Occurs = Occurs.once; Nillable = false; SubstitutionGroup = None }  ]
                   })
        DefaultValue = None
        Occurs = Occurs.once
+       Nillable = false
        SubstitutionGroup = None }
         
     let e = Schema.element (dedge + "customer") xsd 
@@ -743,10 +763,11 @@ let ``ComplexType with substitution``() =
         (XsComplexType
             { XsType.empty with
                   Elements = 
-                    Sequence [ XsElement { Name = dedge + "name"; Type = TypeRef (xs + "string"); DefaultValue = None; Occurs = Occurs.once; SubstitutionGroup = None  }  ]
+                    Sequence [ XsElement { Name = dedge + "name"; Type = TypeRef (xs + "string"); DefaultValue = None; Occurs = Occurs.once; Nillable = false; SubstitutionGroup = None  }  ]
                   })
        DefaultValue = None
        Occurs = Occurs.once
+       Nillable = false
        SubstitutionGroup = Some (dedge + "customer") }
         
     let e' = Schema.element (dedge + "kunde") xsd 
@@ -779,6 +800,7 @@ let ``SimpleType with restriction``() =
        Type = InlineType (XsSimpleType { BaseType = xs + "integer"; Enumeration = [] })
        DefaultValue = None
        Occurs = Occurs.once
+       Nillable = false
        SubstitutionGroup = None }
         
     let e = Schema.element (dedge + "age") xsd 
@@ -811,6 +833,7 @@ let ``SimpleType with list``() =
        Type = InlineType (XsComplexType { XsType.empty with Attributes = [ { Name = XName.Get "Ages"; Type = XsList (xs + "string"); DefaultValue = None} ] })
        DefaultValue = None
        Occurs = Occurs.once
+       Nillable = false
        SubstitutionGroup = None }
         
     let e = Schema.element (dedge + "persons") xsd 
@@ -862,8 +885,36 @@ let ``SimpleType with enumeration``() =
                                 { Value = "ID"; Name = "Idaho" } ] })
        DefaultValue = None
        Occurs = Occurs.once
+       Nillable = false
        SubstitutionGroup = None }
         
     let e = Schema.element (dedge + "state") xsd 
     Assert.AreEqual(expectedElement , e)
+
+
+
+[<Test>]       
+let ``Nillable``() =
+
+    let xsd = 
+     """
+     <xs:schema elementFormDefault="qualified" targetNamespace="http://localhost:5050/csmodel" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:tns="http://localhost:5050/csmodel" xmlns:ser="http://schemas.microsoft.com/2003/10/Serialization/">
+       <xs:complexType name="CsModel" xmlns:ser="http://schemas.microsoft.com/2003/10/Serialization/">
+         <xs:sequence>
+           <xs:element nillable="true" minOccurs="0" name="DateExpire" type="xs:dateTime" />
+         </xs:sequence>
+       </xs:complexType>
+       <xs:element name="CsModel" nillable="true" type="tns:CsModel" />
+     </xs:schema>
+    """
+    |> loadSchema
+    let testNs = XNamespace.Get "http://localhost:5050/csmodel"
+    let expectedType = 
+        { Name = testNs + "CsModel"
+          Type =
+            XsComplexType { XsType.empty with 
+                                Elements = Sequence [ XsElement { Name = testNs + "DateExpire"; Type = TypeRef (xs + "dateTime"); DefaultValue = None; Occurs = Occurs.optional; Nillable = true; SubstitutionGroup = None  } ] } }
+        
+    let e = Schema.typeDef (testNs + "CsModel") xsd 
+    Assert.AreEqual(expectedType , e)
 

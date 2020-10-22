@@ -27,6 +27,7 @@ type XsElement =
       Type: XsTypeRef
       DefaultValue: string option
       Occurs: Occurs
+      Nillable: bool
       SubstitutionGroup: XName option}
 and XsParticle =
     | XsElement of XsElement
@@ -113,6 +114,7 @@ let rec parseElement (e: XmlSchemaElement) =
       Type = t
       DefaultValue =  d |> Option.orElse fix
       Occurs = parseOccurs e
+      Nillable = e.IsNillable
       SubstitutionGroup = 
         if e.SubstitutionGroup = XmlQualifiedName.Empty then
             None

@@ -1,3 +1,6 @@
+## 0.7-alpha
+* Fix #8: Nillable valuetype elements should be generated as Nullable
+
 ## 0.6-alpha
 * Get rid of net45 for simpler packaging
 
