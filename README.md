@@ -6,6 +6,27 @@ It does all the wsdl parsing internally and doesn't require an external tool.
 
 ![Build and Test](https://github.com/thinkbeforecoding/FSharp.Data.WsdlProvider/workflows/Build%20and%20Test/badge.svg)
 
+## Quickstart
+
+Add the nuget to your project from [MyGet](https://www.myget.org/feed/wsdlprovider/package/nuget/FSharp.Data.WsdlProvider):
+
+    dotnet add .\Client\Client.fsproj package FSharp.Data.WsdlProvider --prerelease --source https://www.myget.org/F/wsdlprovider/api/v3/index.json
+
+Define a type using the WsdlProvider pointing at you wsdl definition:
+
+    open FSharp.Data
+    type MyService = WsdlProvider<"https://mysite.com/service.wsld">
+
+Call the service:
+
+    use client = MyService.ServiceSoapClient("https://mysite.com/service")
+    let result = client.MyMethod("arg")
+    printfn "%A" result
+
+## Build
+
+To build the type provider, you need only to have [dotnet sdk 3.1 installed](https://dotnet.microsoft.com/download).
+
 Building on Windows:
 
     .\build.cmd
@@ -13,5 +34,6 @@ Building on Windows:
 Binding on Minux/MacOS:
     
     ./build.sh
+
 
 
