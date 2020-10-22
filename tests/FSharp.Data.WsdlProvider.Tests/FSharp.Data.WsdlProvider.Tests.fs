@@ -1,4 +1,4 @@
-module FSharp.Data.WsdlProviderTests
+module FSharp.Data.WsdlProviderTests.CtorTests
 
 
 open FSharp.Data

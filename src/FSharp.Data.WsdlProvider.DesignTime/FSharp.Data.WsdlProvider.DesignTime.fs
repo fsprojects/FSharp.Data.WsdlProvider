@@ -36,6 +36,8 @@ module Provided =
             override _.NamedArguments =  
                 upcast [| for p,v in namedArgs -> CustomAttributeNamedArgument(typeof<'t>.GetProperty(p), v ) |]
         
+
+
     let mkProvidedAttribute<'t> args namedArgs =
         ProvidedAttribute<'t>(args, namedArgs) :> CustomAttributeData
 
@@ -347,12 +349,7 @@ module Provided =
 
                                 | _ ->
 
-                                    let propType = 
-                                        if e.Occurs.Max > MaxOccurs 1 then
-                                            let ref : Type = typeRef t
-                                            ref.MakeArrayType()
-                                        else
-                                            typeRef t
+                                    let propType = applyElementCardinality e (typeRef t) 
                                     yield (e.Name.LocalName, e.Name, propType, CTElement)
 
                                      
@@ -360,10 +357,7 @@ module Provided =
                             | XsElement ( { Type = InlineType (XsComplexType ct)} as e) ->
                                 let propType = 
                                     let pt = buildComplexType false (name + String.PascalCase e.Name.LocalName) NoName ct
-                                    if e.Occurs.Max > MaxOccurs 1 then
-                                        pt.MakeArrayType()
-                                    else
-                                        pt
+                                    applyElementCardinality e pt
                                     
 
                                 yield (e.Name.LocalName, e.Name, propType, CTElement)
@@ -435,6 +429,15 @@ module Provided =
                 pt.AddMember(ProvidedConstructor([], fun _ -> <@@ () @@>))
 
                 (pt :> Type)
+        and applyElementCardinality e (ref: Type) =
+            if e.Occurs.Max > MaxOccurs 1 then
+                ref.MakeArrayType()
+            elif e.Nillable && ref.IsValueType then
+                typedefof<Nullable<_>>.MakeGenericType(ref)
+            else
+                ref
+
+
         and buildEnum (name: XName) (t: XsSimpleType) =
             match types.TryGetValue(name) with
             | true, t -> t :> Type

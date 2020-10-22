@@ -83,6 +83,7 @@ let ``Element can be lists (with min=0 and max=unbounded)`` () =
                                   Type = TypeRef (ns + "WeatherDescription")
                                   Occurs = { Min = MinOccurs 0; Max = Unbounded }
                                   DefaultValue = None 
+                                  Nillable = false;
                                   SubstitutionGroup = None } ]
                 }
         }
@@ -103,6 +104,7 @@ let ``Element can have empty complex type`` () =
         { Name = ns + "GetWeatherInformation"
           Type = InlineType (XsComplexType XsType.empty)
           Occurs = Occurs.once
+          Nillable = false
           DefaultValue = None
           SubstitutionGroup = None }
     Assert.AreEqual(expected, element)
@@ -126,12 +128,14 @@ let ``ComplexType contains elements``() =
                                     { Name = ns + "MorningLow"
                                       Type = TypeRef(xs + "string")
                                       Occurs = Occurs.optional
+                                      Nillable = false
                                       DefaultValue = None
                                       SubstitutionGroup = None }
                                    XsElement 
                                     { Name = ns + "DaytimeHigh"
                                       Type = TypeRef(xs + "string")
                                       Occurs = Occurs.optional
+                                      Nillable = false
                                       DefaultValue = None
                                       SubstitutionGroup = None }]}
         }

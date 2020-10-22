@@ -77,6 +77,9 @@
     <None Include="..\FSharp.Data.WsdlProvider.Tests\Weather.wsdl" Link="Weather.wsdl">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Include="..\FSharp.Data.WsdlProvider.Tests\Nillable.wsdl" Link="Nillable.wsdl">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Include="paket.references" />
     <Compile Include="..\..\src\FSharp.Data.WsdlProvider.DesignTime\Xsd.fs" Link="Xsd.fs" />
     <Compile Include="..\..\src\FSharp.Data.WsdlProvider.DesignTime\Wsdl.fs" Link="Wsdl.fs" />
