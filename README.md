@@ -8,9 +8,9 @@ It does all the wsdl parsing internally and doesn't require an external tool.
 
 ## Quickstart
 
-Add the nuget to your project from [MyGet](https://www.myget.org/feed/wsdlprovider/package/nuget/FSharp.Data.WsdlProvider):
+Add the nuget to your project from [nuget.org](https://www.nuget.org/packages/FSharp.Data.WsdlProvider/):
 
-    dotnet add .\Client\Client.fsproj package FSharp.Data.WsdlProvider --prerelease --source https://www.myget.org/F/wsdlprovider/api/v3/index.json
+    dotnet add .\Client\Client.fsproj package FSharp.Data.WsdlProvider --prerelease
 
 Define a type using the WsdlProvider pointing at you wsdl definition:
 
@@ -25,7 +25,7 @@ Call the service:
 
 ## Build
 
-To build the type provider, you need only to have [dotnet sdk 3.1 installed](https://dotnet.microsoft.com/download).
+To build the type provider, you need only to have [dotnet sdk 6.0 installed](https://dotnet.microsoft.com/download).
 
 Building on Windows:
 
