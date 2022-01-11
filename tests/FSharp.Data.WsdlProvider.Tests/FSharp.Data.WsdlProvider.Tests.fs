@@ -46,4 +46,10 @@ let ``Soap client provides location as a static member`` () =
     Assert.AreEqual("http://wsf.cdyne.com/WeatherWS/Weather.asmx", location)
     ()
 
+type DirectClick = WsdlProvider< const(__SOURCE_DIRECTORY__ + "/DirectClickService.wsdl") >
+[<Test>]
+ let ``Stub with type restriction``() =
+   use client = new DirectClick.DirectClickServiceSoapClient()
+   Assert.IsNotNull(client)
+   ()
  

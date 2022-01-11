@@ -1,0 +1,2455 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<wsdl:definitions xmlns:s="http://www.w3.org/2001/XMLSchema" xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/" xmlns:http="http://schemas.xmlsoap.org/wsdl/http/" xmlns:mime="http://schemas.xmlsoap.org/wsdl/mime/" xmlns:tns="http://internal-services/directclick/2013A/" xmlns:s2="http://internal-services/directclick/2013A/AbstractTypes" xmlns:s1="http://microsoft.com/wsdl/types/" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:tm="http://microsoft.com/wsdl/mime/textMatching/" xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/" targetNamespace="http://internal-services/directclick/2013A/" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">
+  <wsdl:types>
+    <s:schema elementFormDefault="qualified" targetNamespace="http://internal-services/directclick/2013A/">
+      <s:import namespace="http://microsoft.com/wsdl/types/" />
+      <s:element name="CreateBookingEngine">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="sourceId" type="s1:guid" />
+            <s:element minOccurs="1" maxOccurs="1" name="hotelId" type="s:int" />
+            <s:element minOccurs="0" maxOccurs="1" name="templateBookingEngine" type="s:string" />
+            <s:element minOccurs="1" maxOccurs="1" name="groupId" nillable="true" type="s:int" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="CreateBookingEngineResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="CreateBookingEngineResult" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="SynchronizeBookingEngine">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="sourceId" type="s1:guid" />
+            <s:element minOccurs="1" maxOccurs="1" name="hotelId" type="s:int" />
+            <s:element minOccurs="0" maxOccurs="1" name="templateBookingEngine" type="s:string" />
+            <s:element minOccurs="1" maxOccurs="1" name="groupId" nillable="true" type="s:int" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="SynchronizeBookingEngineResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="SynchronizeBookingEngineResult" type="s:boolean" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="UpdatePattern">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="groupId" type="s:int" />
+            <s:element minOccurs="1" maxOccurs="1" name="hotelId" type="s:int" />
+            <s:element minOccurs="0" maxOccurs="1" name="bookingEngine" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="UpdatePatternResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="UpdatePatternResult" type="s:boolean" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetPattern">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="groupId" type="s:int" />
+            <s:element minOccurs="1" maxOccurs="1" name="hotelId" type="s:int" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetPatternResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="GetPatternResult" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="IsPatternValid">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="groupId" type="s:int" />
+            <s:element minOccurs="1" maxOccurs="1" name="hotelId" type="s:int" />
+            <s:element minOccurs="0" maxOccurs="1" name="bookingEngine" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="IsPatternValidResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="IsPatternValidResult" type="s:boolean" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="IsConfigurationGroup">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="hotelId" type="s:int" />
+            <s:element minOccurs="1" maxOccurs="1" name="groupId" type="s:int" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="IsConfigurationGroupResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="IsConfigurationGroupResult" type="s:boolean" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetConfigurationGroupStatistics">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="hotelId" type="s:int" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetConfigurationGroupStatisticsResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="GetConfigurationGroupStatisticsResult" type="tns:ArrayOfGroupStatistics" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="ArrayOfGroupStatistics">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="unbounded" name="GroupStatistics" nillable="true" type="tns:GroupStatistics" />
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="GroupStatistics">
+        <s:sequence>
+          <s:element minOccurs="1" maxOccurs="1" name="GroupId" type="s:int" />
+          <s:element minOccurs="1" maxOccurs="1" name="IsManager" type="s:boolean" />
+          <s:element minOccurs="1" maxOccurs="1" name="IsChain" type="s:boolean" />
+          <s:element minOccurs="1" maxOccurs="1" name="HasValidPattern" type="s:boolean" />
+          <s:element minOccurs="1" maxOccurs="1" name="ActiveMappingCount" type="s:int" />
+          <s:element minOccurs="1" maxOccurs="1" name="InactiveMappingCount" type="s:int" />
+        </s:sequence>
+      </s:complexType>
+      <s:element name="Convert">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="visitId" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="reference" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="ConvertResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="ConvertResult" type="s:boolean" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetVisitReport">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="hotelId" type="s:int" />
+            <s:element minOccurs="1" maxOccurs="1" name="startDate" type="s:dateTime" />
+            <s:element minOccurs="1" maxOccurs="1" name="endDate" type="s:dateTime" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetVisitReportResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="GetVisitReportResult" type="tns:ArrayOfVisitReport" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="ArrayOfVisitReport">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="unbounded" name="VisitReport" nillable="true" type="tns:VisitReport" />
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="VisitReport">
+        <s:sequence>
+          <s:element minOccurs="1" maxOccurs="1" name="SourceId" type="s1:guid" />
+          <s:element minOccurs="0" maxOccurs="1" name="Name" type="s:string" />
+          <s:element minOccurs="1" maxOccurs="1" name="HotelId" type="s:int" />
+          <s:element minOccurs="1" maxOccurs="1" name="Visits" type="s:int" />
+          <s:element minOccurs="0" maxOccurs="1" name="Currency" type="s:string" />
+          <s:element minOccurs="1" maxOccurs="1" name="Amount" type="s:decimal" />
+        </s:sequence>
+      </s:complexType>
+      <s:element name="GetHotelVisitReports">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="hotelIds" type="tns:ArrayOfInt" />
+            <s:element minOccurs="1" maxOccurs="1" name="startDate" type="s:dateTime" />
+            <s:element minOccurs="1" maxOccurs="1" name="endDate" type="s:dateTime" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="ArrayOfInt">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="unbounded" name="int" type="s:int" />
+        </s:sequence>
+      </s:complexType>
+      <s:element name="GetHotelVisitReportsResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="GetHotelVisitReportsResult" type="tns:ArrayOfVisitReport" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetConvertedVisit">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="reference" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetConvertedVisitResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="GetConvertedVisitResult" type="tns:ConvertedVisit" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="ConvertedVisit">
+        <s:sequence>
+          <s:element minOccurs="1" maxOccurs="1" name="Id" type="s1:guid" />
+          <s:element minOccurs="1" maxOccurs="1" name="LastClickId" type="s1:guid" />
+          <s:element minOccurs="0" maxOccurs="1" name="Reference" type="s:string" />
+          <s:element minOccurs="1" maxOccurs="1" name="SourceId" type="s1:guid" />
+          <s:element minOccurs="0" maxOccurs="1" name="Name" type="s:string" />
+          <s:element minOccurs="1" maxOccurs="1" name="Amount" type="s:decimal" />
+          <s:element minOccurs="0" maxOccurs="1" name="Currency" type="s:string" />
+          <s:element minOccurs="1" maxOccurs="1" name="HotelId" type="s:int" />
+          <s:element minOccurs="1" maxOccurs="1" name="Arrival" type="s:dateTime" />
+          <s:element minOccurs="1" maxOccurs="1" name="Departure" type="s:dateTime" />
+          <s:element minOccurs="0" maxOccurs="1" name="BookingRef" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="CustomParameters" type="tns:ArrayOfCustomParameter" />
+          <s:element minOccurs="1" maxOccurs="1" name="Score" type="tns:ConversionScore" />
+          <s:element minOccurs="1" maxOccurs="1" name="BookingFees" type="s:decimal" />
+          <s:element minOccurs="1" maxOccurs="1" name="AdultCount" type="s:int" />
+          <s:element minOccurs="1" maxOccurs="1" name="TaxAmount" type="s:decimal" />
+          <s:element minOccurs="1" maxOccurs="1" name="RoomCount" type="s:int" />
+          <s:element minOccurs="1" maxOccurs="1" name="BookingDate" type="s:dateTime" />
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="ArrayOfCustomParameter">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="unbounded" name="CustomParameter" nillable="true" type="tns:CustomParameter" />
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="CustomParameter">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="Key" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="Value" type="s:string" />
+        </s:sequence>
+      </s:complexType>
+      <s:simpleType name="ConversionScore">
+        <s:restriction base="s:string">
+          <s:enumeration value="SameSession" />
+          <s:enumeration value="SameSource" />
+          <s:enumeration value="SameHotel" />
+          <s:enumeration value="Unknown" />
+        </s:restriction>
+      </s:simpleType>
+      <s:element name="GetConvertedVisits">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="references" type="tns:ArrayOfString" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="ArrayOfString">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="unbounded" name="string" nillable="true" type="s:string" />
+        </s:sequence>
+      </s:complexType>
+      <s:element name="GetConvertedVisitsResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="GetConvertedVisitsResult" type="tns:ArrayOfConvertedVisit" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="ArrayOfConvertedVisit">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="unbounded" name="ConvertedVisit" nillable="true" type="tns:ConvertedVisit" />
+        </s:sequence>
+      </s:complexType>
+      <s:element name="TestCreateBudgetAllocator">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="groupId" type="s:int" />
+            <s:element minOccurs="1" maxOccurs="1" name="hotelId" type="s:int" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="TestCreateBudgetAllocatorResponse">
+        <s:complexType />
+      </s:element>
+      <s:element name="TestStartMonth">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="groupId" type="s:int" />
+            <s:element minOccurs="1" maxOccurs="1" name="hotelId" type="s:int" />
+            <s:element minOccurs="1" maxOccurs="1" name="month" type="s:int" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="TestStartMonthResponse">
+        <s:complexType />
+      </s:element>
+      <s:element name="TestCloseMonth">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="groupId" type="s:int" />
+            <s:element minOccurs="1" maxOccurs="1" name="hotelId" type="s:int" />
+            <s:element minOccurs="1" maxOccurs="1" name="month" type="s:int" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="TestCloseMonthResponse">
+        <s:complexType />
+      </s:element>
+      <s:element name="GetAutoCloseRules">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="groupId" type="s:int" />
+            <s:element minOccurs="1" maxOccurs="1" name="hotelId" type="s:int" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetAutoCloseRulesResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="GetAutoCloseRulesResult" type="tns:ArrayOfAutoCloseRule" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="ArrayOfAutoCloseRule">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="unbounded" name="AutoCloseRule" nillable="true" type="tns:AutoCloseRule" />
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="AutoCloseRule">
+        <s:sequence>
+          <s:element minOccurs="1" maxOccurs="1" name="HotelId" type="s:int" />
+          <s:element minOccurs="1" maxOccurs="1" name="GroupId" type="s:int" />
+          <s:element minOccurs="1" maxOccurs="1" name="SourceId" type="s1:guid" />
+          <s:element minOccurs="1" maxOccurs="1" name="Threshold" type="s:decimal" />
+          <s:element minOccurs="1" maxOccurs="1" name="Months" type="s:int" />
+          <s:element minOccurs="1" maxOccurs="1" name="Active" type="s:boolean" />
+        </s:sequence>
+      </s:complexType>
+      <s:element name="SetAutoCloseRules">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="groupId" type="s:int" />
+            <s:element minOccurs="1" maxOccurs="1" name="hotelId" type="s:int" />
+            <s:element minOccurs="1" maxOccurs="1" name="sourceId" type="s1:guid" />
+            <s:element minOccurs="1" maxOccurs="1" name="threshold" type="s:decimal" />
+            <s:element minOccurs="1" maxOccurs="1" name="months" type="s:int" />
+            <s:element minOccurs="1" maxOccurs="1" name="active" type="s:boolean" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="SetAutoCloseRulesResponse">
+        <s:complexType />
+      </s:element>
+      <s:element name="GetSources">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="inactiveIncluded" type="s:boolean" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetSourcesResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="GetSourcesResult" type="tns:ArrayOfSource" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="ArrayOfSource">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="unbounded" name="Source" nillable="true" type="tns:Source" />
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="Source">
+        <s:sequence>
+          <s:element minOccurs="1" maxOccurs="1" name="Id" type="s1:guid" />
+          <s:element minOccurs="0" maxOccurs="1" name="Name" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="PartnerName" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="ProductName" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="Url" type="s:string" />
+          <s:element minOccurs="1" maxOccurs="1" name="IsActive" type="s:boolean" />
+          <s:element minOccurs="1" maxOccurs="1" name="IsPreliminary" type="s:boolean" />
+          <s:element minOccurs="1" maxOccurs="1" name="HasPartnerCode" type="s:boolean" />
+          <s:element minOccurs="1" maxOccurs="1" name="IsPartnerActivated" type="s:boolean" />
+          <s:element minOccurs="1" maxOccurs="1" name="IsPartnerExclusive" type="s:boolean" />
+          <s:element minOccurs="1" maxOccurs="1" name="Actions" type="tns:ActionType" />
+          <s:element minOccurs="1" maxOccurs="1" name="ResourceId" type="s1:guid" />
+          <s:element minOccurs="1" maxOccurs="1" name="DefaultPrice" type="s:decimal" />
+          <s:element minOccurs="0" maxOccurs="1" name="Currency" type="s:string" />
+        </s:sequence>
+      </s:complexType>
+      <s:simpleType name="ActionType">
+        <s:list>
+          <s:simpleType>
+            <s:restriction base="s:string">
+              <s:enumeration value="Default" />
+              <s:enumeration value="CheckAvailability" />
+              <s:enumeration value="HotelDetails" />
+              <s:enumeration value="HotelMap" />
+              <s:enumeration value="HotelAmenities" />
+              <s:enumeration value="HotelPictures" />
+              <s:enumeration value="All" />
+            </s:restriction>
+          </s:simpleType>
+        </s:list>
+      </s:simpleType>
+      <s:element name="GetHotelMappings">
+        <s:complexType />
+      </s:element>
+      <s:element name="GetHotelMappingsResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="GetHotelMappingsResult" type="tns:ArrayOfMapping" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="ArrayOfMapping">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="unbounded" name="Mapping" nillable="true" type="tns:Mapping" />
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="Mapping">
+        <s:sequence>
+          <s:element minOccurs="1" maxOccurs="1" name="Id" type="s1:guid" />
+          <s:element minOccurs="1" maxOccurs="1" name="SourceId" type="s1:guid" />
+          <s:element minOccurs="0" maxOccurs="1" name="SourceHotelId" type="s:string" />
+          <s:element minOccurs="1" maxOccurs="1" name="HotelId" type="s:int" />
+          <s:element minOccurs="0" maxOccurs="1" name="BookingEngine" type="s:string" />
+          <s:element minOccurs="1" maxOccurs="1" name="Actions" type="tns:ActionType" />
+          <s:element minOccurs="1" maxOccurs="1" name="IsActive" type="s:boolean" />
+          <s:element minOccurs="1" maxOccurs="1" name="IsPaused" type="s:boolean" />
+          <s:element minOccurs="1" maxOccurs="1" name="BudgetReached" type="s:boolean" />
+          <s:element minOccurs="0" maxOccurs="1" name="BookingEngineParameters" type="tns:BookingEngineParameters" />
+          <s:element minOccurs="0" maxOccurs="1" name="CustomParameters" type="tns:ArrayOfCustomParameter" />
+          <s:element minOccurs="0" maxOccurs="1" name="ReferenceBookingEngine" type="s:string" />
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="BookingEngineParameters">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="ReferenceRate" type="tns:ParameterOfString" />
+          <s:element minOccurs="0" maxOccurs="1" name="DiscountCodeAllowed" type="tns:ParameterOfBoolean" />
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="ParameterOfString">
+        <s:sequence>
+          <s:element minOccurs="1" maxOccurs="1" name="Source" type="tns:ParameterSource" />
+          <s:element minOccurs="0" maxOccurs="1" name="Value" type="s:string" />
+        </s:sequence>
+      </s:complexType>
+      <s:simpleType name="ParameterSource">
+        <s:restriction base="s:string">
+          <s:enumeration value="Platform" />
+          <s:enumeration value="BookingEngine" />
+          <s:enumeration value="Custom" />
+        </s:restriction>
+      </s:simpleType>
+      <s:complexType name="ParameterOfBoolean">
+        <s:sequence>
+          <s:element minOccurs="1" maxOccurs="1" name="Source" type="tns:ParameterSource" />
+          <s:element minOccurs="1" maxOccurs="1" name="Value" type="s:boolean" />
+        </s:sequence>
+      </s:complexType>
+      <s:element name="GetMappings">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="hotelIds" type="tns:ArrayOfInt" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetMappingsResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="GetMappingsResult" type="tns:ArrayOfMapping" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetMappingById">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="mappingId" type="s1:guid" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetMappingByIdResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="GetMappingByIdResult" type="tns:Mapping" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetMappingsBySource">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="sourceId" type="s1:guid" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetMappingsBySourceResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="GetMappingsBySourceResult" type="tns:ArrayOfMapping" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="AddMapping">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="id" type="s1:guid" />
+            <s:element minOccurs="1" maxOccurs="1" name="sourceId" type="s1:guid" />
+            <s:element minOccurs="0" maxOccurs="1" name="sourceHotelId" type="s:string" />
+            <s:element minOccurs="1" maxOccurs="1" name="hotelId" type="s:int" />
+            <s:element minOccurs="0" maxOccurs="1" name="bookingEngine" type="s:string" />
+            <s:element minOccurs="1" maxOccurs="1" name="actions" type="tns:ActionType" />
+            <s:element minOccurs="1" maxOccurs="1" name="amount" type="s:decimal" />
+            <s:element minOccurs="0" maxOccurs="1" name="currency" type="s:string" />
+            <s:element minOccurs="1" maxOccurs="1" name="isActive" type="s:boolean" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="AddMappingResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="AddMappingResult" type="s:boolean" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="CreateMapping">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="id" type="s1:guid" />
+            <s:element minOccurs="1" maxOccurs="1" name="sourceId" type="s1:guid" />
+            <s:element minOccurs="0" maxOccurs="1" name="sourceHotelId" type="s:string" />
+            <s:element minOccurs="1" maxOccurs="1" name="hotelId" type="s:int" />
+            <s:element minOccurs="1" maxOccurs="1" name="groupId" type="s:int" />
+            <s:element minOccurs="0" maxOccurs="1" name="templateBookingEngine" type="s:string" />
+            <s:element minOccurs="1" maxOccurs="1" name="actions" type="tns:ActionType" />
+            <s:element minOccurs="1" maxOccurs="1" name="isActive" type="s:boolean" />
+            <s:element minOccurs="0" maxOccurs="1" name="bookingEngineParameters" type="tns:BookingEngineParameters" />
+            <s:element minOccurs="0" maxOccurs="1" name="customParameters" type="tns:ArrayOfCustomParameter" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="CreateMappingResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="CreateMappingResult" type="s:boolean" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="UpdateMapping">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="id" type="s1:guid" />
+            <s:element minOccurs="0" maxOccurs="1" name="sourceHotelId" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="bookingEngine" type="s:string" />
+            <s:element minOccurs="1" maxOccurs="1" name="actions" type="tns:ActionType" />
+            <s:element minOccurs="1" maxOccurs="1" name="amount" type="s:decimal" />
+            <s:element minOccurs="0" maxOccurs="1" name="currency" type="s:string" />
+            <s:element minOccurs="1" maxOccurs="1" name="isActive" type="s:boolean" />
+            <s:element minOccurs="0" maxOccurs="1" name="bookingEngineParameters" type="tns:BookingEngineParameters" />
+            <s:element minOccurs="0" maxOccurs="1" name="customParameters" type="tns:ArrayOfCustomParameter" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="UpdateMappingResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="UpdateMappingResult" type="s:boolean" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="DeleteMapping">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="id" type="s1:guid" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="DeleteMappingResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="DeleteMappingResult" type="s:boolean" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="SetDefaultBudget">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="groupId" type="s:int" />
+            <s:element minOccurs="1" maxOccurs="1" name="hotelId" type="s:int" />
+            <s:element minOccurs="1" maxOccurs="1" name="amount" type="s:decimal" />
+            <s:element minOccurs="0" maxOccurs="1" name="currency" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="SetDefaultBudgetResponse">
+        <s:complexType />
+      </s:element>
+      <s:element name="SetBudget">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="groupId" type="s:int" />
+            <s:element minOccurs="1" maxOccurs="1" name="hotelId" type="s:int" />
+            <s:element minOccurs="1" maxOccurs="1" name="amount" type="s:decimal" />
+            <s:element minOccurs="0" maxOccurs="1" name="currency" type="s:string" />
+            <s:element minOccurs="1" maxOccurs="1" name="yearMonth" type="s:dateTime" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="SetBudgetResponse">
+        <s:complexType />
+      </s:element>
+      <s:element name="GetBudget">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="groupId" type="s:int" />
+            <s:element minOccurs="1" maxOccurs="1" name="hotelId" type="s:int" />
+            <s:element minOccurs="1" maxOccurs="1" name="yearMonth" type="s:dateTime" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetBudgetResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="GetBudgetResult" type="tns:Budget" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="Budget">
+        <s:sequence>
+          <s:element minOccurs="1" maxOccurs="1" name="HotelId" type="s:int" />
+          <s:element minOccurs="1" maxOccurs="1" name="GroupId" type="s:int" />
+          <s:element minOccurs="1" maxOccurs="1" name="DefaultAmount" type="s:decimal" />
+          <s:element minOccurs="0" maxOccurs="1" name="DefaultAmountCurrency" type="s:string" />
+          <s:element minOccurs="1" maxOccurs="1" name="MonthAmount" type="s:decimal" />
+          <s:element minOccurs="0" maxOccurs="1" name="MonthAmountCurrency" type="s:string" />
+          <s:element minOccurs="1" maxOccurs="1" name="YearMonth" type="s:dateTime" />
+          <s:element minOccurs="1" maxOccurs="1" name="Reached" type="s:boolean" />
+        </s:sequence>
+      </s:complexType>
+      <s:element name="GetGroupBudgets">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="groupId" type="s:int" />
+            <s:element minOccurs="1" maxOccurs="1" name="yearMonth" type="s:dateTime" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetGroupBudgetsResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="GetGroupBudgetsResult" type="tns:ArrayOfBudget" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="ArrayOfBudget">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="unbounded" name="Budget" nillable="true" type="tns:Budget" />
+        </s:sequence>
+      </s:complexType>
+      <s:element name="GetBudgets">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="yearMonth" type="s:dateTime" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetBudgetsResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="GetBudgetsResult" type="tns:ArrayOfBudget" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="boolean" type="s:boolean" />
+      <s:element name="string" nillable="true" type="s:string" />
+      <s:element name="ArrayOfGroupStatistics" nillable="true" type="tns:ArrayOfGroupStatistics" />
+      <s:element name="ArrayOfVisitReport" nillable="true" type="tns:ArrayOfVisitReport" />
+      <s:element name="ConvertedVisit" nillable="true" type="tns:ConvertedVisit" />
+      <s:element name="ArrayOfConvertedVisit" nillable="true" type="tns:ArrayOfConvertedVisit" />
+      <s:element name="ArrayOfAutoCloseRule" nillable="true" type="tns:ArrayOfAutoCloseRule" />
+      <s:element name="ArrayOfSource" nillable="true" type="tns:ArrayOfSource" />
+      <s:element name="ArrayOfMapping" nillable="true" type="tns:ArrayOfMapping" />
+      <s:element name="Budget" nillable="true" type="tns:Budget" />
+      <s:element name="ArrayOfBudget" nillable="true" type="tns:ArrayOfBudget" />
+    </s:schema>
+    <s:schema elementFormDefault="qualified" targetNamespace="http://microsoft.com/wsdl/types/">
+      <s:simpleType name="guid">
+        <s:restriction base="s:string">
+          <s:pattern value="[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}" />
+        </s:restriction>
+      </s:simpleType>
+    </s:schema>
+    <s:schema targetNamespace="http://internal-services/directclick/2013A/AbstractTypes">
+      <s:import schemaLocation="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://schemas.xmlsoap.org/soap/encoding/" />
+      <s:complexType name="StringArray">
+        <s:complexContent mixed="false">
+          <s:restriction base="soapenc:Array">
+            <s:sequence>
+              <s:element minOccurs="0" maxOccurs="unbounded" name="String" type="s:string" />
+            </s:sequence>
+          </s:restriction>
+        </s:complexContent>
+      </s:complexType>
+    </s:schema>
+  </wsdl:types>
+  <wsdl:message name="CreateBookingEngineSoapIn">
+    <wsdl:part name="parameters" element="tns:CreateBookingEngine" />
+  </wsdl:message>
+  <wsdl:message name="CreateBookingEngineSoapOut">
+    <wsdl:part name="parameters" element="tns:CreateBookingEngineResponse" />
+  </wsdl:message>
+  <wsdl:message name="SynchronizeBookingEngineSoapIn">
+    <wsdl:part name="parameters" element="tns:SynchronizeBookingEngine" />
+  </wsdl:message>
+  <wsdl:message name="SynchronizeBookingEngineSoapOut">
+    <wsdl:part name="parameters" element="tns:SynchronizeBookingEngineResponse" />
+  </wsdl:message>
+  <wsdl:message name="UpdatePatternSoapIn">
+    <wsdl:part name="parameters" element="tns:UpdatePattern" />
+  </wsdl:message>
+  <wsdl:message name="UpdatePatternSoapOut">
+    <wsdl:part name="parameters" element="tns:UpdatePatternResponse" />
+  </wsdl:message>
+  <wsdl:message name="GetPatternSoapIn">
+    <wsdl:part name="parameters" element="tns:GetPattern" />
+  </wsdl:message>
+  <wsdl:message name="GetPatternSoapOut">
+    <wsdl:part name="parameters" element="tns:GetPatternResponse" />
+  </wsdl:message>
+  <wsdl:message name="IsPatternValidSoapIn">
+    <wsdl:part name="parameters" element="tns:IsPatternValid" />
+  </wsdl:message>
+  <wsdl:message name="IsPatternValidSoapOut">
+    <wsdl:part name="parameters" element="tns:IsPatternValidResponse" />
+  </wsdl:message>
+  <wsdl:message name="IsConfigurationGroupSoapIn">
+    <wsdl:part name="parameters" element="tns:IsConfigurationGroup" />
+  </wsdl:message>
+  <wsdl:message name="IsConfigurationGroupSoapOut">
+    <wsdl:part name="parameters" element="tns:IsConfigurationGroupResponse" />
+  </wsdl:message>
+  <wsdl:message name="GetConfigurationGroupStatisticsSoapIn">
+    <wsdl:part name="parameters" element="tns:GetConfigurationGroupStatistics" />
+  </wsdl:message>
+  <wsdl:message name="GetConfigurationGroupStatisticsSoapOut">
+    <wsdl:part name="parameters" element="tns:GetConfigurationGroupStatisticsResponse" />
+  </wsdl:message>
+  <wsdl:message name="ConvertSoapIn">
+    <wsdl:part name="parameters" element="tns:Convert" />
+  </wsdl:message>
+  <wsdl:message name="ConvertSoapOut">
+    <wsdl:part name="parameters" element="tns:ConvertResponse" />
+  </wsdl:message>
+  <wsdl:message name="GetVisitReportSoapIn">
+    <wsdl:part name="parameters" element="tns:GetVisitReport" />
+  </wsdl:message>
+  <wsdl:message name="GetVisitReportSoapOut">
+    <wsdl:part name="parameters" element="tns:GetVisitReportResponse" />
+  </wsdl:message>
+  <wsdl:message name="GetHotelVisitReportsSoapIn">
+    <wsdl:part name="parameters" element="tns:GetHotelVisitReports" />
+  </wsdl:message>
+  <wsdl:message name="GetHotelVisitReportsSoapOut">
+    <wsdl:part name="parameters" element="tns:GetHotelVisitReportsResponse" />
+  </wsdl:message>
+  <wsdl:message name="GetConvertedVisitSoapIn">
+    <wsdl:part name="parameters" element="tns:GetConvertedVisit" />
+  </wsdl:message>
+  <wsdl:message name="GetConvertedVisitSoapOut">
+    <wsdl:part name="parameters" element="tns:GetConvertedVisitResponse" />
+  </wsdl:message>
+  <wsdl:message name="GetConvertedVisitsSoapIn">
+    <wsdl:part name="parameters" element="tns:GetConvertedVisits" />
+  </wsdl:message>
+  <wsdl:message name="GetConvertedVisitsSoapOut">
+    <wsdl:part name="parameters" element="tns:GetConvertedVisitsResponse" />
+  </wsdl:message>
+  <wsdl:message name="TestCreateBudgetAllocatorSoapIn">
+    <wsdl:part name="parameters" element="tns:TestCreateBudgetAllocator" />
+  </wsdl:message>
+  <wsdl:message name="TestCreateBudgetAllocatorSoapOut">
+    <wsdl:part name="parameters" element="tns:TestCreateBudgetAllocatorResponse" />
+  </wsdl:message>
+  <wsdl:message name="TestStartMonthSoapIn">
+    <wsdl:part name="parameters" element="tns:TestStartMonth" />
+  </wsdl:message>
+  <wsdl:message name="TestStartMonthSoapOut">
+    <wsdl:part name="parameters" element="tns:TestStartMonthResponse" />
+  </wsdl:message>
+  <wsdl:message name="TestCloseMonthSoapIn">
+    <wsdl:part name="parameters" element="tns:TestCloseMonth" />
+  </wsdl:message>
+  <wsdl:message name="TestCloseMonthSoapOut">
+    <wsdl:part name="parameters" element="tns:TestCloseMonthResponse" />
+  </wsdl:message>
+  <wsdl:message name="GetAutoCloseRulesSoapIn">
+    <wsdl:part name="parameters" element="tns:GetAutoCloseRules" />
+  </wsdl:message>
+  <wsdl:message name="GetAutoCloseRulesSoapOut">
+    <wsdl:part name="parameters" element="tns:GetAutoCloseRulesResponse" />
+  </wsdl:message>
+  <wsdl:message name="SetAutoCloseRulesSoapIn">
+    <wsdl:part name="parameters" element="tns:SetAutoCloseRules" />
+  </wsdl:message>
+  <wsdl:message name="SetAutoCloseRulesSoapOut">
+    <wsdl:part name="parameters" element="tns:SetAutoCloseRulesResponse" />
+  </wsdl:message>
+  <wsdl:message name="GetSourcesSoapIn">
+    <wsdl:part name="parameters" element="tns:GetSources" />
+  </wsdl:message>
+  <wsdl:message name="GetSourcesSoapOut">
+    <wsdl:part name="parameters" element="tns:GetSourcesResponse" />
+  </wsdl:message>
+  <wsdl:message name="GetHotelMappingsSoapIn">
+    <wsdl:part name="parameters" element="tns:GetHotelMappings" />
+  </wsdl:message>
+  <wsdl:message name="GetHotelMappingsSoapOut">
+    <wsdl:part name="parameters" element="tns:GetHotelMappingsResponse" />
+  </wsdl:message>
+  <wsdl:message name="GetMappingsSoapIn">
+    <wsdl:part name="parameters" element="tns:GetMappings" />
+  </wsdl:message>
+  <wsdl:message name="GetMappingsSoapOut">
+    <wsdl:part name="parameters" element="tns:GetMappingsResponse" />
+  </wsdl:message>
+  <wsdl:message name="GetMappingByIdSoapIn">
+    <wsdl:part name="parameters" element="tns:GetMappingById" />
+  </wsdl:message>
+  <wsdl:message name="GetMappingByIdSoapOut">
+    <wsdl:part name="parameters" element="tns:GetMappingByIdResponse" />
+  </wsdl:message>
+  <wsdl:message name="GetMappingsBySourceSoapIn">
+    <wsdl:part name="parameters" element="tns:GetMappingsBySource" />
+  </wsdl:message>
+  <wsdl:message name="GetMappingsBySourceSoapOut">
+    <wsdl:part name="parameters" element="tns:GetMappingsBySourceResponse" />
+  </wsdl:message>
+  <wsdl:message name="AddMappingSoapIn">
+    <wsdl:part name="parameters" element="tns:AddMapping" />
+  </wsdl:message>
+  <wsdl:message name="AddMappingSoapOut">
+    <wsdl:part name="parameters" element="tns:AddMappingResponse" />
+  </wsdl:message>
+  <wsdl:message name="CreateMappingSoapIn">
+    <wsdl:part name="parameters" element="tns:CreateMapping" />
+  </wsdl:message>
+  <wsdl:message name="CreateMappingSoapOut">
+    <wsdl:part name="parameters" element="tns:CreateMappingResponse" />
+  </wsdl:message>
+  <wsdl:message name="UpdateMappingSoapIn">
+    <wsdl:part name="parameters" element="tns:UpdateMapping" />
+  </wsdl:message>
+  <wsdl:message name="UpdateMappingSoapOut">
+    <wsdl:part name="parameters" element="tns:UpdateMappingResponse" />
+  </wsdl:message>
+  <wsdl:message name="DeleteMappingSoapIn">
+    <wsdl:part name="parameters" element="tns:DeleteMapping" />
+  </wsdl:message>
+  <wsdl:message name="DeleteMappingSoapOut">
+    <wsdl:part name="parameters" element="tns:DeleteMappingResponse" />
+  </wsdl:message>
+  <wsdl:message name="SetDefaultBudgetSoapIn">
+    <wsdl:part name="parameters" element="tns:SetDefaultBudget" />
+  </wsdl:message>
+  <wsdl:message name="SetDefaultBudgetSoapOut">
+    <wsdl:part name="parameters" element="tns:SetDefaultBudgetResponse" />
+  </wsdl:message>
+  <wsdl:message name="SetBudgetSoapIn">
+    <wsdl:part name="parameters" element="tns:SetBudget" />
+  </wsdl:message>
+  <wsdl:message name="SetBudgetSoapOut">
+    <wsdl:part name="parameters" element="tns:SetBudgetResponse" />
+  </wsdl:message>
+  <wsdl:message name="GetBudgetSoapIn">
+    <wsdl:part name="parameters" element="tns:GetBudget" />
+  </wsdl:message>
+  <wsdl:message name="GetBudgetSoapOut">
+    <wsdl:part name="parameters" element="tns:GetBudgetResponse" />
+  </wsdl:message>
+  <wsdl:message name="GetGroupBudgetsSoapIn">
+    <wsdl:part name="parameters" element="tns:GetGroupBudgets" />
+  </wsdl:message>
+  <wsdl:message name="GetGroupBudgetsSoapOut">
+    <wsdl:part name="parameters" element="tns:GetGroupBudgetsResponse" />
+  </wsdl:message>
+  <wsdl:message name="GetBudgetsSoapIn">
+    <wsdl:part name="parameters" element="tns:GetBudgets" />
+  </wsdl:message>
+  <wsdl:message name="GetBudgetsSoapOut">
+    <wsdl:part name="parameters" element="tns:GetBudgetsResponse" />
+  </wsdl:message>
+  <wsdl:message name="UpdatePatternHttpGetIn">
+    <wsdl:part name="groupId" type="s:string" />
+    <wsdl:part name="hotelId" type="s:string" />
+    <wsdl:part name="bookingEngine" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="UpdatePatternHttpGetOut">
+    <wsdl:part name="Body" element="tns:boolean" />
+  </wsdl:message>
+  <wsdl:message name="GetPatternHttpGetIn">
+    <wsdl:part name="groupId" type="s:string" />
+    <wsdl:part name="hotelId" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="GetPatternHttpGetOut">
+    <wsdl:part name="Body" element="tns:string" />
+  </wsdl:message>
+  <wsdl:message name="IsPatternValidHttpGetIn">
+    <wsdl:part name="groupId" type="s:string" />
+    <wsdl:part name="hotelId" type="s:string" />
+    <wsdl:part name="bookingEngine" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="IsPatternValidHttpGetOut">
+    <wsdl:part name="Body" element="tns:boolean" />
+  </wsdl:message>
+  <wsdl:message name="IsConfigurationGroupHttpGetIn">
+    <wsdl:part name="hotelId" type="s:string" />
+    <wsdl:part name="groupId" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="IsConfigurationGroupHttpGetOut">
+    <wsdl:part name="Body" element="tns:boolean" />
+  </wsdl:message>
+  <wsdl:message name="GetConfigurationGroupStatisticsHttpGetIn">
+    <wsdl:part name="hotelId" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="GetConfigurationGroupStatisticsHttpGetOut">
+    <wsdl:part name="Body" element="tns:ArrayOfGroupStatistics" />
+  </wsdl:message>
+  <wsdl:message name="ConvertHttpGetIn">
+    <wsdl:part name="visitId" type="s:string" />
+    <wsdl:part name="reference" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="ConvertHttpGetOut">
+    <wsdl:part name="Body" element="tns:boolean" />
+  </wsdl:message>
+  <wsdl:message name="GetVisitReportHttpGetIn">
+    <wsdl:part name="hotelId" type="s:string" />
+    <wsdl:part name="startDate" type="s:string" />
+    <wsdl:part name="endDate" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="GetVisitReportHttpGetOut">
+    <wsdl:part name="Body" element="tns:ArrayOfVisitReport" />
+  </wsdl:message>
+  <wsdl:message name="GetHotelVisitReportsHttpGetIn">
+    <wsdl:part name="hotelIds" type="s2:StringArray" />
+    <wsdl:part name="startDate" type="s:string" />
+    <wsdl:part name="endDate" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="GetHotelVisitReportsHttpGetOut">
+    <wsdl:part name="Body" element="tns:ArrayOfVisitReport" />
+  </wsdl:message>
+  <wsdl:message name="GetConvertedVisitHttpGetIn">
+    <wsdl:part name="reference" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="GetConvertedVisitHttpGetOut">
+    <wsdl:part name="Body" element="tns:ConvertedVisit" />
+  </wsdl:message>
+  <wsdl:message name="GetConvertedVisitsHttpGetIn">
+    <wsdl:part name="references" type="s2:StringArray" />
+  </wsdl:message>
+  <wsdl:message name="GetConvertedVisitsHttpGetOut">
+    <wsdl:part name="Body" element="tns:ArrayOfConvertedVisit" />
+  </wsdl:message>
+  <wsdl:message name="TestCreateBudgetAllocatorHttpGetIn">
+    <wsdl:part name="groupId" type="s:string" />
+    <wsdl:part name="hotelId" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="TestCreateBudgetAllocatorHttpGetOut" />
+  <wsdl:message name="TestStartMonthHttpGetIn">
+    <wsdl:part name="groupId" type="s:string" />
+    <wsdl:part name="hotelId" type="s:string" />
+    <wsdl:part name="month" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="TestStartMonthHttpGetOut" />
+  <wsdl:message name="TestCloseMonthHttpGetIn">
+    <wsdl:part name="groupId" type="s:string" />
+    <wsdl:part name="hotelId" type="s:string" />
+    <wsdl:part name="month" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="TestCloseMonthHttpGetOut" />
+  <wsdl:message name="GetAutoCloseRulesHttpGetIn">
+    <wsdl:part name="groupId" type="s:string" />
+    <wsdl:part name="hotelId" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="GetAutoCloseRulesHttpGetOut">
+    <wsdl:part name="Body" element="tns:ArrayOfAutoCloseRule" />
+  </wsdl:message>
+  <wsdl:message name="GetSourcesHttpGetIn">
+    <wsdl:part name="inactiveIncluded" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="GetSourcesHttpGetOut">
+    <wsdl:part name="Body" element="tns:ArrayOfSource" />
+  </wsdl:message>
+  <wsdl:message name="GetHotelMappingsHttpGetIn" />
+  <wsdl:message name="GetHotelMappingsHttpGetOut">
+    <wsdl:part name="Body" element="tns:ArrayOfMapping" />
+  </wsdl:message>
+  <wsdl:message name="GetMappingsHttpGetIn">
+    <wsdl:part name="hotelIds" type="s2:StringArray" />
+  </wsdl:message>
+  <wsdl:message name="GetMappingsHttpGetOut">
+    <wsdl:part name="Body" element="tns:ArrayOfMapping" />
+  </wsdl:message>
+  <wsdl:message name="SetDefaultBudgetHttpGetIn">
+    <wsdl:part name="groupId" type="s:string" />
+    <wsdl:part name="hotelId" type="s:string" />
+    <wsdl:part name="amount" type="s:string" />
+    <wsdl:part name="currency" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="SetDefaultBudgetHttpGetOut" />
+  <wsdl:message name="SetBudgetHttpGetIn">
+    <wsdl:part name="groupId" type="s:string" />
+    <wsdl:part name="hotelId" type="s:string" />
+    <wsdl:part name="amount" type="s:string" />
+    <wsdl:part name="currency" type="s:string" />
+    <wsdl:part name="yearMonth" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="SetBudgetHttpGetOut" />
+  <wsdl:message name="GetBudgetHttpGetIn">
+    <wsdl:part name="groupId" type="s:string" />
+    <wsdl:part name="hotelId" type="s:string" />
+    <wsdl:part name="yearMonth" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="GetBudgetHttpGetOut">
+    <wsdl:part name="Body" element="tns:Budget" />
+  </wsdl:message>
+  <wsdl:message name="GetGroupBudgetsHttpGetIn">
+    <wsdl:part name="groupId" type="s:string" />
+    <wsdl:part name="yearMonth" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="GetGroupBudgetsHttpGetOut">
+    <wsdl:part name="Body" element="tns:ArrayOfBudget" />
+  </wsdl:message>
+  <wsdl:message name="GetBudgetsHttpGetIn">
+    <wsdl:part name="yearMonth" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="GetBudgetsHttpGetOut">
+    <wsdl:part name="Body" element="tns:ArrayOfBudget" />
+  </wsdl:message>
+  <wsdl:message name="UpdatePatternHttpPostIn">
+    <wsdl:part name="groupId" type="s:string" />
+    <wsdl:part name="hotelId" type="s:string" />
+    <wsdl:part name="bookingEngine" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="UpdatePatternHttpPostOut">
+    <wsdl:part name="Body" element="tns:boolean" />
+  </wsdl:message>
+  <wsdl:message name="GetPatternHttpPostIn">
+    <wsdl:part name="groupId" type="s:string" />
+    <wsdl:part name="hotelId" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="GetPatternHttpPostOut">
+    <wsdl:part name="Body" element="tns:string" />
+  </wsdl:message>
+  <wsdl:message name="IsPatternValidHttpPostIn">
+    <wsdl:part name="groupId" type="s:string" />
+    <wsdl:part name="hotelId" type="s:string" />
+    <wsdl:part name="bookingEngine" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="IsPatternValidHttpPostOut">
+    <wsdl:part name="Body" element="tns:boolean" />
+  </wsdl:message>
+  <wsdl:message name="IsConfigurationGroupHttpPostIn">
+    <wsdl:part name="hotelId" type="s:string" />
+    <wsdl:part name="groupId" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="IsConfigurationGroupHttpPostOut">
+    <wsdl:part name="Body" element="tns:boolean" />
+  </wsdl:message>
+  <wsdl:message name="GetConfigurationGroupStatisticsHttpPostIn">
+    <wsdl:part name="hotelId" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="GetConfigurationGroupStatisticsHttpPostOut">
+    <wsdl:part name="Body" element="tns:ArrayOfGroupStatistics" />
+  </wsdl:message>
+  <wsdl:message name="ConvertHttpPostIn">
+    <wsdl:part name="visitId" type="s:string" />
+    <wsdl:part name="reference" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="ConvertHttpPostOut">
+    <wsdl:part name="Body" element="tns:boolean" />
+  </wsdl:message>
+  <wsdl:message name="GetVisitReportHttpPostIn">
+    <wsdl:part name="hotelId" type="s:string" />
+    <wsdl:part name="startDate" type="s:string" />
+    <wsdl:part name="endDate" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="GetVisitReportHttpPostOut">
+    <wsdl:part name="Body" element="tns:ArrayOfVisitReport" />
+  </wsdl:message>
+  <wsdl:message name="GetHotelVisitReportsHttpPostIn">
+    <wsdl:part name="hotelIds" type="s2:StringArray" />
+    <wsdl:part name="startDate" type="s:string" />
+    <wsdl:part name="endDate" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="GetHotelVisitReportsHttpPostOut">
+    <wsdl:part name="Body" element="tns:ArrayOfVisitReport" />
+  </wsdl:message>
+  <wsdl:message name="GetConvertedVisitHttpPostIn">
+    <wsdl:part name="reference" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="GetConvertedVisitHttpPostOut">
+    <wsdl:part name="Body" element="tns:ConvertedVisit" />
+  </wsdl:message>
+  <wsdl:message name="GetConvertedVisitsHttpPostIn">
+    <wsdl:part name="references" type="s2:StringArray" />
+  </wsdl:message>
+  <wsdl:message name="GetConvertedVisitsHttpPostOut">
+    <wsdl:part name="Body" element="tns:ArrayOfConvertedVisit" />
+  </wsdl:message>
+  <wsdl:message name="TestCreateBudgetAllocatorHttpPostIn">
+    <wsdl:part name="groupId" type="s:string" />
+    <wsdl:part name="hotelId" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="TestCreateBudgetAllocatorHttpPostOut" />
+  <wsdl:message name="TestStartMonthHttpPostIn">
+    <wsdl:part name="groupId" type="s:string" />
+    <wsdl:part name="hotelId" type="s:string" />
+    <wsdl:part name="month" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="TestStartMonthHttpPostOut" />
+  <wsdl:message name="TestCloseMonthHttpPostIn">
+    <wsdl:part name="groupId" type="s:string" />
+    <wsdl:part name="hotelId" type="s:string" />
+    <wsdl:part name="month" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="TestCloseMonthHttpPostOut" />
+  <wsdl:message name="GetAutoCloseRulesHttpPostIn">
+    <wsdl:part name="groupId" type="s:string" />
+    <wsdl:part name="hotelId" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="GetAutoCloseRulesHttpPostOut">
+    <wsdl:part name="Body" element="tns:ArrayOfAutoCloseRule" />
+  </wsdl:message>
+  <wsdl:message name="GetSourcesHttpPostIn">
+    <wsdl:part name="inactiveIncluded" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="GetSourcesHttpPostOut">
+    <wsdl:part name="Body" element="tns:ArrayOfSource" />
+  </wsdl:message>
+  <wsdl:message name="GetHotelMappingsHttpPostIn" />
+  <wsdl:message name="GetHotelMappingsHttpPostOut">
+    <wsdl:part name="Body" element="tns:ArrayOfMapping" />
+  </wsdl:message>
+  <wsdl:message name="GetMappingsHttpPostIn">
+    <wsdl:part name="hotelIds" type="s2:StringArray" />
+  </wsdl:message>
+  <wsdl:message name="GetMappingsHttpPostOut">
+    <wsdl:part name="Body" element="tns:ArrayOfMapping" />
+  </wsdl:message>
+  <wsdl:message name="SetDefaultBudgetHttpPostIn">
+    <wsdl:part name="groupId" type="s:string" />
+    <wsdl:part name="hotelId" type="s:string" />
+    <wsdl:part name="amount" type="s:string" />
+    <wsdl:part name="currency" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="SetDefaultBudgetHttpPostOut" />
+  <wsdl:message name="SetBudgetHttpPostIn">
+    <wsdl:part name="groupId" type="s:string" />
+    <wsdl:part name="hotelId" type="s:string" />
+    <wsdl:part name="amount" type="s:string" />
+    <wsdl:part name="currency" type="s:string" />
+    <wsdl:part name="yearMonth" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="SetBudgetHttpPostOut" />
+  <wsdl:message name="GetBudgetHttpPostIn">
+    <wsdl:part name="groupId" type="s:string" />
+    <wsdl:part name="hotelId" type="s:string" />
+    <wsdl:part name="yearMonth" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="GetBudgetHttpPostOut">
+    <wsdl:part name="Body" element="tns:Budget" />
+  </wsdl:message>
+  <wsdl:message name="GetGroupBudgetsHttpPostIn">
+    <wsdl:part name="groupId" type="s:string" />
+    <wsdl:part name="yearMonth" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="GetGroupBudgetsHttpPostOut">
+    <wsdl:part name="Body" element="tns:ArrayOfBudget" />
+  </wsdl:message>
+  <wsdl:message name="GetBudgetsHttpPostIn">
+    <wsdl:part name="yearMonth" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="GetBudgetsHttpPostOut">
+    <wsdl:part name="Body" element="tns:ArrayOfBudget" />
+  </wsdl:message>
+  <wsdl:portType name="DirectClickServiceSoap">
+    <wsdl:operation name="CreateBookingEngine">
+      <wsdl:input message="tns:CreateBookingEngineSoapIn" />
+      <wsdl:output message="tns:CreateBookingEngineSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="SynchronizeBookingEngine">
+      <wsdl:input message="tns:SynchronizeBookingEngineSoapIn" />
+      <wsdl:output message="tns:SynchronizeBookingEngineSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="UpdatePattern">
+      <wsdl:input message="tns:UpdatePatternSoapIn" />
+      <wsdl:output message="tns:UpdatePatternSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetPattern">
+      <wsdl:input message="tns:GetPatternSoapIn" />
+      <wsdl:output message="tns:GetPatternSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="IsPatternValid">
+      <wsdl:input message="tns:IsPatternValidSoapIn" />
+      <wsdl:output message="tns:IsPatternValidSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="IsConfigurationGroup">
+      <wsdl:input message="tns:IsConfigurationGroupSoapIn" />
+      <wsdl:output message="tns:IsConfigurationGroupSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetConfigurationGroupStatistics">
+      <wsdl:input message="tns:GetConfigurationGroupStatisticsSoapIn" />
+      <wsdl:output message="tns:GetConfigurationGroupStatisticsSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="Convert">
+      <wsdl:input message="tns:ConvertSoapIn" />
+      <wsdl:output message="tns:ConvertSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetVisitReport">
+      <wsdl:input message="tns:GetVisitReportSoapIn" />
+      <wsdl:output message="tns:GetVisitReportSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetHotelVisitReports">
+      <wsdl:input message="tns:GetHotelVisitReportsSoapIn" />
+      <wsdl:output message="tns:GetHotelVisitReportsSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetConvertedVisit">
+      <wsdl:input message="tns:GetConvertedVisitSoapIn" />
+      <wsdl:output message="tns:GetConvertedVisitSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetConvertedVisits">
+      <wsdl:input message="tns:GetConvertedVisitsSoapIn" />
+      <wsdl:output message="tns:GetConvertedVisitsSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="TestCreateBudgetAllocator">
+      <wsdl:input message="tns:TestCreateBudgetAllocatorSoapIn" />
+      <wsdl:output message="tns:TestCreateBudgetAllocatorSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="TestStartMonth">
+      <wsdl:input message="tns:TestStartMonthSoapIn" />
+      <wsdl:output message="tns:TestStartMonthSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="TestCloseMonth">
+      <wsdl:input message="tns:TestCloseMonthSoapIn" />
+      <wsdl:output message="tns:TestCloseMonthSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetAutoCloseRules">
+      <wsdl:input message="tns:GetAutoCloseRulesSoapIn" />
+      <wsdl:output message="tns:GetAutoCloseRulesSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="SetAutoCloseRules">
+      <wsdl:input message="tns:SetAutoCloseRulesSoapIn" />
+      <wsdl:output message="tns:SetAutoCloseRulesSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetSources">
+      <wsdl:input message="tns:GetSourcesSoapIn" />
+      <wsdl:output message="tns:GetSourcesSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetHotelMappings">
+      <wsdl:input message="tns:GetHotelMappingsSoapIn" />
+      <wsdl:output message="tns:GetHotelMappingsSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetMappings">
+      <wsdl:input message="tns:GetMappingsSoapIn" />
+      <wsdl:output message="tns:GetMappingsSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetMappingById">
+      <wsdl:input message="tns:GetMappingByIdSoapIn" />
+      <wsdl:output message="tns:GetMappingByIdSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetMappingsBySource">
+      <wsdl:input message="tns:GetMappingsBySourceSoapIn" />
+      <wsdl:output message="tns:GetMappingsBySourceSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="AddMapping">
+      <wsdl:input message="tns:AddMappingSoapIn" />
+      <wsdl:output message="tns:AddMappingSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="CreateMapping">
+      <wsdl:input message="tns:CreateMappingSoapIn" />
+      <wsdl:output message="tns:CreateMappingSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="UpdateMapping">
+      <wsdl:input message="tns:UpdateMappingSoapIn" />
+      <wsdl:output message="tns:UpdateMappingSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="DeleteMapping">
+      <wsdl:input message="tns:DeleteMappingSoapIn" />
+      <wsdl:output message="tns:DeleteMappingSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="SetDefaultBudget">
+      <wsdl:input message="tns:SetDefaultBudgetSoapIn" />
+      <wsdl:output message="tns:SetDefaultBudgetSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="SetBudget">
+      <wsdl:input message="tns:SetBudgetSoapIn" />
+      <wsdl:output message="tns:SetBudgetSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetBudget">
+      <wsdl:input message="tns:GetBudgetSoapIn" />
+      <wsdl:output message="tns:GetBudgetSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetGroupBudgets">
+      <wsdl:input message="tns:GetGroupBudgetsSoapIn" />
+      <wsdl:output message="tns:GetGroupBudgetsSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetBudgets">
+      <wsdl:input message="tns:GetBudgetsSoapIn" />
+      <wsdl:output message="tns:GetBudgetsSoapOut" />
+    </wsdl:operation>
+  </wsdl:portType>
+  <wsdl:portType name="DirectClickServiceHttpGet">
+    <wsdl:operation name="UpdatePattern">
+      <wsdl:input message="tns:UpdatePatternHttpGetIn" />
+      <wsdl:output message="tns:UpdatePatternHttpGetOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetPattern">
+      <wsdl:input message="tns:GetPatternHttpGetIn" />
+      <wsdl:output message="tns:GetPatternHttpGetOut" />
+    </wsdl:operation>
+    <wsdl:operation name="IsPatternValid">
+      <wsdl:input message="tns:IsPatternValidHttpGetIn" />
+      <wsdl:output message="tns:IsPatternValidHttpGetOut" />
+    </wsdl:operation>
+    <wsdl:operation name="IsConfigurationGroup">
+      <wsdl:input message="tns:IsConfigurationGroupHttpGetIn" />
+      <wsdl:output message="tns:IsConfigurationGroupHttpGetOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetConfigurationGroupStatistics">
+      <wsdl:input message="tns:GetConfigurationGroupStatisticsHttpGetIn" />
+      <wsdl:output message="tns:GetConfigurationGroupStatisticsHttpGetOut" />
+    </wsdl:operation>
+    <wsdl:operation name="Convert">
+      <wsdl:input message="tns:ConvertHttpGetIn" />
+      <wsdl:output message="tns:ConvertHttpGetOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetVisitReport">
+      <wsdl:input message="tns:GetVisitReportHttpGetIn" />
+      <wsdl:output message="tns:GetVisitReportHttpGetOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetHotelVisitReports">
+      <wsdl:input message="tns:GetHotelVisitReportsHttpGetIn" />
+      <wsdl:output message="tns:GetHotelVisitReportsHttpGetOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetConvertedVisit">
+      <wsdl:input message="tns:GetConvertedVisitHttpGetIn" />
+      <wsdl:output message="tns:GetConvertedVisitHttpGetOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetConvertedVisits">
+      <wsdl:input message="tns:GetConvertedVisitsHttpGetIn" />
+      <wsdl:output message="tns:GetConvertedVisitsHttpGetOut" />
+    </wsdl:operation>
+    <wsdl:operation name="TestCreateBudgetAllocator">
+      <wsdl:input message="tns:TestCreateBudgetAllocatorHttpGetIn" />
+      <wsdl:output message="tns:TestCreateBudgetAllocatorHttpGetOut" />
+    </wsdl:operation>
+    <wsdl:operation name="TestStartMonth">
+      <wsdl:input message="tns:TestStartMonthHttpGetIn" />
+      <wsdl:output message="tns:TestStartMonthHttpGetOut" />
+    </wsdl:operation>
+    <wsdl:operation name="TestCloseMonth">
+      <wsdl:input message="tns:TestCloseMonthHttpGetIn" />
+      <wsdl:output message="tns:TestCloseMonthHttpGetOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetAutoCloseRules">
+      <wsdl:input message="tns:GetAutoCloseRulesHttpGetIn" />
+      <wsdl:output message="tns:GetAutoCloseRulesHttpGetOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetSources">
+      <wsdl:input message="tns:GetSourcesHttpGetIn" />
+      <wsdl:output message="tns:GetSourcesHttpGetOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetHotelMappings">
+      <wsdl:input message="tns:GetHotelMappingsHttpGetIn" />
+      <wsdl:output message="tns:GetHotelMappingsHttpGetOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetMappings">
+      <wsdl:input message="tns:GetMappingsHttpGetIn" />
+      <wsdl:output message="tns:GetMappingsHttpGetOut" />
+    </wsdl:operation>
+    <wsdl:operation name="SetDefaultBudget">
+      <wsdl:input message="tns:SetDefaultBudgetHttpGetIn" />
+      <wsdl:output message="tns:SetDefaultBudgetHttpGetOut" />
+    </wsdl:operation>
+    <wsdl:operation name="SetBudget">
+      <wsdl:input message="tns:SetBudgetHttpGetIn" />
+      <wsdl:output message="tns:SetBudgetHttpGetOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetBudget">
+      <wsdl:input message="tns:GetBudgetHttpGetIn" />
+      <wsdl:output message="tns:GetBudgetHttpGetOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetGroupBudgets">
+      <wsdl:input message="tns:GetGroupBudgetsHttpGetIn" />
+      <wsdl:output message="tns:GetGroupBudgetsHttpGetOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetBudgets">
+      <wsdl:input message="tns:GetBudgetsHttpGetIn" />
+      <wsdl:output message="tns:GetBudgetsHttpGetOut" />
+    </wsdl:operation>
+  </wsdl:portType>
+  <wsdl:portType name="DirectClickServiceHttpPost">
+    <wsdl:operation name="UpdatePattern">
+      <wsdl:input message="tns:UpdatePatternHttpPostIn" />
+      <wsdl:output message="tns:UpdatePatternHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetPattern">
+      <wsdl:input message="tns:GetPatternHttpPostIn" />
+      <wsdl:output message="tns:GetPatternHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="IsPatternValid">
+      <wsdl:input message="tns:IsPatternValidHttpPostIn" />
+      <wsdl:output message="tns:IsPatternValidHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="IsConfigurationGroup">
+      <wsdl:input message="tns:IsConfigurationGroupHttpPostIn" />
+      <wsdl:output message="tns:IsConfigurationGroupHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetConfigurationGroupStatistics">
+      <wsdl:input message="tns:GetConfigurationGroupStatisticsHttpPostIn" />
+      <wsdl:output message="tns:GetConfigurationGroupStatisticsHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="Convert">
+      <wsdl:input message="tns:ConvertHttpPostIn" />
+      <wsdl:output message="tns:ConvertHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetVisitReport">
+      <wsdl:input message="tns:GetVisitReportHttpPostIn" />
+      <wsdl:output message="tns:GetVisitReportHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetHotelVisitReports">
+      <wsdl:input message="tns:GetHotelVisitReportsHttpPostIn" />
+      <wsdl:output message="tns:GetHotelVisitReportsHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetConvertedVisit">
+      <wsdl:input message="tns:GetConvertedVisitHttpPostIn" />
+      <wsdl:output message="tns:GetConvertedVisitHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetConvertedVisits">
+      <wsdl:input message="tns:GetConvertedVisitsHttpPostIn" />
+      <wsdl:output message="tns:GetConvertedVisitsHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="TestCreateBudgetAllocator">
+      <wsdl:input message="tns:TestCreateBudgetAllocatorHttpPostIn" />
+      <wsdl:output message="tns:TestCreateBudgetAllocatorHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="TestStartMonth">
+      <wsdl:input message="tns:TestStartMonthHttpPostIn" />
+      <wsdl:output message="tns:TestStartMonthHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="TestCloseMonth">
+      <wsdl:input message="tns:TestCloseMonthHttpPostIn" />
+      <wsdl:output message="tns:TestCloseMonthHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetAutoCloseRules">
+      <wsdl:input message="tns:GetAutoCloseRulesHttpPostIn" />
+      <wsdl:output message="tns:GetAutoCloseRulesHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetSources">
+      <wsdl:input message="tns:GetSourcesHttpPostIn" />
+      <wsdl:output message="tns:GetSourcesHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetHotelMappings">
+      <wsdl:input message="tns:GetHotelMappingsHttpPostIn" />
+      <wsdl:output message="tns:GetHotelMappingsHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetMappings">
+      <wsdl:input message="tns:GetMappingsHttpPostIn" />
+      <wsdl:output message="tns:GetMappingsHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="SetDefaultBudget">
+      <wsdl:input message="tns:SetDefaultBudgetHttpPostIn" />
+      <wsdl:output message="tns:SetDefaultBudgetHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="SetBudget">
+      <wsdl:input message="tns:SetBudgetHttpPostIn" />
+      <wsdl:output message="tns:SetBudgetHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetBudget">
+      <wsdl:input message="tns:GetBudgetHttpPostIn" />
+      <wsdl:output message="tns:GetBudgetHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetGroupBudgets">
+      <wsdl:input message="tns:GetGroupBudgetsHttpPostIn" />
+      <wsdl:output message="tns:GetGroupBudgetsHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetBudgets">
+      <wsdl:input message="tns:GetBudgetsHttpPostIn" />
+      <wsdl:output message="tns:GetBudgetsHttpPostOut" />
+    </wsdl:operation>
+  </wsdl:portType>
+  <wsdl:binding name="DirectClickServiceSoap" type="tns:DirectClickServiceSoap">
+    <soap:binding transport="http://schemas.xmlsoap.org/soap/http" />
+    <wsdl:operation name="CreateBookingEngine">
+      <soap:operation soapAction="http://internal-services/directclick/2013A/CreateBookingEngine" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="SynchronizeBookingEngine">
+      <soap:operation soapAction="http://internal-services/directclick/2013A/SynchronizeBookingEngine" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="UpdatePattern">
+      <soap:operation soapAction="http://internal-services/directclick/2013A/UpdatePattern" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetPattern">
+      <soap:operation soapAction="http://internal-services/directclick/2013A/GetPattern" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="IsPatternValid">
+      <soap:operation soapAction="http://internal-services/directclick/2013A/IsPatternValid" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="IsConfigurationGroup">
+      <soap:operation soapAction="http://internal-services/directclick/2013A/IsConfigurationGroup" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetConfigurationGroupStatistics">
+      <soap:operation soapAction="http://internal-services/directclick/2013A/GetConfigurationGroupStatistics" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="Convert">
+      <soap:operation soapAction="http://internal-services/directclick/2013A/Convert" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetVisitReport">
+      <soap:operation soapAction="http://internal-services/directclick/2013A/GetVisitReport" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetHotelVisitReports">
+      <soap:operation soapAction="http://internal-services/directclick/2013A/GetHotelVisitReports" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetConvertedVisit">
+      <soap:operation soapAction="http://internal-services/directclick/2013A/GetConvertedVisit" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetConvertedVisits">
+      <soap:operation soapAction="http://internal-services/directclick/2013A/GetConvertedVisits" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="TestCreateBudgetAllocator">
+      <soap:operation soapAction="http://internal-services/directclick/2013A/TestCreateBudgetAllocator" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="TestStartMonth">
+      <soap:operation soapAction="http://internal-services/directclick/2013A/TestStartMonth" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="TestCloseMonth">
+      <soap:operation soapAction="http://internal-services/directclick/2013A/TestCloseMonth" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetAutoCloseRules">
+      <soap:operation soapAction="http://internal-services/directclick/2013A/GetAutoCloseRules" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="SetAutoCloseRules">
+      <soap:operation soapAction="http://internal-services/directclick/2013A/SetAutoCloseRules" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetSources">
+      <soap:operation soapAction="http://internal-services/directclick/2013A/GetSources" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetHotelMappings">
+      <soap:operation soapAction="http://internal-services/directclick/2013A/GetHotelMappings" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetMappings">
+      <soap:operation soapAction="http://internal-services/directclick/2013A/GetMappings" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetMappingById">
+      <soap:operation soapAction="http://internal-services/directclick/2013A/GetMappingById" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetMappingsBySource">
+      <soap:operation soapAction="http://internal-services/directclick/2013A/GetMappingsBySource" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="AddMapping">
+      <soap:operation soapAction="http://internal-services/directclick/2013A/AddMapping" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="CreateMapping">
+      <soap:operation soapAction="http://internal-services/directclick/2013A/CreateMapping" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="UpdateMapping">
+      <soap:operation soapAction="http://internal-services/directclick/2013A/UpdateMapping" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="DeleteMapping">
+      <soap:operation soapAction="http://internal-services/directclick/2013A/DeleteMapping" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="SetDefaultBudget">
+      <soap:operation soapAction="http://internal-services/directclick/2013A/SetDefaultBudget" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="SetBudget">
+      <soap:operation soapAction="http://internal-services/directclick/2013A/SetBudget" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetBudget">
+      <soap:operation soapAction="http://internal-services/directclick/2013A/GetBudget" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetGroupBudgets">
+      <soap:operation soapAction="http://internal-services/directclick/2013A/GetGroupBudgets" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetBudgets">
+      <soap:operation soapAction="http://internal-services/directclick/2013A/GetBudgets" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+  </wsdl:binding>
+  <wsdl:binding name="DirectClickServiceSoap12" type="tns:DirectClickServiceSoap">
+    <soap12:binding transport="http://schemas.xmlsoap.org/soap/http" />
+    <wsdl:operation name="CreateBookingEngine">
+      <soap12:operation soapAction="http://internal-services/directclick/2013A/CreateBookingEngine" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="SynchronizeBookingEngine">
+      <soap12:operation soapAction="http://internal-services/directclick/2013A/SynchronizeBookingEngine" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="UpdatePattern">
+      <soap12:operation soapAction="http://internal-services/directclick/2013A/UpdatePattern" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetPattern">
+      <soap12:operation soapAction="http://internal-services/directclick/2013A/GetPattern" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="IsPatternValid">
+      <soap12:operation soapAction="http://internal-services/directclick/2013A/IsPatternValid" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="IsConfigurationGroup">
+      <soap12:operation soapAction="http://internal-services/directclick/2013A/IsConfigurationGroup" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetConfigurationGroupStatistics">
+      <soap12:operation soapAction="http://internal-services/directclick/2013A/GetConfigurationGroupStatistics" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="Convert">
+      <soap12:operation soapAction="http://internal-services/directclick/2013A/Convert" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetVisitReport">
+      <soap12:operation soapAction="http://internal-services/directclick/2013A/GetVisitReport" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetHotelVisitReports">
+      <soap12:operation soapAction="http://internal-services/directclick/2013A/GetHotelVisitReports" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetConvertedVisit">
+      <soap12:operation soapAction="http://internal-services/directclick/2013A/GetConvertedVisit" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetConvertedVisits">
+      <soap12:operation soapAction="http://internal-services/directclick/2013A/GetConvertedVisits" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="TestCreateBudgetAllocator">
+      <soap12:operation soapAction="http://internal-services/directclick/2013A/TestCreateBudgetAllocator" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="TestStartMonth">
+      <soap12:operation soapAction="http://internal-services/directclick/2013A/TestStartMonth" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="TestCloseMonth">
+      <soap12:operation soapAction="http://internal-services/directclick/2013A/TestCloseMonth" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetAutoCloseRules">
+      <soap12:operation soapAction="http://internal-services/directclick/2013A/GetAutoCloseRules" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="SetAutoCloseRules">
+      <soap12:operation soapAction="http://internal-services/directclick/2013A/SetAutoCloseRules" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetSources">
+      <soap12:operation soapAction="http://internal-services/directclick/2013A/GetSources" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetHotelMappings">
+      <soap12:operation soapAction="http://internal-services/directclick/2013A/GetHotelMappings" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetMappings">
+      <soap12:operation soapAction="http://internal-services/directclick/2013A/GetMappings" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetMappingById">
+      <soap12:operation soapAction="http://internal-services/directclick/2013A/GetMappingById" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetMappingsBySource">
+      <soap12:operation soapAction="http://internal-services/directclick/2013A/GetMappingsBySource" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="AddMapping">
+      <soap12:operation soapAction="http://internal-services/directclick/2013A/AddMapping" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="CreateMapping">
+      <soap12:operation soapAction="http://internal-services/directclick/2013A/CreateMapping" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="UpdateMapping">
+      <soap12:operation soapAction="http://internal-services/directclick/2013A/UpdateMapping" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="DeleteMapping">
+      <soap12:operation soapAction="http://internal-services/directclick/2013A/DeleteMapping" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="SetDefaultBudget">
+      <soap12:operation soapAction="http://internal-services/directclick/2013A/SetDefaultBudget" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="SetBudget">
+      <soap12:operation soapAction="http://internal-services/directclick/2013A/SetBudget" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetBudget">
+      <soap12:operation soapAction="http://internal-services/directclick/2013A/GetBudget" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetGroupBudgets">
+      <soap12:operation soapAction="http://internal-services/directclick/2013A/GetGroupBudgets" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetBudgets">
+      <soap12:operation soapAction="http://internal-services/directclick/2013A/GetBudgets" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+  </wsdl:binding>
+  <wsdl:binding name="DirectClickServiceHttpGet" type="tns:DirectClickServiceHttpGet">
+    <http:binding verb="GET" />
+    <wsdl:operation name="UpdatePattern">
+      <http:operation location="/UpdatePattern" />
+      <wsdl:input>
+        <http:urlEncoded />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetPattern">
+      <http:operation location="/GetPattern" />
+      <wsdl:input>
+        <http:urlEncoded />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="IsPatternValid">
+      <http:operation location="/IsPatternValid" />
+      <wsdl:input>
+        <http:urlEncoded />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="IsConfigurationGroup">
+      <http:operation location="/IsConfigurationGroup" />
+      <wsdl:input>
+        <http:urlEncoded />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetConfigurationGroupStatistics">
+      <http:operation location="/GetConfigurationGroupStatistics" />
+      <wsdl:input>
+        <http:urlEncoded />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="Convert">
+      <http:operation location="/Convert" />
+      <wsdl:input>
+        <http:urlEncoded />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetVisitReport">
+      <http:operation location="/GetVisitReport" />
+      <wsdl:input>
+        <http:urlEncoded />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetHotelVisitReports">
+      <http:operation location="/GetHotelVisitReports" />
+      <wsdl:input>
+        <http:urlEncoded />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetConvertedVisit">
+      <http:operation location="/GetConvertedVisit" />
+      <wsdl:input>
+        <http:urlEncoded />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetConvertedVisits">
+      <http:operation location="/GetConvertedVisits" />
+      <wsdl:input>
+        <http:urlEncoded />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="TestCreateBudgetAllocator">
+      <http:operation location="/TestCreateBudgetAllocator" />
+      <wsdl:input>
+        <http:urlEncoded />
+      </wsdl:input>
+      <wsdl:output />
+    </wsdl:operation>
+    <wsdl:operation name="TestStartMonth">
+      <http:operation location="/TestStartMonth" />
+      <wsdl:input>
+        <http:urlEncoded />
+      </wsdl:input>
+      <wsdl:output />
+    </wsdl:operation>
+    <wsdl:operation name="TestCloseMonth">
+      <http:operation location="/TestCloseMonth" />
+      <wsdl:input>
+        <http:urlEncoded />
+      </wsdl:input>
+      <wsdl:output />
+    </wsdl:operation>
+    <wsdl:operation name="GetAutoCloseRules">
+      <http:operation location="/GetAutoCloseRules" />
+      <wsdl:input>
+        <http:urlEncoded />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetSources">
+      <http:operation location="/GetSources" />
+      <wsdl:input>
+        <http:urlEncoded />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetHotelMappings">
+      <http:operation location="/GetHotelMappings" />
+      <wsdl:input>
+        <http:urlEncoded />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetMappings">
+      <http:operation location="/GetMappings" />
+      <wsdl:input>
+        <http:urlEncoded />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="SetDefaultBudget">
+      <http:operation location="/SetDefaultBudget" />
+      <wsdl:input>
+        <http:urlEncoded />
+      </wsdl:input>
+      <wsdl:output />
+    </wsdl:operation>
+    <wsdl:operation name="SetBudget">
+      <http:operation location="/SetBudget" />
+      <wsdl:input>
+        <http:urlEncoded />
+      </wsdl:input>
+      <wsdl:output />
+    </wsdl:operation>
+    <wsdl:operation name="GetBudget">
+      <http:operation location="/GetBudget" />
+      <wsdl:input>
+        <http:urlEncoded />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetGroupBudgets">
+      <http:operation location="/GetGroupBudgets" />
+      <wsdl:input>
+        <http:urlEncoded />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetBudgets">
+      <http:operation location="/GetBudgets" />
+      <wsdl:input>
+        <http:urlEncoded />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+  </wsdl:binding>
+  <wsdl:binding name="DirectClickServiceHttpPost" type="tns:DirectClickServiceHttpPost">
+    <http:binding verb="POST" />
+    <wsdl:operation name="UpdatePattern">
+      <http:operation location="/UpdatePattern" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetPattern">
+      <http:operation location="/GetPattern" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="IsPatternValid">
+      <http:operation location="/IsPatternValid" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="IsConfigurationGroup">
+      <http:operation location="/IsConfigurationGroup" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetConfigurationGroupStatistics">
+      <http:operation location="/GetConfigurationGroupStatistics" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="Convert">
+      <http:operation location="/Convert" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetVisitReport">
+      <http:operation location="/GetVisitReport" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetHotelVisitReports">
+      <http:operation location="/GetHotelVisitReports" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetConvertedVisit">
+      <http:operation location="/GetConvertedVisit" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetConvertedVisits">
+      <http:operation location="/GetConvertedVisits" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="TestCreateBudgetAllocator">
+      <http:operation location="/TestCreateBudgetAllocator" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output />
+    </wsdl:operation>
+    <wsdl:operation name="TestStartMonth">
+      <http:operation location="/TestStartMonth" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output />
+    </wsdl:operation>
+    <wsdl:operation name="TestCloseMonth">
+      <http:operation location="/TestCloseMonth" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output />
+    </wsdl:operation>
+    <wsdl:operation name="GetAutoCloseRules">
+      <http:operation location="/GetAutoCloseRules" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetSources">
+      <http:operation location="/GetSources" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetHotelMappings">
+      <http:operation location="/GetHotelMappings" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetMappings">
+      <http:operation location="/GetMappings" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="SetDefaultBudget">
+      <http:operation location="/SetDefaultBudget" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output />
+    </wsdl:operation>
+    <wsdl:operation name="SetBudget">
+      <http:operation location="/SetBudget" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output />
+    </wsdl:operation>
+    <wsdl:operation name="GetBudget">
+      <http:operation location="/GetBudget" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetGroupBudgets">
+      <http:operation location="/GetGroupBudgets" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetBudgets">
+      <http:operation location="/GetBudgets" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+  </wsdl:binding>
+  <wsdl:service name="DirectClickService">
+    <wsdl:port name="DirectClickServiceSoap" binding="tns:DirectClickServiceSoap">
+      <soap:address location="http://applications.internal-services.production.siriona.com/Metasearch/2013A/DirectClickService.asmx" />
+    </wsdl:port>
+    <wsdl:port name="DirectClickServiceSoap12" binding="tns:DirectClickServiceSoap12">
+      <soap12:address location="http://applications.internal-services.production.siriona.com/Metasearch/2013A/DirectClickService.asmx" />
+    </wsdl:port>
+    <wsdl:port name="DirectClickServiceHttpGet" binding="tns:DirectClickServiceHttpGet">
+      <http:address location="http://applications.internal-services.production.siriona.com/Metasearch/2013A/DirectClickService.asmx" />
+    </wsdl:port>
+    <wsdl:port name="DirectClickServiceHttpPost" binding="tns:DirectClickServiceHttpPost">
+      <http:address location="http://applications.internal-services.production.siriona.com/Metasearch/2013A/DirectClickService.asmx" />
+    </wsdl:port>
+  </wsdl:service>
+</wsdl:definitions>

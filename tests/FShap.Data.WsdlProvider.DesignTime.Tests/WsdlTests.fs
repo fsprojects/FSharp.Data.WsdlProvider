@@ -18,7 +18,14 @@ open NUnit.Framework
 
 let loadWsdl name = 
     let doc = XDocument.Load(name: string)
-    parse doc (Uri(IO.Path.Combine(Environment.CurrentDirectory, name))) dontSave
+    let uri =
+        match Uri.TryCreate(name, UriKind.Absolute) with
+        | true, uri -> uri
+        | false,_ ->
+            Uri(IO.Path.Combine(Environment.CurrentDirectory, name))
+
+
+    parse doc uri dontSave
 
 
 
@@ -210,3 +217,14 @@ let ``Local schema can roundtrip`` () =
     let parsedLocalWsdl = parseWsdlSchema localSchema (Uri localfullPath)
 
     Assert.AreEqual(parsedWsdl, parsedLocalWsdl)
+
+
+[<Test>]
+let ``XmlSchemaSimpleTypeRestriction for array passed as string`` () =
+    // this wsdl first failed to load because of the lack of schemaLocation
+    // for the http://schemas.xmlsoap.org/soap/encoding/ namespace,
+    // then because of the presence of a XmlSchemaSimpleTypeRestriction
+    let wsdl = loadWsdl "DirectClickService.wsdl"
+    
+    Assert.IsNotNull(wsdl)
+

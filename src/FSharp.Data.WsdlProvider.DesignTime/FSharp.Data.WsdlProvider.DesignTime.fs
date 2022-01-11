@@ -190,6 +190,7 @@ module Provided =
                 typeof<Task>
             else
                 ProvidedTypeBuilder.MakeGenericType(typedefof<Task<_>>, [ output ])
+
         let soapItfMeth = ProvidedMethod(name, input , taskOutput)
         soapItfMeth.AddCustomAttribute (mkOperationContractAttribute op.SoapAction "*")
         soapItfMeth.AddCustomAttribute(mkXmlSerializerFormatAttribute())
@@ -237,7 +238,7 @@ module Provided =
                     ProvidedTypeBuilder.MakeGenericMethod(awaitTaskGen, [output])
 
             fun (args: Expr list) ->
-                  Expr.Call(awaitTask, [ Expr.Call(clientCtx.Channel args.[0], soapItfMeth, args.[1..] )])
+                Expr.Call(awaitTask, [ Expr.Call(clientCtx.Channel args.[0], soapItfMeth, args.[1..] ) ])
 
         let clientMeth = ProvidedMethod(asyncName, input, asyncOutput, code)
 

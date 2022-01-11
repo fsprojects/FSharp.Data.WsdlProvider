@@ -221,6 +221,9 @@ and parseAttribute (a: XmlSchemaAttribute) =
             match a.AttributeSchemaType.Content with
             | :? XmlSchemaSimpleTypeList as l ->
                 XsList l.ItemTypeName.XName
+            | :? XmlSchemaSimpleTypeRestriction as r ->
+                XsSimple r.BaseTypeName.XName
+
             | _ -> failwith "Unsupported type"
 
         else
