@@ -1,3 +1,9 @@
+## 0.8-alpha
+* Fix: Implement XmlSchemaSimpleTypeRestriction
+* Fix: Update TypeProviderSDK to fix Task<bool> parameter bug
+* Update tests to net6.0
+
+
 ## 0.7-alpha
 * Fix #8: Nillable valuetype elements should be generated as Nullable
 
