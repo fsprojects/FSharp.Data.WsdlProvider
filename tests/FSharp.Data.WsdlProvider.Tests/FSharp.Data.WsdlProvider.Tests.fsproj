@@ -6,6 +6,9 @@
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
   </PropertyGroup>
   <ItemGroup>
+    <None Include="ChangeSetService.wsdl">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Include="darwin_token_types_2013-11-28.wsdl" />
     <None Include="darwin_token_types_2013-11-28.xsd" />
     <None Include="NationalRail.wsdl" />
@@ -22,6 +25,9 @@
     <None Include="rtti_2017-10-01_ldb.wsdl" />
     <None Include="rtti_2017-10-01_ldb_common_types.xsd" />
     <None Include="rtti_2017-10-01_ldb_types.xsd" />
+    <None Include="soapencoding.xsd">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Include="Synxis.wsdl" />
     <None Include="Translator.wsdl" />
     <None Include="Translator0.wsdl" />
@@ -36,6 +42,7 @@
     <None Include="app.config" />
     <Compile Include="FSharp.Data.WsdlProvider.Tests.fs" />
     <Compile Include="NillableTest.fs" />
+    <Compile Include="ChoiceTests.fs" />
     <None Include="paket.references" />
   </ItemGroup>
   <ItemGroup>

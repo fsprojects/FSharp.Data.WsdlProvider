@@ -694,7 +694,7 @@
       </s:simpleType>
     </s:schema>
     <s:schema targetNamespace="http://internal-services/directclick/2013A/AbstractTypes">
-      <s:import schemaLocation="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://schemas.xmlsoap.org/soap/encoding/" />
+      <s:import schemaLocation="soapencoding.xsd" namespace="http://schemas.xmlsoap.org/soap/encoding/" />
       <s:complexType name="StringArray">
         <s:complexContent mixed="false">
           <s:restriction base="soapenc:Array">

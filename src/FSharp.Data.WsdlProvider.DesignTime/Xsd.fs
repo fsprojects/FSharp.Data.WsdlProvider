@@ -32,6 +32,10 @@ type XsElement =
 and XsParticle =
     | XsElement of XsElement
     | XsAny of Occurs
+    | XsChoice of Choice
+and Choice =
+    { Items: XsParticle list
+      Occurs: Occurs }
 and XsTypeRef =
     | TypeRef of XName
     | InlineType of XsType
@@ -120,10 +124,26 @@ let rec parseElement (e: XmlSchemaElement) =
             None
         else
             Some e.SubstitutionGroup.XName }
+and parseChoice (choice: XmlSchemaChoice) =
+    let particles = 
+        choice.Items
+        |> Seq.cast<XmlSchemaObject>
+        |> Seq.choose(fun i -> 
+            match i with 
+            | :? XmlSchemaParticle as p -> Some p
+            | _ -> None)
+                
+    { Items = [ for item in particles do
+                    yield parseParticle item ]
+      Occurs = 
+        {Min = MinOccurs (int choice.MinOccurs)
+         Max = MaxOccurs (int choice.MaxOccurs) } }
+    
 and parseParticle (p: XmlSchemaParticle) =
     match p with
     | :? XmlSchemaElement as e -> XsElement (parseElement e)
     | :? XmlSchemaAny as any -> XsAny (parseOccurs any)
+    | :? XmlSchemaChoice as choice -> XsChoice (parseChoice choice)
     | _ -> failwithf "Unknown particle"
 and parseType (t: XmlSchemaType) =
     match t with

@@ -2,9 +2,9 @@
   "profiles": {
     "FSharp.Data.WsdlProvider.DesignTime": {
       "commandName": "Executable",
-      "executablePath": "C:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\Professional\\Common7\\IDE\\CommonExtensions\\Microsoft\\FSharp\\fsiAnyCpu.exe",
-      "commandLineArgs": "Debug.fsx",
-      "workingDirectory": "C:\\development\\FSharp.Data.WsdlProvider\\src\\FSharp.Data.WsdlProvider.DesignTime"
+      "executablePath": "C:\\Program Files\\Microsoft Visual Studio\\2022\\Preview\\Common7\\IDE\\CommonExtensions\\Microsoft\\FSharp\\Tools\\fsiAnyCpu.exe",
+      "commandLineArgs": "C:\\dev\\FSharp.Data.WsdlProvider\\debug.fsx",
+      "workingDirectory": "C:\\dev\\FSharp.Data.WsdlProvider\\"
     }
   }
 }

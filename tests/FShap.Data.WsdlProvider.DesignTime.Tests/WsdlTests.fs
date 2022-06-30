@@ -37,37 +37,43 @@ let setup() =
     Environment.CurrentDirectory <- execDir
 
 [<Test>]
-let ``Weather Wsld loading should succeed`` () =
+let ``Weather Wsdl loading should succeed`` () =
     let wsdl = loadWsdl "./Weather.wsdl"
     
     Assert.NotNull(wsdl)
 
 [<Test>]
-let ``Synxis Wsld loading should succeed`` () =
+let ``Synxis Wsdl loading should succeed`` () =
     let wsdl = loadWsdl "./Synxis.wsdl"
     
     Assert.NotNull(wsdl)
 
 [<Test>]
-let ``Translator Wsld loading should succeed`` () =
+let ``Translator Wsdl loading should succeed`` () =
     let wsdl = loadWsdl "./Translator.wsdl"
-    //let wsdl = loadWsdl "http://api.microsofttranslator.com/V2/soap.svc"
     
     Assert.NotNull(wsdl)
 
 [<Test>]
-let ``Planning Wsld loading should succeed`` () =
+let ``Planning Wsdl loading should succeed`` () =
     let wsdl = loadWsdl "./Planning.wsdl"
     
     Assert.NotNull(wsdl)
 
 [<Test>]
-let ``Bug #6: NationalRail Wsld loading should succeed`` () =
+let ``Bug #6: NationalRail Wsdl loading should succeed`` () =
     let wsdl = loadWsdl "./NationalRail.wsdl"
     
     Assert.NotNull(wsdl)
     Assert.IsNotEmpty(wsdl.Services)
+
+[<Test>]
+let ``ChangeSetService Wsld loading should succeed`` () =
+    let wsdl = loadWsdl "./ChangeSetService.wsdl"
     
+    Assert.NotNull(wsdl)
+
+
 
 
 [<Test>]

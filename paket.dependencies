@@ -4,7 +4,7 @@ source https://api.nuget.org/v3/index.json
 frameworks: net48, net6.0, netstandard2.0
 
 # Add the nuget packages you use here
-nuget FSharp.Core 4.7.2
+nuget FSharp.Core
 nuget Microsoft.NETFramework.ReferenceAssemblies
 nuget System.ServiceModel.Duplex
 nuget System.ServiceModel.Http

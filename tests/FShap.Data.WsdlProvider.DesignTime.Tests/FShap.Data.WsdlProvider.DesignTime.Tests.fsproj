@@ -8,6 +8,9 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Include="..\FSharp.Data.WsdlProvider.Tests\ChangeSetService.wsdl" Link="ChangeSetService.wsdl">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Include="..\FSharp.Data.WsdlProvider.Tests\NationalRail.wsdl" Link="NationalRail.wsdl">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
@@ -78,6 +81,9 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="..\FSharp.Data.WsdlProvider.Tests\Nillable.wsdl" Link="Nillable.wsdl">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\FSharp.Data.WsdlProvider.Tests\soapencoding.xsd" Link="soapencoding.xsd">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="..\FSharp.Data.WsdlProvider.Tests\DirectClickService.wsdl" Link="DirectClickService.wsdl">

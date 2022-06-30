@@ -12,4 +12,4 @@ type Nillable = WsdlProvider<const(__SOURCE_DIRECTORY__ + "/Nillable.wsdl")>
 let ``DateExpire nillable property should be Nullable`` () =
     let model = new Nillable.CsModel()
     model.DateExpire <- Nullable() 
-    ()
+    Assert.Pass()

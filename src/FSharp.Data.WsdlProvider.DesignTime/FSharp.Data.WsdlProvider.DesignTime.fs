@@ -35,7 +35,8 @@ module Provided =
                 upcast [| for t,v in args -> CustomAttributeTypedArgument(t,v) |]
             override _.NamedArguments =  
                 upcast [| for p,v in namedArgs -> CustomAttributeNamedArgument(typeof<'t>.GetProperty(p), v ) |]
-        
+
+
 
 
     let mkProvidedAttribute<'t> args namedArgs =
@@ -43,9 +44,22 @@ module Provided =
 
     let mkXmlElementAttribute (order: int) =  
         mkProvidedAttribute<XmlElementAttribute> [] [ "Order", box order ]
+
+    let mkXmlElementNameAttribute (name: XName, t: Type) =
+        mkProvidedAttribute<XmlElementAttribute> [typeof<string>, box name.LocalName]
+            [ "Type", box t
+              if name.NamespaceName <> "" then
+                "Namespace", box name.NamespaceName 
+            ]
+
     let mkXmlAttributeAttribute (name: XName) =  
         mkProvidedAttribute<XmlAttributeAttribute> [typeof<string>, box name.LocalName] 
             [ if name.NamespaceName <> "" then
+                "Namespace", box name.NamespaceName ]
+    let mkXmlAttributeNameAttribute (name: XName, t: Type) =
+        mkProvidedAttribute<XmlAttributeAttribute> [typeof<string>, box name.LocalName]
+            [ "Type", box t
+              if name.NamespaceName <> "" then
                 "Namespace", box name.NamespaceName ]
     let mkXmlArrayAttribute (order: int) =  
         mkProvidedAttribute<XmlArrayAttribute> [] [ "Order", box order ]
@@ -265,9 +279,10 @@ module Provided =
 
 
     type CTChildKind =
-        | CTElement
-        | CTArray of string
-        | CTAttribute
+        | CTElement of string * XName * Type
+        | CTAttribute of string * XName * Type
+        | CTArray of string * XName * Type * string
+        | CTChoice of CTChildKind list
 
 
     type CTXmlName =
@@ -307,7 +322,7 @@ module Provided =
                | None ->
             
                 let typeName = fixTypeName name 
-                let pt = ProvidedTypeDefinition(asm, nsp , typeName, Some typeof<obj>, isErased = false)
+                let pt = ProvidedTypeDefinition(asm, p.Namespace , typeName, Some typeof<obj>, isErased = false)
                 match xmlname with
                 | XmlType n ->
                     if contract then
@@ -326,46 +341,64 @@ module Provided =
                     match t.Elements with
                     | Sequence elts ->
                         [ for p in elts do
-                            match p with
-                            | XsElement ({ Type = TypeRef t } as e) 
-                            | XsElement ({ Type = InlineType (XsSimpleType { BaseType = t }) } as e) ->
-                                
-                                let innerType = 
-                                    if Schema.isBuiltInSimpleType t then
-                                        None
-                                    else
-                                        Some wsdl.Schemas.Types.[t]
 
-                                match innerType with
-                                | Some { Type = XsComplexType { Attributes = []; Elements = Sequence [ XsElement { Name = itemName; Occurs = { Max = max }; Type = TypeRef titem } ]}} when max > MaxOccurs 1 ->
-                                    // This is actually an array
-                                    let ref : Type = typeRef titem
-                                    let propType = ref.MakeArrayType()
-                                    yield (e.Name.LocalName, e.Name, propType, CTArray itemName.LocalName)
-                                | Some { Name = arrayName ; Type = XsComplexType { Attributes = []; Elements = Sequence [ XsElement { Name = itemName; Occurs = { Max = max }; Type = InlineType (XsComplexType ct) } ]}} when max > MaxOccurs 1 ->
-                                
-                                    let pt = buildComplexType false (String.PascalCase arrayName.LocalName + String.PascalCase itemName.LocalName) (Anonymous arrayName) ct
-                                    let propType = pt.MakeArrayType()
-                                    yield (e.Name.LocalName, e.Name, propType, CTArray itemName.LocalName)
-
-                                | _ ->
-
-                                    let propType = applyElementCardinality e (typeRef t) 
-                                    yield (e.Name.LocalName, e.Name, propType, CTElement)
-
-                                     
-                                      
-                            | XsElement ( { Type = InlineType (XsComplexType ct)} as e) ->
-                                let propType = 
-                                    let pt = buildComplexType false (name + String.PascalCase e.Name.LocalName) NoName ct
-                                    applyElementCardinality e pt
+                            let rec getCT p =
+                              [ match p with
+                                | XsElement ({ Type = TypeRef t } as e) 
+                                | XsElement ({ Type = InlineType (XsSimpleType { BaseType = t }) } as e) ->
                                     
+                                    let innerType = 
+                                        if Schema.isBuiltInSimpleType t then
+                                            None
+                                        else
+                                            Some wsdl.Schemas.Types.[t]
 
-                                yield (e.Name.LocalName, e.Name, propType, CTElement)
-                            | XsAny _ -> () ]
+                                    match innerType with
+                                    | Some { Type = XsComplexType { Attributes = []; Elements = Sequence [ XsElement { Name = itemName; Occurs = { Max = max }; Type = TypeRef titem } ]}} when max > MaxOccurs 1 ->
+                                        // This is actually an array
+                                        let ref : Type = typeRef titem
+                                        let propType = ref.MakeArrayType()
+                                        CTArray (e.Name.LocalName, e.Name, propType, itemName.LocalName)
+                                    | Some { Name = arrayName ; Type = XsComplexType { Attributes = []; Elements = Sequence [ XsElement { Name = itemName; Occurs = { Max = max }; Type = InlineType (XsComplexType ct) } ]}} when max > MaxOccurs 1 ->
+                                    
+                                        let pt = buildComplexType false (String.PascalCase arrayName.LocalName + String.PascalCase itemName.LocalName) (Anonymous arrayName) ct
+                                        let propType = pt.MakeArrayType()
+                                        CTArray (e.Name.LocalName, e.Name, propType, itemName.LocalName)
+
+                                    | _ ->
+
+                                        let propType = applyElementCardinality e (typeRef t) 
+                                        CTElement(e.Name.LocalName, e.Name, propType)
+
+                                         
+                                          
+                                | XsElement ( { Type = InlineType (XsComplexType ct)} as e) ->
+                                    let propType = 
+                                        let pt = buildComplexType false (name + String.PascalCase e.Name.LocalName) NoName ct
+                                        applyElementCardinality e pt
+                                        
+
+                                    CTElement(e.Name.LocalName, e.Name, propType)
+                                | XsAny _ -> ()
+                                | XsChoice choices ->
+                                    CTChoice (choices.Items |> List.collect getCT)
+                                
+                                ]
+
+                            yield! getCT p
+                               
+                            ]
                     | _ -> []
 
-                let elementNames = set [ for (n,_,_,_) in elements -> n ]
+
+
+                let elementNames = set [ for e in elements ->
+                                            match e with
+                                            | CTElement(n,_,_)
+                                            | CTAttribute(n,_,_)
+                                            | CTArray(n,_,_,_) -> n
+                                            | CTChoice _ -> "Item"
+                                            ]
                 let fixAttributeName name  = 
                     if Set.contains name elementNames then
                         name + "Attribute"
@@ -377,42 +410,82 @@ module Provided =
                         let attrType = attributeTypeRef a.Type
                         let name = fixAttributeName a.Name.LocalName
 
-                        name, a.Name, attrType, CTAttribute ]
+                        CTAttribute(name, a.Name, attrType) ]
 
                 let all = elements @ attributes
+                match
+                    all
+                    |> Seq.countBy(id)
+                    |> Seq.filter(fun (_,c) -> c>1)
+                    |> Seq.toList with
+                | [] -> ()
+                | l -> failwithf "Duplicate elements %s" (l |> Seq.map (sprintf "%A") |> String.concat ",")
 
                 if not (List.isEmpty all) then
 
                     let fields =
-                        [ for name, _, t, _ in all -> 
-                            ProvidedField( String.camlCase name, t ) ]
+                        [ for e in all do
+                            match e with
+                            | CTElement(name, _, t)
+                            | CTAttribute(name, _, t)
+                            | CTArray(name, _, t, _) ->
+                                ProvidedField( String.camlCase name, t )
+                            | CTChoice _ -> 
+                                ProvidedField( "item", typeof<obj> )
+                                ]
 
                     let props =
                         (all,fields)
-                        ||> List.mapi2 (fun i (name, xsname,t, kind) field ->
+                        ||> List.mapi2 (fun i e field ->
+                           let name,t =
+                                match e with
+                                | CTElement(name,_,t)
+                                | CTAttribute(name,_,t)
+                                | CTArray(name,_,t,_) -> name,t
+                                | CTChoice _ -> "Item", typeof<obj>
+                                    
+                           
                            let prop = ProvidedProperty(name, t, getterCode = (fun args -> Expr.FieldGet( args.[0], field) ), setterCode = (fun args -> Expr.FieldSet(args.[0], field, args.[1] ))) 
-                           match kind with
-                           | CTElement -> 
+                           match e with
+                           | CTElement(_, xsname,_)  -> 
                                 if contract then
                                     prop.AddCustomAttribute(mkMessageBodyMember(xsname.NamespaceName , i))
                                 else
                                     prop.AddCustomAttribute(mkXmlElementAttribute i)
-                           | CTAttribute -> prop.AddCustomAttribute(mkXmlAttributeAttribute xsname)
-                           | CTArray itemName ->
+                           | CTAttribute(_, xsname,_) -> prop.AddCustomAttribute(mkXmlAttributeAttribute xsname)
+                           | CTArray(_, xsname,_, itemName) ->
                                 if contract then
                                     prop.AddCustomAttribute(mkMessageBodyMember(xsname.NamespaceName , i))
                                 else
                                     prop.AddCustomAttribute(mkXmlArrayAttribute i)
                                 prop.AddCustomAttribute(mkXmlArrayItemAttribute(itemName, false))
-                                
+                           | CTChoice choices ->
+                                for c in choices do
+                                    match c with
+                                    | CTElement(_,xsname,t) ->
+                                        prop.AddCustomAttribute(mkXmlElementNameAttribute(xsname,t))
+                                    | CTAttribute(_,xsname,t) ->
+                                        prop.AddCustomAttribute(mkXmlAttributeNameAttribute(xsname,t))
+                                    | CTArray _
+                                    | CTChoice _ -> ()    
                            prop
                         )
+
+                    match props |> Seq.countBy (fun p -> p.Name) |> Seq.filter(fun (n,c) -> c > 1) |> Seq.toList with
+                    | [] -> ()
+                    | l -> failwithf "Property defined twice: %s (all: %d, props: %d)" (l |> List.map (fun (n,c) -> $"{n}: {c}") |> String.concat "," ) all.Length props.Length
 
 
                     let ctor = 
                         let ps =
-                            [ for name,_, t,_ in all ->
-                                ProvidedParameter(String.camlCase name, t) ]
+                            [ for e in all do
+                                match e with
+                                | CTElement(name,_, t)
+                                | CTAttribute(name,_, t)
+                                | CTArray(name,_, t,_) ->
+                                    ProvidedParameter(String.camlCase name, t)
+                                | CTChoice _ ->
+                                    ProvidedParameter("item", typeof<obj>) ]
 
                         ProvidedConstructor(ps, fun args -> 
                             let this = args.[0]
@@ -445,7 +518,7 @@ module Provided =
             | false, _ ->
                 let typeName = fixTypeName name.LocalName
 
-                let pt = ProvidedTypeDefinition(asm, nsp , typeName, Some typeof<Enum>, isErased = false)
+                let pt = ProvidedTypeDefinition(asm, p.Namespace , typeName, Some typeof<Enum>, isErased = false)
                 pt.SetEnumUnderlyingType(typeof<int>)
                 pt.AddCustomAttribute(mkXmlTypeAttribute(name.NamespaceName,false))
 
@@ -565,10 +638,10 @@ module Provided =
             try
 
 
-            let soapItf = ProvidedTypeDefinition(asm, nsp, "I" + port.Name.LocalName , None, isErased = false, isInterface = true)
+            let soapItf = ProvidedTypeDefinition(asm, p.Namespace, "I" + port.Name.LocalName , None, isErased = false, isInterface = true)
             soapItf.AddCustomAttribute(mkServiceContractAttribute (port.Name.NamespaceName, nsp + "." + serviceName))
 
-            let itf = ProvidedTypeDefinition(asm, nsp, port.Name.LocalName , None, isErased = false, isInterface = true)
+            let itf = ProvidedTypeDefinition(asm, p.Namespace, port.Name.LocalName , None, isErased = false, isInterface = true)
 
             let clientBase =
                 let def = typedefof<System.ServiceModel.ClientBase<_>>
@@ -577,7 +650,7 @@ module Provided =
             let client = 
                 ProvidedTypeDefinition(
                         asm,
-                        nsp,
+                        p.Namespace,
                         port.Name.LocalName + "Client",
                         Some clientBase,
                         isErased = false,
@@ -623,9 +696,9 @@ type WsdlProvider (config : TypeProviderConfig) as this =
     let ns = "FSharp.Data"
     let selfAsm = Assembly.GetExecutingAssembly()
 
+
     // check we contain a copy of runtime files, and are not referencing the runtime DLL
     do assert (typeof<DefaultBinding>.Assembly.GetName().Name = selfAsm.GetName().Name)  
-
 
     let service = ProvidedTypeDefinition(selfAsm, ns, "WsdlProvider", Some typeof<obj>, isErased = false )
 
@@ -682,7 +755,7 @@ type WsdlProvider (config : TypeProviderConfig) as this =
 
                 try
                     let asm = ProvidedAssembly()
-                    let providedType = Provided.buildWsdlTypes ns asm name wsdl 
+                    let providedType = Provided.buildWsdlTypes service.Namespace asm name wsdl 
 
                     cache.[name] <- (uri, providedType)
                     providedType
