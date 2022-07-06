@@ -1,0 +1,4 @@
+[wsdl]
+namespace = "TestWsdl"
+uri = "../FSharp.Data.WsdlProvider.Tests/ChangeSetService.wsdl"
+

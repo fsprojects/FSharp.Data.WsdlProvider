@@ -1,0 +1,5 @@
+group Generator
+System.ServiceModel.Duplex
+System.ServiceModel.Http
+Myriad.Core
+Fantomas.Core

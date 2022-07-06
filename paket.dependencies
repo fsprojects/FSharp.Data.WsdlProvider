@@ -13,6 +13,16 @@ nuget System.ServiceModel.Http
 github fsprojects/FSharp.TypeProviders.SDK src/ProvidedTypes.fsi
 github fsprojects/FSharp.TypeProviders.SDK src/ProvidedTypes.fs
 
+group Generator
+  source https://api.nuget.org/v3/index.json
+  frameworks: net6.0
+    nuget FSharp.Core == 6.0.4
+    nuget System.ServiceModel.Duplex copy_local: true
+    nuget System.ServiceModel.Http copy_local: true
+    nuget Myriad.Core
+    nuget Myriad.SDK
+    nuget Fantomas.Core 5.0.0-alpha-010 
+
 group Test
   source https://api.nuget.org/v3/index.json
   frameworks: net48, net6.0

@@ -1,0 +1,23 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net6.0</TargetFramework>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <MyriadSdkVerboseOutput>true</MyriadSdkVerboseOutput>
+  </PropertyGroup>
+  <ItemGroup>
+    <MyriadSdkGenerator Include="$(MSBuildThisFileDirectory)\..\..\src\FSharp.Data.WsdlGenerator\bin\$(Configuration)\net6.0\FSharp.Data.WsdlGenerator.dll" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Generated.fs">
+      <MyriadFile>Library.fs</MyriadFile>
+      <MyriadConfigKey>wsdl</MyriadConfigKey>
+    </Compile>
+    <Compile Include="Library.fs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="myriad.toml" />
+    <None Include="paket.references" />
+  </ItemGroup>
+  <Import Project="..\..\.paket\Paket.Restore.targets" />
+</Project>

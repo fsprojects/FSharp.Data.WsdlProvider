@@ -1,0 +1,5 @@
+group Generator
+Myriad.Core
+Myriad.SDK
+System.ServiceModel.Duplex
+System.ServiceModel.Http
