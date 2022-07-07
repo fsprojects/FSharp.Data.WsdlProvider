@@ -135,7 +135,17 @@ type ChangeConstraint =
     | [<System.Xml.Serialization.XmlEnum("StayDatePassed")>] StayDatePassed = 11
     | [<System.Xml.Serialization.XmlEnum("ErrorOccurred")>] ErrorOccurred = 12
 
-type ChangePropertyResultChange(period, dependencies, action, automatic, value, status, constraint, conflictingValue) =
+type ChangePropertyResultChange
+    (
+        period,
+        dependencies,
+        action,
+        automatic,
+        value,
+        status,
+        ``constraint``,
+        conflictingValue
+    ) =
     [<System.Xml.Serialization.XmlElement(Order = 0)>]
     member val Period: ChangePropertyResultChangePeriod = period with get, set
 
@@ -155,7 +165,7 @@ type ChangePropertyResultChange(period, dependencies, action, automatic, value, 
     member val Status: ChangeStatus = status with get, set
 
     [<System.Xml.Serialization.XmlAttribute("constraint")>]
-    member val Constraint: ChangeConstraint = constraint with get, set
+    member val Constraint: ChangeConstraint = ``constraint`` with get, set
 
     [<System.Xml.Serialization.XmlAttribute("conflictingValue")>]
     member val ConflictingValue: string = conflictingValue with get, set
@@ -401,7 +411,7 @@ type DefaultBinding =
 
 [<System.ServiceModel.ServiceContract(Namespace = "http://ws.availpro.com/internal/schemas/planning/2012A",
                                       ConfigurationName = "TestWsdl.ChangeSetService2012A")>]
-[<Microsoft.FSharp.Core.Interface>]
+[<Interface>]
 type IChangeSetService2012ASoap =
     abstract Test: unit -> TestResponse
     abstract TestAsync: unit -> Task<TestResponse>
@@ -423,7 +433,7 @@ type IChangeSetService2012ASoap =
     abstract SearchBookingReferenceChangeSets: string -> PlanningResponseMessage
     abstract SearchBookingReferenceChangeSetsAsync: string -> Task<PlanningResponseMessage>
 
-[<Microsoft.FSharp.Core.Interface>]
+[<Interface>]
 type ChangeSetService2012ASoap =
     abstract Test: unit -> TestResponse
     abstract TestAsync: unit -> Task<TestResponse>
