@@ -6,8 +6,10 @@
     <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="..\FSharp.Data.WsdlProvider.DesignTime\Prelude.fs" Link="Prelude.fs" />
     <Compile Include="..\FSharp.Data.WsdlProvider.DesignTime\Xsd.fs" Link="Xsd.fs" />
     <Compile Include="..\FSharp.Data.WsdlProvider.DesignTime\Wsdl.fs" Link="Wsdl.fs" />
+    <Compile Include="..\FSharp.Data.WsdlProvider.DesignTime\ClientModel.fs" Link="ClientModel.fs" />
     <Compile Include="Generator.fs" />
     <Content Include="build\Generator.props">
       <Pack>true</Pack>

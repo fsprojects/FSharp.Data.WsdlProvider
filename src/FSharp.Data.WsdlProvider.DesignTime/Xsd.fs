@@ -295,12 +295,12 @@ type XsSet =
     
 module Schema =
     let element (xname: XName) (set: XmlSchemaSet) = 
-        set.GlobalElements.[xname.QualifiedName]
+        set.GlobalElements[xname.QualifiedName]
         :?> XmlSchemaElement
         |> parseElement
         
     let typeDef (xname: XName) (set: XmlSchemaSet) = 
-        set.GlobalTypes.[xname.QualifiedName]
+        set.GlobalTypes[xname.QualifiedName]
         :?> XmlSchemaType
         |> parseTypeDef
        

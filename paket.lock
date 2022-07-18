@@ -5,7 +5,7 @@ NUGET
     FSharp.Core (6.0.5)
     Microsoft.Bcl.AsyncInterfaces (6.0) - restriction: || (&& (== net48) (< net45)) (&& (== net48) (>= net6.0)) (== net6.0) (== netstandard2.0)
       System.Threading.Tasks.Extensions (>= 4.5.4) - restriction: || (== net48) (&& (== net6.0) (>= net461)) (&& (== net6.0) (< netstandard2.1)) (== netstandard2.0)
-    Microsoft.Extensions.ObjectPool (6.0.6) - restriction: || (&& (== net48) (< net45)) (&& (== net48) (>= net6.0)) (== net6.0) (== netstandard2.0)
+    Microsoft.Extensions.ObjectPool (6.0.7) - restriction: || (&& (== net48) (< net45)) (&& (== net48) (>= net6.0)) (== net6.0) (== netstandard2.0)
     Microsoft.NETFramework.ReferenceAssemblies (1.0.2)
       Microsoft.NETFramework.ReferenceAssemblies.net48 (>= 1.0.2) - restriction: || (== net48) (&& (== net6.0) (>= net48)) (&& (== netstandard2.0) (>= net48))
     Microsoft.NETFramework.ReferenceAssemblies.net48 (1.0.2) - restriction: || (== net48) (&& (== net6.0) (>= net48)) (&& (== netstandard2.0) (>= net48))
@@ -52,8 +52,8 @@ NUGET
       System.Runtime.CompilerServices.Unsafe (>= 4.5.3) - restriction: || (== net48) (&& (== net6.0) (>= net461)) (&& (== net6.0) (< netcoreapp2.1)) (&& (== net6.0) (< netstandard1.0)) (&& (== net6.0) (< netstandard2.0)) (&& (== net6.0) (>= wp8)) (== netstandard2.0)
 GITHUB
   remote: fsprojects/FSharp.TypeProviders.SDK
-    src/ProvidedTypes.fs (a35115bd94a4e989b6a978a9c2634f7725301a1f)
-    src/ProvidedTypes.fsi (a35115bd94a4e989b6a978a9c2634f7725301a1f)
+    src/ProvidedTypes.fs (6a9f05e53e334a7d9c55f3be59535323b8ddfaf9)
+    src/ProvidedTypes.fsi (6a9f05e53e334a7d9c55f3be59535323b8ddfaf9)
 GROUP Generator
 RESTRICTION: == net6.0
 NUGET
@@ -61,10 +61,10 @@ NUGET
     Fantomas (4.7.9)
       FSharp.Compiler.Service (41.0.3)
       FSharp.Core (>= 6.0.3)
-    Fantomas.Core (5.0.0-alpha-010)
-      Fantomas.FCS (>= 5.0.0-alpha-010)
+    Fantomas.Core (5.0.0-beta-001)
+      Fantomas.FCS (>= 5.0.0-beta-001)
       FSharp.Core (>= 6.0.4)
-    Fantomas.FCS (5.0.0-alpha-010)
+    Fantomas.FCS (5.0.0-beta-001)
       FSharp.Core (6.0.1)
       FsLexYacc (10.2)
       System.Memory (>= 4.5.4)
@@ -125,11 +125,11 @@ NUGET
       Microsoft.Win32.Registry (>= 4.3)
       System.Collections.Immutable (>= 5.0)
       System.Configuration.ConfigurationManager (>= 4.7)
-    Microsoft.Extensions.ObjectPool (6.0.6) - copy_local: true
+    Microsoft.Extensions.ObjectPool (6.0.7) - copy_local: true
     Microsoft.NET.StringTools (1.0)
       System.Memory (>= 4.5.4)
       System.Runtime.CompilerServices.Unsafe (>= 5.0)
-    Microsoft.NETCore.Platforms (6.0.4)
+    Microsoft.NETCore.Platforms (6.0.5)
     Microsoft.NETCore.Targets (5.0)
     Microsoft.Win32.Primitives (4.3)
       Microsoft.NETCore.Platforms (>= 1.1)
@@ -622,7 +622,7 @@ NUGET
     Microsoft.NET.Test.Sdk (17.2)
       Microsoft.CodeCoverage (>= 17.2)
       Microsoft.TestPlatform.TestHost (>= 17.2) - restriction: || (&& (== net48) (>= netcoreapp1.0)) (== net6.0)
-    Microsoft.NETCore.Platforms (6.0.4) - restriction: || (&& (== net48) (< net35)) (&& (== net48) (>= netcoreapp2.0)) (&& (== net48) (< netstandard1.0) (>= win8)) (&& (== net48) (< netstandard1.3) (>= wpa81)) (&& (== net48) (< netstandard1.5) (>= uap10.0)) (&& (== net48) (>= uap10.1)) (&& (== net48) (>= wp8)) (== net6.0)
+    Microsoft.NETCore.Platforms (6.0.5) - restriction: || (&& (== net48) (< net35)) (&& (== net48) (>= netcoreapp2.0)) (&& (== net48) (< netstandard1.0) (>= win8)) (&& (== net48) (< netstandard1.3) (>= wpa81)) (&& (== net48) (< netstandard1.5) (>= uap10.0)) (&& (== net48) (>= uap10.1)) (&& (== net48) (>= wp8)) (== net6.0)
     Microsoft.TestPlatform.ObjectModel (17.2) - restriction: || (&& (== net48) (>= netcoreapp1.0)) (== net6.0)
       NuGet.Frameworks (>= 5.11)
       System.Reflection.Metadata (>= 1.6)

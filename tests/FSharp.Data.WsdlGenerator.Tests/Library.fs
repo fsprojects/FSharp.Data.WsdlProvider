@@ -1,4 +1,4 @@
-﻿namespace FShap.Data.WsdlGenerator.Tests
+﻿namespace FSharp.Data.WsdlGenerator.Tests
 
 module Say =
     let hello name =

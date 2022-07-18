@@ -90,10 +90,13 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="paket.references" />
+    <Compile Include="..\..\src\FSharp.Data.WsdlProvider.DesignTime\Prelude.fs" Link="Prelude.fs" />
     <Compile Include="..\..\src\FSharp.Data.WsdlProvider.DesignTime\Xsd.fs" Link="Xsd.fs" />
     <Compile Include="..\..\src\FSharp.Data.WsdlProvider.DesignTime\Wsdl.fs" Link="Wsdl.fs" />
+    <Compile Include="..\..\src\FSharp.Data.WsdlProvider.DesignTime\ClientModel.fs" Link="ClientModel.fs" />
     <Compile Include="XsdParsing.fs" />
     <Compile Include="WsdlTests.fs" />
+    <Compile Include="ClientModelTests.fs" />
   </ItemGroup>
 
 

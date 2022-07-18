@@ -21,7 +21,7 @@ group Generator
     nuget System.ServiceModel.Http copy_local: true
     nuget Myriad.Core
     nuget Myriad.SDK
-    nuget Fantomas.Core 5.0.0-alpha-010 
+    nuget Fantomas.Core # 5.0.0-alpha-010 
 
 group Test
   source https://api.nuget.org/v3/index.json

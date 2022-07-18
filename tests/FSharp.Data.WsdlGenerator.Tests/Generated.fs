@@ -18,11 +18,11 @@ type TestResponse() =
 type GetChangeSetStatus(hotelId, changeSetId) =
     [<System.ServiceModel.MessageBodyMember(Namespace = "http://ws.availpro.com/internal/schemas/planning/2012A",
                                             Order = 0)>]
-    member val HotelId: int = hotelId with get, set
+    member val HotelId: System.Int32 = hotelId with get, set
 
     [<System.ServiceModel.MessageBodyMember(Namespace = "http://ws.availpro.com/internal/schemas/planning/2012A",
                                             Order = 1)>]
-    member val ChangeSetId: string = changeSetId with get, set
+    member val ChangeSetId: System.String = changeSetId with get, set
 
 type PlanningResponseMessageSuccess() =
     class
@@ -31,13 +31,13 @@ type PlanningResponseMessageSuccess() =
 [<System.Xml.Serialization.XmlType(Namespace = "http://ws.availpro.com/internal/schemas/planning/2012A")>]
 type Error(comment, ``type``, message) =
     [<System.Xml.Serialization.XmlElement(Order = 0)>]
-    member val Comment: string = comment with get, set
+    member val Comment: System.String = comment with get, set
 
     [<System.Xml.Serialization.XmlAttribute("type")>]
-    member val Type: string = ``type`` with get, set
+    member val Type: System.String = ``type`` with get, set
 
     [<System.Xml.Serialization.XmlAttribute("message")>]
-    member val Message: string = message with get, set
+    member val Message: System.String = message with get, set
 
 [<System.Xml.Serialization.XmlType(Namespace = "http://ws.availpro.com/internal/schemas/planning/2012A")>]
 type ChangeStatus =
@@ -50,17 +50,17 @@ type ChangeStatus =
 [<System.Xml.Serialization.XmlType(Namespace = "http://ws.availpro.com/internal/schemas/planning/2012A")>]
 type ChangeResponse(id, status) =
     [<System.Xml.Serialization.XmlAttribute("id")>]
-    member val Id: string = id with get, set
+    member val Id: System.String = id with get, set
 
     [<System.Xml.Serialization.XmlAttribute("status")>]
     member val Status: ChangeStatus = status with get, set
 
 type MetadataApplication(name, version) =
     [<System.Xml.Serialization.XmlAttribute("name")>]
-    member val Name: string = name with get, set
+    member val Name: System.String = name with get, set
 
     [<System.Xml.Serialization.XmlAttribute("version")>]
-    member val Version: string = version with get, set
+    member val Version: System.String = version with get, set
 
 [<System.Xml.Serialization.XmlType(Namespace = "http://ws.availpro.com/internal/schemas/planning/2012A")>]
 type Metadata(application, groupId, hotelId, userId, sirionaUserId, bookingReference) =
@@ -68,19 +68,19 @@ type Metadata(application, groupId, hotelId, userId, sirionaUserId, bookingRefer
     member val Application: MetadataApplication = application with get, set
 
     [<System.Xml.Serialization.XmlAttribute("groupId")>]
-    member val GroupId: uint = groupId with get, set
+    member val GroupId: System.UInt32 = groupId with get, set
 
     [<System.Xml.Serialization.XmlAttribute("hotelId")>]
-    member val HotelId: uint = hotelId with get, set
+    member val HotelId: System.UInt32 = hotelId with get, set
 
     [<System.Xml.Serialization.XmlAttribute("userId")>]
-    member val UserId: uint = userId with get, set
+    member val UserId: System.UInt32 = userId with get, set
 
     [<System.Xml.Serialization.XmlAttribute("sirionaUserId")>]
-    member val SirionaUserId: string = sirionaUserId with get, set
+    member val SirionaUserId: System.String = sirionaUserId with get, set
 
     [<System.Xml.Serialization.XmlAttribute("bookingReference")>]
-    member val BookingReference: string = bookingReference with get, set
+    member val BookingReference: System.String = bookingReference with get, set
 
 [<System.Xml.Serialization.XmlType(Namespace = "http://ws.availpro.com/internal/schemas/planning/2012A")>]
 type DayOfWeek =
@@ -101,10 +101,10 @@ type ChangePropertyResultChangePeriod(dayOfWeek, beginDate, endDate) =
     member val DayOfWeek: ChangePropertyResultChangePeriodDayOfWeek[] = dayOfWeek with get, set
 
     [<System.Xml.Serialization.XmlAttribute("beginDate")>]
-    member val BeginDate: string = beginDate with get, set
+    member val BeginDate: System.String = beginDate with get, set
 
     [<System.Xml.Serialization.XmlAttribute("endDate")>]
-    member val EndDate: string = endDate with get, set
+    member val EndDate: System.String = endDate with get, set
 
 type ChangePropertyResultChangeDependencies(property, entity) =
     [<System.Xml.Serialization.XmlElement(Order = 0)>]
@@ -156,10 +156,10 @@ type ChangePropertyResultChange
     member val Action: ChangeAction = action with get, set
 
     [<System.Xml.Serialization.XmlAttribute("automatic")>]
-    member val Automatic: bool = automatic with get, set
+    member val Automatic: System.Boolean = automatic with get, set
 
     [<System.Xml.Serialization.XmlAttribute("value")>]
-    member val Value: string = value with get, set
+    member val Value: System.String = value with get, set
 
     [<System.Xml.Serialization.XmlAttribute("status")>]
     member val Status: ChangeStatus = status with get, set
@@ -168,7 +168,7 @@ type ChangePropertyResultChange
     member val Constraint: ChangeConstraint = ``constraint`` with get, set
 
     [<System.Xml.Serialization.XmlAttribute("conflictingValue")>]
-    member val ConflictingValue: string = conflictingValue with get, set
+    member val ConflictingValue: System.String = conflictingValue with get, set
 
 [<System.Xml.Serialization.XmlType(Namespace = "http://ws.availpro.com/internal/schemas/planning/2012A")>]
 type PropertyName =
@@ -212,19 +212,19 @@ type ChangeEntityResult(property, ``type``, hotelId, roomId, articleId, rateId, 
     member val Type: EntityType = ``type`` with get, set
 
     [<System.Xml.Serialization.XmlAttribute("hotelId")>]
-    member val HotelId: uint = hotelId with get, set
+    member val HotelId: System.UInt32 = hotelId with get, set
 
     [<System.Xml.Serialization.XmlAttribute("roomId")>]
-    member val RoomId: uint = roomId with get, set
+    member val RoomId: System.UInt32 = roomId with get, set
 
     [<System.Xml.Serialization.XmlAttribute("articleId")>]
-    member val ArticleId: uint = articleId with get, set
+    member val ArticleId: System.UInt32 = articleId with get, set
 
     [<System.Xml.Serialization.XmlAttribute("rateId")>]
-    member val RateId: uint = rateId with get, set
+    member val RateId: System.UInt32 = rateId with get, set
 
     [<System.Xml.Serialization.XmlAttribute("channelGroupId")>]
-    member val ChannelGroupId: string = channelGroupId with get, set
+    member val ChannelGroupId: System.String = channelGroupId with get, set
 
 type ChangeSetResponseChanges(entity) =
     [<System.Xml.Serialization.XmlElement(Order = 0)>]
@@ -239,7 +239,7 @@ type ChangeSetResponse(metadata, changes, id, requestDate, completionDate, statu
     member val Changes: ChangeSetResponseChanges = changes with get, set
 
     [<System.Xml.Serialization.XmlAttribute("id")>]
-    member val Id: string = id with get, set
+    member val Id: System.String = id with get, set
 
     [<System.Xml.Serialization.XmlAttribute("requestDate")>]
     member val RequestDate: System.DateTime = requestDate with get, set
@@ -251,17 +251,17 @@ type ChangeSetResponse(metadata, changes, id, requestDate, completionDate, statu
     member val Status: ChangeStatus = status with get, set
 
     [<System.Xml.Serialization.XmlAttribute("ignoreFailures")>]
-    member val IgnoreFailures: bool = ignoreFailures with get, set
+    member val IgnoreFailures: System.Boolean = ignoreFailures with get, set
 
     [<System.Xml.Serialization.XmlAttribute("legacyReload")>]
-    member val LegacyReload: bool = legacyReload with get, set
+    member val LegacyReload: System.Boolean = legacyReload with get, set
 
 type ChangeSetSearchResponseChangeSet(metadata, id, requestDate, completionDate, status, ignoreFailures, legacyReload) =
     [<System.Xml.Serialization.XmlElement(Order = 0)>]
     member val Metadata: Metadata = metadata with get, set
 
     [<System.Xml.Serialization.XmlAttribute("id")>]
-    member val Id: string = id with get, set
+    member val Id: System.String = id with get, set
 
     [<System.Xml.Serialization.XmlAttribute("requestDate")>]
     member val RequestDate: System.DateTime = requestDate with get, set
@@ -273,10 +273,10 @@ type ChangeSetSearchResponseChangeSet(metadata, id, requestDate, completionDate,
     member val Status: ChangeStatus = status with get, set
 
     [<System.Xml.Serialization.XmlAttribute("ignoreFailures")>]
-    member val IgnoreFailures: bool = ignoreFailures with get, set
+    member val IgnoreFailures: System.Boolean = ignoreFailures with get, set
 
     [<System.Xml.Serialization.XmlAttribute("legacyReload")>]
-    member val LegacyReload: bool = legacyReload with get, set
+    member val LegacyReload: System.Boolean = legacyReload with get, set
 
 [<System.Xml.Serialization.XmlType(Namespace = "http://ws.availpro.com/internal/schemas/planning/2012A")>]
 type ChangeSetSearchResponse(changeSet) =
@@ -319,11 +319,11 @@ type GetChangeSetStatusResponse(getChangeSetStatusResult) =
 type GetChangeSet(hotelId, changeSetId) =
     [<System.ServiceModel.MessageBodyMember(Namespace = "http://ws.availpro.com/internal/schemas/planning/2012A",
                                             Order = 0)>]
-    member val HotelId: int = hotelId with get, set
+    member val HotelId: System.Int32 = hotelId with get, set
 
     [<System.ServiceModel.MessageBodyMember(Namespace = "http://ws.availpro.com/internal/schemas/planning/2012A",
                                             Order = 1)>]
-    member val ChangeSetId: string = changeSetId with get, set
+    member val ChangeSetId: System.String = changeSetId with get, set
 
 [<System.ServiceModel.MessageContract(WrapperName = "GetChangeSetResponse",
                                       WrapperNamespace = "http://ws.availpro.com/internal/schemas/planning/2012A",
@@ -359,7 +359,7 @@ type SearchChangeSetsResponse(searchChangeSetsResult) =
 type SearchHotelChangeSets(hotelId, startDate, endDate) =
     [<System.ServiceModel.MessageBodyMember(Namespace = "http://ws.availpro.com/internal/schemas/planning/2012A",
                                             Order = 0)>]
-    member val HotelId: int = hotelId with get, set
+    member val HotelId: System.Int32 = hotelId with get, set
 
     [<System.ServiceModel.MessageBodyMember(Namespace = "http://ws.availpro.com/internal/schemas/planning/2012A",
                                             Order = 1)>]
@@ -383,7 +383,7 @@ type SearchHotelChangeSetsResponse(searchHotelChangeSetsResult) =
 type SearchPendingHotelChangeSets(hotelId, startDate, endDate) =
     [<System.ServiceModel.MessageBodyMember(Namespace = "http://ws.availpro.com/internal/schemas/planning/2012A",
                                             Order = 0)>]
-    member val HotelId: int = hotelId with get, set
+    member val HotelId: System.Int32 = hotelId with get, set
 
     [<System.ServiceModel.MessageBodyMember(Namespace = "http://ws.availpro.com/internal/schemas/planning/2012A",
                                             Order = 1)>]
@@ -428,10 +428,10 @@ type IChangeSetService2012ASoap =
     abstract SearchPendingHotelChangeSetsAsync:
         SearchPendingHotelChangeSets -> Task<SearchPendingHotelChangeSetsResponse>
 
-    abstract SearchBookingChangeSets: int -> PlanningResponseMessage
-    abstract SearchBookingChangeSetsAsync: int -> Task<PlanningResponseMessage>
-    abstract SearchBookingReferenceChangeSets: string -> PlanningResponseMessage
-    abstract SearchBookingReferenceChangeSetsAsync: string -> Task<PlanningResponseMessage>
+    abstract SearchBookingChangeSets: System.Int32 -> PlanningResponseMessage
+    abstract SearchBookingChangeSetsAsync: System.Int32 -> Task<PlanningResponseMessage>
+    abstract SearchBookingReferenceChangeSets: System.String -> PlanningResponseMessage
+    abstract SearchBookingReferenceChangeSetsAsync: System.String -> Task<PlanningResponseMessage>
 
 [<Interface>]
 type ChangeSetService2012ASoap =
@@ -450,10 +450,10 @@ type ChangeSetService2012ASoap =
     abstract SearchPendingHotelChangeSetsAsync:
         SearchPendingHotelChangeSets -> Task<SearchPendingHotelChangeSetsResponse>
 
-    abstract SearchBookingChangeSets: int -> PlanningResponseMessage
-    abstract SearchBookingChangeSetsAsync: int -> Task<PlanningResponseMessage>
-    abstract SearchBookingReferenceChangeSets: string -> PlanningResponseMessage
-    abstract SearchBookingReferenceChangeSetsAsync: string -> Task<PlanningResponseMessage>
+    abstract SearchBookingChangeSets: System.Int32 -> PlanningResponseMessage
+    abstract SearchBookingChangeSetsAsync: System.Int32 -> Task<PlanningResponseMessage>
+    abstract SearchBookingReferenceChangeSets: System.String -> PlanningResponseMessage
+    abstract SearchBookingReferenceChangeSetsAsync: System.String -> Task<PlanningResponseMessage>
 
 type ChangeSetService2012A(binding: System.ServiceModel.Channels.Binding, address: System.ServiceModel.EndpointAddress) =
     inherit System.ServiceModel.ClientBase<IChangeSetService2012ASoap>(binding, address)
@@ -510,15 +510,15 @@ type ChangeSetService2012A(binding: System.ServiceModel.Channels.Binding, addres
         : Task<SearchPendingHotelChangeSetsResponse> =
         base.Channel.SearchPendingHotelChangeSetsAsync(searchPendingHotelChangeSets)
 
-    member this.SearchBookingChangeSets(bookingId: int) : PlanningResponseMessage =
+    member this.SearchBookingChangeSets(bookingId: System.Int32) : PlanningResponseMessage =
         base.Channel.SearchBookingChangeSets(bookingId)
 
-    member this.SearchBookingChangeSetsAsync(bookingId: int) : Task<PlanningResponseMessage> =
+    member this.SearchBookingChangeSetsAsync(bookingId: System.Int32) : Task<PlanningResponseMessage> =
         base.Channel.SearchBookingChangeSetsAsync(bookingId)
 
-    member this.SearchBookingReferenceChangeSets(bookingReference: string) : PlanningResponseMessage =
+    member this.SearchBookingReferenceChangeSets(bookingReference: System.String) : PlanningResponseMessage =
         base.Channel.SearchBookingReferenceChangeSets(bookingReference)
 
-    member this.SearchBookingReferenceChangeSetsAsync(bookingReference: string) : Task<PlanningResponseMessage> =
+    member this.SearchBookingReferenceChangeSetsAsync(bookingReference: System.String) : Task<PlanningResponseMessage> =
         base.Channel.SearchBookingReferenceChangeSetsAsync(bookingReference)
 

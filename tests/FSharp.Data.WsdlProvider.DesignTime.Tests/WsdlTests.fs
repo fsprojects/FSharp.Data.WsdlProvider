@@ -1,5 +1,5 @@
 [<NUnit.Framework.TestFixture>]
-module FShap.Data.WsdlProvider.DesignTime.WsdlTests
+module FSharp.Data.WsdlProvider.DesignTime.WsdlTests
 
 #if INTERACTIVE
 #r "System.Xml.Linq"
@@ -82,7 +82,7 @@ let ``Element can be lists (with min=0 and max=unbounded)`` () =
     let ns = XNamespace.Get "http://ws.cdyne.com/WeatherWS/"
 
     let t = 
-        wsdl.Schemas.Types.[ ns + "ArrayOfWeatherDescription"] 
+        wsdl.Schemas.Types[ ns + "ArrayOfWeatherDescription"] 
 
     let expected =
         { Name = ns + "ArrayOfWeatherDescription"
@@ -111,7 +111,7 @@ let ``Element can have empty complex type`` () =
     let ns = XNamespace.Get "http://ws.cdyne.com/WeatherWS/"
 
     let element = 
-        wsdl.Schemas.Elements.[ns + "GetWeatherInformation"]
+        wsdl.Schemas.Elements[ns + "GetWeatherInformation"]
 
     let expected =
         { Name = ns + "GetWeatherInformation"
@@ -130,7 +130,7 @@ let ``ComplexType contains elements``() =
     let ns = XNamespace.Get "http://ws.cdyne.com/WeatherWS/"
     let xs = XNamespace.Get "http://www.w3.org/2001/XMLSchema"
     let complexType = 
-        wsdl.Schemas.Types.[ns + "temp"]
+        wsdl.Schemas.Types[ns + "temp"]
     let expected = 
         { Name = ns + "temp"
           Type =
@@ -162,7 +162,7 @@ let ``Services contains declares services`` () =
     let wsdl = loadWsdl "./Weather.wsdl" 
     
     Assert.AreEqual(1, wsdl.Services.Length)
-    Assert.AreEqual("Weather", wsdl.Services.[0].Name)
+    Assert.AreEqual("Weather", wsdl.Services[0].Name)
 
 
 [<Test>]
@@ -170,10 +170,10 @@ let ``Services contains Soap ports `` () =
     // this is used for actions that take no inupt parameters
     let wsdl = loadWsdl "./Weather.wsdl"
     
-    let service = wsdl.Services.[0]
+    let service = wsdl.Services[0]
     Assert.AreEqual(1, service.Ports.Length)
-    Assert.AreEqual("WeatherSoap", service.Ports.[0].Name.LocalName )
-    Assert.AreEqual("http://wsf.cdyne.com/WeatherWS/Weather.asmx", service.Ports.[0].Location )
+    Assert.AreEqual("WeatherSoap", service.Ports[0].Name.LocalName )
+    Assert.AreEqual("http://wsf.cdyne.com/WeatherWS/Weather.asmx", service.Ports[0].Location )
 
 
 [<Test>]
@@ -181,8 +181,8 @@ let ``Document style wsdl is detected`` () =
     // this is used for actions that take no inupt parameters
     let wsdl = loadWsdl "./Eutax.wsdl"
     
-    let service = wsdl.Services.[0]
-    let binding = service.Ports.[0].Binding
+    let service = wsdl.Services[0]
+    let binding = service.Ports[0].Binding
     Assert.AreEqual(Document, binding.Style)
 
 

@@ -16,7 +16,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{ED8079DD
 EndProject
 Project("{6EC3EE1D-3C4E-46DD-8F32-0CC8E7565705}") = "FSharp.Data.WsdlProvider.Tests", "tests\FSharp.Data.WsdlProvider.Tests\FSharp.Data.WsdlProvider.Tests.fsproj", "{B4407B76-F524-467E-8F2D-049F39526BFE}"
 EndProject
-Project("{6EC3EE1D-3C4E-46DD-8F32-0CC8E7565705}") = "FShap.Data.WsdlProvider.DesignTime.Tests", "tests\FShap.Data.WsdlProvider.DesignTime.Tests\FShap.Data.WsdlProvider.DesignTime.Tests.fsproj", "{4E830891-C825-4A2C-8B61-EACE6EBDF59B}"
+Project("{6EC3EE1D-3C4E-46DD-8F32-0CC8E7565705}") = "FSharp.Data.WsdlProvider.DesignTime.Tests", "tests\FSharp.Data.WsdlProvider.DesignTime.Tests\FSharp.Data.WsdlProvider.DesignTime.Tests.fsproj", "{4E830891-C825-4A2C-8B61-EACE6EBDF59B}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".build", ".build", "{187433B2-65CF-42F5-B504-6E34F4C77604}"
 	ProjectSection(SolutionItems) = preProject
@@ -32,7 +32,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{EA9B11E5-905
 EndProject
 Project("{6EC3EE1D-3C4E-46DD-8F32-0CC8E7565705}") = "FSharp.Data.WsdlGenerator", "src\FSharp.Data.WsdlGenerator\FSharp.Data.WsdlGenerator.fsproj", "{433D30F8-88EF-45B1-A2A5-4DD1E2D2241C}"
 EndProject
-Project("{6EC3EE1D-3C4E-46DD-8F32-0CC8E7565705}") = "FShap.Data.WsdlGenerator.Tests", "tests\FShap.Data.WsdlGenerator.Tests\FShap.Data.WsdlGenerator.Tests.fsproj", "{053626D0-73CC-43E1-9943-06A1C357822B}"
+Project("{6EC3EE1D-3C4E-46DD-8F32-0CC8E7565705}") = "FSharp.Data.WsdlGenerator.Tests", "tests\FSharp.Data.WsdlGenerator.Tests\FSharp.Data.WsdlGenerator.Tests.fsproj", "{053626D0-73CC-43E1-9943-06A1C357822B}"
 	ProjectSection(ProjectDependencies) = postProject
 		{433D30F8-88EF-45B1-A2A5-4DD1E2D2241C} = {433D30F8-88EF-45B1-A2A5-4DD1E2D2241C}
 	EndProjectSection
