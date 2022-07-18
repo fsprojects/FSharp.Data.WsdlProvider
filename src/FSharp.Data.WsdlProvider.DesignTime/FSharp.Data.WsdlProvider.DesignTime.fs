@@ -9,22 +9,10 @@ open FSharp.Core.CompilerServices
 open ProviderImplementation.ProvidedTypes
 open System.ServiceModel
 open FSharp.Data.Wsdl
-open FSharp.Data.Xsd
+open FSharp.Data.ClientModel
 open System.Threading.Tasks
 open System.Xml.Linq
 open System.Collections.Concurrent
-
-module String =
-    let camlCase (s: string) =
-        if s.Length >= 1 then
-            string (Char.ToLowerInvariant(s[0])) + s.Substring(1);
-        else
-            s
-    let PascalCase (s: string) =
-        if s.Length >= 1 then
-            string (Char.ToUpperInvariant(s[0])) + s.Substring(1);
-        else
-            s
 
 module Provided = 
     open System.Xml.Serialization
@@ -162,18 +150,18 @@ module Provided =
           SoapInterface: ProvidedTypeDefinition
           Client: ProvidedTypeDefinition }
 
-    let rec getType (types: Dictionary<string, ProvidedTypeDefinition>) (tref: ClientModel.TRef) : Type =
+    let rec getType (types: Dictionary<string, ProvidedTypeDefinition>) (tref: TRef) : Type =
         match tref with
-        | ClientModel.TSimple t when t = typeof<unit> -> typeof<Void>
-        | ClientModel.TSimple t -> t
-        | ClientModel.TRef tr 
-        | ClientModel.TEnum tr -> types[tr]
-        | ClientModel.TRArray tr -> (getType types tr).MakeArrayType()
-        | ClientModel.TRNullable tr -> typedefof<Nullable<_>>.MakeGenericType(getType types tr)
+        | TSimple t when t = typeof<unit> -> typeof<Void>
+        | TSimple t -> t
+        | TRef tr 
+        | TEnum tr -> types[tr]
+        | TRArray tr -> (getType types tr).MakeArrayType()
+        | TRNullable tr -> typedefof<Nullable<_>>.MakeGenericType(getType types tr)
 
 
 
-    let defineOperationMethod types  (op: ClientModel.OperationDef) clientCtx =
+    let defineOperationMethod types  (op: OperationDef) clientCtx =
         let name = op.Name
         let outputType = getType types op.Output
 
@@ -206,7 +194,7 @@ module Provided =
         clientCtx.Client.DefineMethodOverride(itfImpl, itfMeth)
         clientCtx.Client.AddMember(itfImpl)
 
-    let defineAsyncOperationMethod types (op: ClientModel.OperationDef) clientCtx =
+    let defineAsyncOperationMethod types (op: OperationDef) clientCtx =
         let name = op.Name + "Async"
 
         // method on soap interface alwasy use tasks (include soap attributes)
@@ -295,48 +283,35 @@ module Provided =
             Expr.Sequential( makeSequential left, makeSequential right)
 
 
-    type CTChildKind =
-        | CTElement of string * XName * Type
-        | CTAttribute of string * XName * Type
-        | CTArray of string * XName * Type * string
-        | CTChoice of CTChildKind list
-
-
-    type CTXmlName =
-        | XmlType of XName
-        | Anonymous of XName
-        | NoName
-
-
     let buildWsdlTypes nsp (asm: ProvidedAssembly) name (wsdl: Wsdl) =
 
 
-        let buildTypeDef (tdef: ClientModel.TypeDef) =
+        let buildTypeDef (tdef: TypeDef) =
             let pt =
                 match tdef with
-                | ClientModel.Contract t ->
+                | Contract t ->
                     let pt = ProvidedTypeDefinition(asm, nsp, tdef.TypeName, Some typeof<obj>, isErased = false)
                     pt.AddCustomAttribute(mkMessageContractAttribute(t.XmlName, true))
                     pt
-                | ClientModel.ComplexType t ->
+                | ComplexType t ->
                     let pt = ProvidedTypeDefinition(asm, nsp, tdef.TypeName, Some typeof<obj>, isErased = false)
                     pt.AddCustomAttribute(mkXmlTypeAttribute(t.XmlName.NamespaceName, false))
                     pt
-                | ClientModel.AnonymousType t ->
+                | AnonymousType t ->
                     let pt = ProvidedTypeDefinition(asm, nsp, tdef.TypeName, Some typeof<obj>, isErased = false)
                     pt.AddCustomAttribute(mkXmlTypeAttribute(t.XmlName.NamespaceName, true))
                     pt
-                | ClientModel.NoNameType t -> 
+                | NoNameType t -> 
                     let pt = ProvidedTypeDefinition(asm, nsp, tdef.TypeName, Some typeof<obj>, isErased = false)
                     pt 
-                | ClientModel.EnumType e ->
+                | EnumType e ->
                     let pt = ProvidedTypeDefinition(asm, e.XmlName.NamespaceName , e.TypeName, Some typeof<Enum>, isErased = false)
                     pt.AddCustomAttribute(mkXmlTypeAttribute(e.XmlName.NamespaceName,false))
                     pt
             tdef, pt
 
 
-        let buildEnum (e: ClientModel.EnumTypeDef) (pt: ProvidedTypeDefinition) =
+        let buildEnum (e: EnumTypeDef) (pt: ProvidedTypeDefinition) =
                 pt.SetEnumUnderlyingType(typeof<int>)
 
                 e.Values
@@ -346,7 +321,7 @@ module Provided =
                     f )
                 |> pt.AddMembers
 
-        let buildComplexType types (tdef: ClientModel.ComplexTypeDef) (pt: ProvidedTypeDefinition) =
+        let buildComplexType types (tdef: ComplexTypeDef) (pt: ProvidedTypeDefinition) =
             let fields = 
                 [ for m in tdef.Members ->
                     let t = getType types m.TypeRef
@@ -359,32 +334,32 @@ module Provided =
                     let t = field.FieldType
                     let prop = ProvidedProperty(m.PropName , t, getterCode = (fun args -> Expr.FieldGet( args[0], field) ), setterCode = (fun args -> Expr.FieldSet(args[0], field, args[1] ))) 
                     match m with
-                    | ClientModel.CTElement(_, xsname,_, index)  -> 
+                    | CTElement(_, xsname,_, index)  -> 
                         prop.AddCustomAttribute(mkXmlElementAttribute index)
-                    | ClientModel.CTContract(_, xsname,_, index)  -> 
+                    | CTContract(_, xsname,_, index)  -> 
                         prop.AddCustomAttribute(mkMessageBodyMember(xsname.NamespaceName , index))
 
 
-                    | ClientModel.CTAttribute(_, xsname,_) -> prop.AddCustomAttribute(mkXmlAttributeAttribute xsname)
-                    | ClientModel.CTArrayContract(_, xsname,_, itemName, index) ->
+                    | CTAttribute(_, xsname,_) -> prop.AddCustomAttribute(mkXmlAttributeAttribute xsname)
+                    | CTArrayContract(_, xsname,_, itemName, index) ->
                         prop.AddCustomAttribute(mkMessageBodyMember(xsname.NamespaceName , index))
                         prop.AddCustomAttribute(mkXmlArrayItemAttribute(itemName, false))
-                    | ClientModel.CTArray(_, xsname,_, itemName, index) ->
+                    | CTArray(_, xsname,_, itemName, index) ->
                         prop.AddCustomAttribute(mkXmlArrayAttribute index)
                         prop.AddCustomAttribute(mkXmlArrayItemAttribute(itemName, false))
-                    | ClientModel.CTChoice choices ->
+                    | CTChoice choices ->
                         for c in choices do
                             match c with
-                            | ClientModel.CTElement(_,xsname,t, _)
-                            | ClientModel.CTContract(_,xsname,t, _) ->
+                            | CTElement(_,xsname,t, _)
+                            | CTContract(_,xsname,t, _) ->
                                 let t = getType types m.TypeRef
                                 prop.AddCustomAttribute(mkXmlElementNameAttribute(xsname,t))
-                            | ClientModel.CTAttribute(_,xsname,t) ->
+                            | CTAttribute(_,xsname,t) ->
                                 let t = getType types m.TypeRef
                                 prop.AddCustomAttribute(mkXmlAttributeNameAttribute(xsname,t))
-                            | ClientModel.CTArray _
-                            | ClientModel.CTArrayContract _
-                            | ClientModel.CTChoice _ -> ()
+                            | CTArray _
+                            | CTArrayContract _
+                            | CTChoice _ -> ()
                             
                     prop ]
 
@@ -398,14 +373,14 @@ module Provided =
                     let ps =
                         [ for i,e in Seq.indexed tdef.Members do
                             match e with
-                            | ClientModel.CTElement(name,_, tr,_)
-                            | ClientModel.CTContract(name,_, tr,_)
-                            | ClientModel.CTAttribute(name,_, tr)
-                            | ClientModel.CTArray(name,_, tr,_,_) 
-                            | ClientModel.CTArrayContract(name,_, tr,_,_) ->
+                            | CTElement(name,_,_,_)
+                            | CTContract(name,_,_,_)
+                            | CTAttribute(name,_,_)
+                            | CTArray(name,_,_,_,_) 
+                            | CTArrayContract(name,_,_,_,_) ->
                                 let field = fields[i]  
                                 ProvidedParameter(String.camlCase name, field.FieldType)
-                            | ClientModel.CTChoice _ ->
+                            | CTChoice _ ->
                                 ProvidedParameter("item", typeof<obj>) ]
 
                     ProvidedConstructor(ps, fun args -> 
@@ -421,18 +396,18 @@ module Provided =
             Option.iter pt.AddMember ctor
             pt.AddMember(ProvidedConstructor([], fun _ -> <@@ () @@>))
 
-        let buildType types (tdef: ClientModel.TypeDef) (tp: ProvidedTypeDefinition) =
+        let buildType types (tdef: TypeDef) (tp: ProvidedTypeDefinition) =
             match tdef with
-            | ClientModel.Contract td
-            | ClientModel.ComplexType td
-            | ClientModel.AnonymousType td 
-            | ClientModel.NoNameType td ->
+            | Contract td
+            | ComplexType td
+            | AnonymousType td 
+            | NoNameType td ->
                 buildComplexType types td tp
-            | ClientModel.EnumType e ->
+            | EnumType e ->
                 buildEnum e tp
             
 
-        let buildOperation types (op: ClientModel.OperationDef) clientCtx =
+        let buildOperation types (op: OperationDef) clientCtx =
 
             // synchronous method
             defineOperationMethod types op clientCtx
@@ -440,9 +415,8 @@ module Provided =
             // task method
             defineAsyncOperationMethod types op clientCtx
 
-            ()
 
-        let buildPort types serviceName (port: ClientModel.PortDef) = 
+        let buildPort types serviceName (port: PortDef) = 
             try
 
 
@@ -489,12 +463,12 @@ module Provided =
             | ex -> failwithf "Failed while building ctor: %O" ex 
 
  
-        let buildService types (service : ClientModel.ServiceDef)  = 
+        let buildService types (service : ServiceDef)  = 
             [ for port in service.Ports do
                 yield! buildPort types service.Name port ]
 
 
-        let model = ClientModel.createModel wsdl
+        let model = createModel wsdl
         let types =
             [ for tdef in model.Types do
                 buildTypeDef tdef ]

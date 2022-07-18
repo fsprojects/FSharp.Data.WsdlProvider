@@ -4,6 +4,7 @@ open System
 open System.Text
 open FSharp.Data
 open FSharp.Data.Wsdl
+open FSharp.Data.ClientModel
 open Myriad.Core
 open FSharp.Compiler
 open System.ServiceModel
@@ -103,7 +104,7 @@ module Generation =
         | :? uint64 as v -> string v
         | :? string as v -> "\"" + v + "\""
         | :? Type as v -> $"typeof<{v.FullName}>"
-        | :? ClientModel.TRef as v -> $"typeof<{v.Name}>"
+        | :? TRef as v -> $"typeof<{v.Name}>"
         | _ -> failwith $"Unable to convert attribute value of type {arg.GetType().FullName} to string"
 
     let cleanAttribute (name: string ) =
@@ -145,7 +146,7 @@ module Generation =
     let mkXmlElementAttribute (order: int) =  
         mkdAttribute<XmlElementAttribute> [] [ "Order", box order ]
 
-    let mkXmlElementNameAttribute (name: XName, t: ClientModel.TRef) =
+    let mkXmlElementNameAttribute (name: XName, t: TRef) =
         mkdAttribute<XmlElementAttribute> [typeof<string>, box name.LocalName]
             [ "Type", box t
               if name.NamespaceName <> "" then
@@ -156,7 +157,7 @@ module Generation =
         mkdAttribute<XmlAttributeAttribute> [typeof<string>, box name.LocalName] 
             [ if name.NamespaceName <> "" then
                 "Namespace", box name.NamespaceName ]
-    let mkXmlAttributeNameAttribute (name: XName, t: ClientModel.TRef) =
+    let mkXmlAttributeNameAttribute (name: XName, t: TRef) =
         mkdAttribute<XmlAttributeAttribute> [typeof<string>, box name.LocalName]
             [ "Type", box t
               if name.NamespaceName <> "" then
@@ -237,12 +238,12 @@ module Generation =
             .AppendLine()
         
 
-    let taskType (tref: ClientModel.TRef) =
+    let taskType (tref: TRef) =
         match tref with
-        | ClientModel.TSimple t when t = typeof<unit> -> "Task"
+        | TSimple t when t = typeof<unit> -> "Task"
         | n -> $"Task<{n.Name}>"
 
-    let defineOperationMethod (op: ClientModel.OperationDef) (builder: Builder) =
+    let defineOperationMethod (op: OperationDef) (builder: Builder) =
         let name = op.Name
         builder.StartAppend($"member this.{name}(")
                .AppendJoin(", ", [ for name, t in op.Input -> $"{cleanId name}: {t.Name}"])
@@ -255,7 +256,7 @@ module Generation =
                .Unindent()
 
 
-    let defineAsyncOperationMethod (op: ClientModel.OperationDef) (builder: Builder) =
+    let defineAsyncOperationMethod (op: OperationDef) (builder: Builder) =
         let name = op.Name + "Async"
         builder.StartAppend($"member this.{name}(")
                .AppendJoin(", ", [ for name, t in op.Input -> $"{cleanId name}: {t.Name}"])
@@ -267,7 +268,7 @@ module Generation =
 
                .Unindent()
 
-    let defineSoapItfOperationMethod (op: ClientModel.OperationDef) (builder: Builder) =
+    let defineSoapItfOperationMethod (op: OperationDef) (builder: Builder) =
         let name = op.Name
         match op.Input with
         | [] ->
@@ -284,7 +285,7 @@ module Generation =
                    .Unindent()
 
 
-    let defineSoapItfAsyncOperationMethod (op: ClientModel.OperationDef) (builder: Builder) =
+    let defineSoapItfAsyncOperationMethod (op: OperationDef) (builder: Builder) =
         let name = op.Name + "Async"
         match op.Input with
         | [] ->
@@ -302,38 +303,38 @@ module Generation =
 
 
     let buildWsdlTypes nsp wsdl =
-        let rec buildMember (m: ClientModel.CTChild) (builder: Builder) =
+        let rec buildMember (m: CTChild) (builder: Builder) =
             let mkAttribute m =
                 match m with
-                | ClientModel.CTElement(_, _, _, i)  -> 
+                | CTElement(_, _, _, i)  -> 
                         mkXmlElementAttribute i
-                | ClientModel.CTContract(_, xsname, _, i)  -> 
+                | CTContract(_, xsname, _, i)  -> 
                         mkMessageBodyMember(xsname.NamespaceName , i)
-                | ClientModel.CTAttribute(_, xsname,_) -> mkXmlAttributeAttribute xsname
-                | ClientModel.CTArray(_, _,_, itemName, i) ->
+                | CTAttribute(_, xsname,_) -> mkXmlAttributeAttribute xsname
+                | CTArray(_, _,_, itemName, i) ->
                         mkXmlArrayAttribute i
                         >> mkXmlArrayItemAttribute(itemName, false)
-                | ClientModel.CTArrayContract(_, xsname,_, itemName, i) ->
+                | CTArrayContract(_, xsname,_, itemName, i) ->
                     mkMessageBodyMember(xsname.NamespaceName , i)
                     >> mkXmlArrayItemAttribute(itemName, false)
 
-                | ClientModel.CTChoice choices ->
+                | CTChoice choices ->
                         
                     Builder.fold (fun c -> 
                         match c with
-                        | ClientModel.CTElement(_,xsname,t, _)
-                        | ClientModel.CTContract(_,xsname,t, _) ->
+                        | CTElement(_,xsname,t, _)
+                        | CTContract(_,xsname,t, _) ->
                             mkXmlElementNameAttribute(xsname,t)
-                        | ClientModel.CTAttribute(_,xsname,t) ->
+                        | CTAttribute(_,xsname,t) ->
                             mkXmlAttributeNameAttribute(xsname,t)
-                        | ClientModel.CTArray _
-                        | ClientModel.CTArrayContract _
-                        | ClientModel.CTChoice _ -> id
+                        | CTArray _
+                        | CTArrayContract _
+                        | CTChoice _ -> id
                     )  choices
 
             builder.Apply(mkAttribute, m).StartLine($"member val {m.PropName} : { m.TypeName } = {cleanId m.FieldName} with get, set")
 
-        and buildComplexType (t: ClientModel.ComplexTypeDef) (builder: Builder) =
+        and buildComplexType (t: ComplexTypeDef) (builder: Builder) =
             match t.Members with
             | [] ->
                 builder.StartLine($"type {t.TypeName}() =")
@@ -353,11 +354,11 @@ module Generation =
                         .AppendLine()
 
 
-        and buildEnum (t: ClientModel.EnumTypeDef) (builder: Builder) =
+        and buildEnum (t: EnumTypeDef) (builder: Builder) =
 
             builder.StartLine($"type {t.TypeName} =")
                     .Indent()
-                        .Fold((fun (e: ClientModel.EnumValue) builder -> 
+                        .Fold((fun (e: EnumValue) builder -> 
                              builder.StartLine("| ")
                                     .Indent()
                                     .Apply(mkXmlEnumAttribute, e.Value)
@@ -368,31 +369,31 @@ module Generation =
                 
 
 
-        and buildType (typeDef: ClientModel.TypeDef) (builder: Builder) : Builder =
+        and buildType (typeDef: TypeDef) (builder: Builder) : Builder =
             match typeDef with
-            | ClientModel.Contract t ->
+            | Contract t ->
                 builder
                 |> mkMessageContractAttribute(t.XmlName , true)
                 |> buildComplexType t
-            | ClientModel.ComplexType t ->
+            | ComplexType t ->
                 builder
                 |> mkXmlTypeAttribute(t.XmlName.NamespaceName, false)
                 |> buildComplexType t
-            | ClientModel.AnonymousType t -> 
+            | AnonymousType t -> 
                 builder
                 |> mkXmlTypeAttribute(t.XmlName.NamespaceName, true)
                 |> buildComplexType t
-            | ClientModel.NoNameType t -> 
+            | NoNameType t -> 
                 builder
                 |> buildComplexType t
-            | ClientModel.EnumType t ->
+            | EnumType t ->
                 builder
                 |> mkXmlTypeAttribute(t.XmlName.NamespaceName,false)
                 |> buildEnum t
 
            
 
-        let buildOperation (op: ClientModel.OperationDef) (builder: Builder) =
+        let buildOperation (op: OperationDef) (builder: Builder) =
 
             // synchronous method
             builder
@@ -400,7 +401,7 @@ module Generation =
             // task method
             |> defineAsyncOperationMethod op
 
-        let buildSoapItfOperation (op: ClientModel.OperationDef) (builder: Builder) =
+        let buildSoapItfOperation (op: OperationDef) (builder: Builder) =
             builder
             |> defineSoapItfOperationMethod op
             |> defineSoapItfAsyncOperationMethod op
@@ -415,7 +416,7 @@ module Generation =
 
 
 
-        let buildPort serviceName (port: ClientModel.PortDef) (builder: Builder) = 
+        let buildPort serviceName (port: PortDef) (builder: Builder) = 
             let soapItfName = "I" + port.Name
 
 
@@ -457,13 +458,13 @@ module Generation =
             
         
  
-        let buildService (service : ClientModel.ServiceDef) (builder: Builder)  = 
+        let buildService (service : ServiceDef) (builder: Builder)  = 
             builder
             |> selectBinding
             |> Builder.fold (buildPort service.Name) service.Ports
 
 
-        let model = ClientModel.createModel wsdl
+        let model = createModel wsdl
 
 
         { Indentation = 0; Writer = StringBuilder()}
@@ -472,7 +473,7 @@ module Generation =
             .StartLine("open System")
             .StartLine("open System.Threading.Tasks")
             .AppendLine()
-            .Fold((fun (td: ClientModel.TypeDef) -> buildType td) , model.Types)
+            .Fold((fun (td: TypeDef) -> buildType td) , model.Types)
             .Fold(buildService, model.Services)
             .ToString()
 
