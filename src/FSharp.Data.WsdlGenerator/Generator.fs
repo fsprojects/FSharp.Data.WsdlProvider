@@ -62,9 +62,6 @@ type Builder =
     member this.Fold(f: 'a -> Builder -> Builder, items) =
         Seq.fold (fun builder item  -> f item builder) this items
 
-    member this.Apply(f: 'a -> Builder -> Builder , item) =
-        f item this
-
     member this.Apply(f: Builder -> Builder) =
         f this
 
@@ -282,7 +279,6 @@ module Generation =
                    .StartAppend($"base.Channel.{name}(")
                    .AppendJoin(", ", [ for name,_ in op.Input -> cleanId name ])
                    .AppendLine(")")
-
                .Unindent()
 
     let defineSoapItfOperationMethod (op: OperationDef) (builder: Builder) =
@@ -375,7 +371,7 @@ module Generation =
                     )  choices
                 | CTAny -> id
 
-            builder.Apply(mkAttribute, m).StartLine($"member this.{cleanId m.PropName} with get() = this.{m.FieldName} and set v = this.{m.FieldName} <- v")
+            builder.Apply(mkAttribute m).StartLine($"member this.{cleanId m.PropName} with get() = this.{m.FieldName} and set v = this.{m.FieldName} <- v")
 
         let rec buildField (m: CTChild) (builder: Builder) =
 
@@ -421,7 +417,7 @@ module Generation =
                         .Fold((fun (e: EnumValue) builder -> 
                              builder.StartLine("| ")
                                     .Indent()
-                                    .Apply(mkXmlEnumAttribute, e.Value)
+                                    .Apply(mkXmlEnumAttribute e.Value)
                                     .StartLine(1, $"{e.Name} = {e.Index}")
                                     .Unindent()
                            ), t.Values)
