@@ -33,9 +33,10 @@ module Provided =
     let mkXmlElementAttribute (order: int) =  
         mkProvidedAttribute<XmlElementAttribute> [] [ "Order", box order ]
 
-    let mkXmlElementNameAttribute (name: XName, t: Type) =
+    let mkXmlElementNameAttribute (name: XName, t: Type, order: int) =
         mkProvidedAttribute<XmlElementAttribute> [typeof<string>, box name.LocalName]
             [ "Type", box t
+              "Order", box order
               if name.NamespaceName <> "" then
                 "Namespace", box name.NamespaceName 
             ]
@@ -285,7 +286,6 @@ module Provided =
 
     let buildWsdlTypes nsp (asm: ProvidedAssembly) name (wsdl: Wsdl) =
 
-
         let buildTypeDef (tdef: TypeDef) =
             let pt =
                 match tdef with
@@ -347,13 +347,13 @@ module Provided =
                     | CTArray(_, xsname,_, itemName, index) ->
                         prop.AddCustomAttribute(mkXmlArrayAttribute index)
                         prop.AddCustomAttribute(mkXmlArrayItemAttribute(itemName, false))
-                    | CTChoice (choices,_) ->
+                    | CTChoice (choices,i) ->
                         for c in choices do
                             match c with
                             | CTElement(_,xsname,t, _)
                             | CTContract(_,xsname,t, _) ->
-                                let t = getType types m.TypeRef
-                                prop.AddCustomAttribute(mkXmlElementNameAttribute(xsname,t))
+                                let t = getType types t
+                                prop.AddCustomAttribute(mkXmlElementNameAttribute(xsname,t,i))
                             | CTAttribute(_,xsname,t) ->
                                 let t = getType types m.TypeRef
                                 prop.AddCustomAttribute(mkXmlAttributeNameAttribute(xsname,t))
@@ -362,13 +362,13 @@ module Provided =
                             | CTChoice _ -> ()
                             | CTArrayChoice _ -> ()
                             | CTAny _ -> ()
-                    | CTArrayChoice(choices,_) ->
+                    | CTArrayChoice(choices,i) ->
                         for c in choices do
                             match c with
                             | CTElement(_,xsname,t, _)
                             | CTContract(_,xsname,t, _) ->
-                                let t = getType types m.TypeRef
-                                prop.AddCustomAttribute(mkXmlElementNameAttribute(xsname,t))
+                                let t = getType types t
+                                prop.AddCustomAttribute(mkXmlElementNameAttribute(xsname,t,i))
                             | CTAttribute(_,xsname,t) ->
                                 let t = getType types m.TypeRef
                                 prop.AddCustomAttribute(mkXmlAttributeNameAttribute(xsname,t))
@@ -527,6 +527,7 @@ type WsdlProvider (config : TypeProviderConfig) as this =
 
     // check we contain a copy of runtime files, and are not referencing the runtime DLL
     do assert (typeof<DefaultBinding>.Assembly.GetName().Name = selfAsm.GetName().Name)  
+
 
     let service = ProvidedTypeDefinition(selfAsm, ns, "WsdlProvider", Some typeof<obj>, isErased = false )
 

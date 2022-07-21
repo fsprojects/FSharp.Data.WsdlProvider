@@ -8,6 +8,7 @@ open Wsdl
 
 let private typeNames =
     readOnlyDict [
+        typeof<obj>, "obj"
         typeof<bool>, "bool"
         typeof<int>, "int"
         typeof<uint>, "uint"
@@ -297,8 +298,12 @@ let flattenWsdl wsdl =
                           
                 | XsElement ( { Type = InlineType (XsComplexType ct)} as e) ->
                     let propType = 
-                        flattenComplexType false (name + String.PascalCase e.Name.LocalName) NoName ct
-                        |> applyElementCardinality e
+                        match ct with
+                        | { Elements = Sequence([ XsAny _ ], _ ) } ->
+                            TSimple typeof<obj>
+                        | _ ->
+                            flattenComplexType false (name + String.PascalCase e.Name.LocalName) NoName ct
+                            |> applyElementCardinality e
                         
                     let md = (e.Name.LocalName, e.Name, propType, i)
                     if contract then
