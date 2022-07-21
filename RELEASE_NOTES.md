@@ -1,5 +1,6 @@
 ## 0.9-alpha
 * Fix: Add support for wsdl choice element. To make it run, a change to the F# compiler is needed. [#384](https://github.com/fsprojects/FSharp.TypeProviders.SDK/issues/384)
+* Feat: Myriad generator
 
 ## 0.8-alpha
 * Fix: Implement XmlSchemaSimpleTypeRestriction

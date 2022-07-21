@@ -6,6 +6,22 @@ open System.Xml.Linq
 open Xsd
 open Wsdl
 
+let private typeNames =
+    readOnlyDict [
+        typeof<bool>, "bool"
+        typeof<int>, "int"
+        typeof<uint>, "uint"
+        typeof<int64>, "int64"
+        typeof<uint64>, "uint64"
+        typeof<int16>, "int16"
+        typeof<uint16>, "uint16"
+        typeof<byte>, "byte"
+        typeof<sbyte>, "sbyte"
+        typeof<double>, "double"
+        typeof<float>, "float"
+        typeof<string>, "string"
+    ]
+
 type TRef =
     | TSimple of Type
     | TRef of string
@@ -32,11 +48,24 @@ type TRef =
 
     member this.Name =
         match this with
-        | TSimple t -> t.FullName 
+        | TSimple t ->
+            t.FullName 
         | TRef t -> t
         | TEnum t -> t
         | TRArray t -> t.Name + "[]"
         | TRNullable t -> $"Nullable<{t.Name}>"
+
+    member this.FsName =
+        match this with
+        | TSimple t ->
+            match typeNames.TryGetValue(t) with
+            | true, name -> name
+            | false, _ -> t.FullName
+
+        | TRef t -> t
+        | TEnum t -> t
+        | TRArray t -> t.FsName + "[]"
+        | TRNullable t -> $"Nullable<{t.FsName}>"
 
     member this.IsUnit =
         match this with
@@ -52,7 +81,9 @@ type CTChild =
     | CTAttribute of string * XName * TRef 
     | CTArray of string * XName * TRef * string * int
     | CTArrayContract of string * XName * TRef * string * int
-    | CTChoice of CTChild list
+    | CTChoice of CTChild list * int
+    | CTArrayChoice of CTChild list * int
+    | CTAny 
     with
         member this.FieldName =
             match this with
@@ -61,8 +92,10 @@ type CTChild =
             | CTAttribute(name, _,_)
             | CTArray(name, _,_,_,_)
             | CTArrayContract(name, _,_,_,_) ->
-                 String.camlCase name
+                 String.camlCase name + "Field"
             | CTChoice _ -> "item"
+            | CTArrayChoice _ -> "items"
+            | CTAny -> "item"
 
         member this.PropName =
             match this with
@@ -71,8 +104,10 @@ type CTChild =
             | CTAttribute(name, _,_)
             | CTArray(name, _,_,_,_)
             | CTArrayContract(name, _,_,_,_) ->
-                String.PascalCase name
+                name
             | CTChoice _ -> "Item"
+            | CTArrayChoice _ -> "Items"
+            | CTAny _ -> "Item"
         member this.TypeName =
             match this with
             | CTElement(_, _,t,_)
@@ -81,7 +116,21 @@ type CTChild =
             | CTArray(_, _,t,_,_)
             | CTArrayContract(_, _,t,_,_) ->
                 t.Name 
+            | CTChoice _ -> "System.Object"
+            | CTArrayChoice _ -> "System.Object[]"
+            | CTAny _ -> "System.Object"
+
+        member this.FsTypeName =
+            match this with
+            | CTElement(_, _,t,_)
+            | CTContract(_, _,t,_)
+            | CTAttribute(_, _,t)
+            | CTArray(_, _,t,_,_)
+            | CTArrayContract(_, _,t,_,_) ->
+                t.FsName 
             | CTChoice _ -> "obj"
+            | CTArrayChoice _ -> "obj[]"
+            | CTAny _ -> "obj"
 
         member this.TypeRef =
             match this with
@@ -92,7 +141,19 @@ type CTChild =
             | CTArrayContract(_, _,t,_,_) ->
                 t
             | CTChoice _ -> TSimple typeof<obj>
-            
+            | CTArrayChoice _ -> TRArray(TSimple typeof<obj>)
+            | CTAny _ -> TSimple typeof<obj>
+
+        member this.MakeArrayType() =
+            match this with
+            | CTElement(name, xn, t, i) -> CTElement(name, xn, t.MakeArrayType(), i)
+            | CTContract(name, xn, t,i) -> CTContract(name, xn, t.MakeArrayType(), i)
+            | CTAttribute(name, xn, t) -> CTAttribute(name, xn, t.MakeArrayType())
+            | CTArray(name, xn, t, ixn, i) -> CTArray(name, xn, t.MakeArrayType(), ixn, i)
+            | CTArrayContract(name, xn, t, ixn, i) -> CTArrayContract(name, xn, t.MakeArrayType(), ixn, i)
+            | CTChoice(choices,i) -> CTArrayChoice(choices, i)
+            | CTArrayChoice _ -> this
+            | CTAny _ -> this
 
 type CTXmlName =
     | XmlType of XName
@@ -150,6 +211,9 @@ type WsdlDef =
       Services: ServiceDef list }
 
 
+   
+
+
 let flattenWsdl wsdl =
     let typeRefs = Dictionary<XName, TRef>()
     let typeNames = Dictionary<string,int>()
@@ -190,83 +254,81 @@ let flattenWsdl wsdl =
                 typeRefs.Add(n, tr)
             | NoName -> ()
 
+            let rec getCT contract i p =
+                match p with
+                | XsElement ({ Type = TypeRef t } as e) 
+                | XsElement ({ Type = InlineType (XsSimpleType { BaseType = t }) } as e) ->
+                    
 
+                    let innerType = 
+                        if Schema.isBuiltInSimpleType t then
+                            None
+                        else
+                            Some wsdl.Schemas.Types[t]
+
+                    match innerType with
+                    | Some { Type = XsComplexType { Attributes = []; Elements = Sequence([ XsElement { Name = itemName; Occurs = { Max = max }; Type = TypeRef titem } ], lseqOccurs)}} when max > MaxOccurs 1 ->
+                        // This is actually an array
+                        let ref = typeRef titem
+                        let propType = ref.MakeArrayType()
+                        let md = (e.Name.LocalName, e.Name, propType, itemName.LocalName, i)
+                        if contract then
+                            CTArrayContract md
+                        else
+                            CTArray md
+                    | Some { Name = arrayName ; Type = XsComplexType { Attributes = []; Elements = Sequence([ XsElement { Name = itemName; Occurs = { Max = max }; Type = InlineType (XsComplexType ct) } ], lseqOccurs)}} when max > MaxOccurs 1 ->
+                    
+                        let pt = flattenComplexType false (String.PascalCase arrayName.LocalName + String.PascalCase itemName.LocalName) (Anonymous arrayName) ct
+                        let propType = pt.MakeArrayType()
+                        CTArray (e.Name.LocalName, e.Name, propType, itemName.LocalName, i)
+
+                    | _ ->
+
+                        let propType =
+                            (typeRef t) 
+                            |> applyElementCardinality e 
+                        let md = (e.Name.LocalName, e.Name, propType, i)
+                        if contract then
+                            CTContract md
+                        else
+                            CTElement md
+
+                         
+                          
+                | XsElement ( { Type = InlineType (XsComplexType ct)} as e) ->
+                    let propType = 
+                        flattenComplexType false (name + String.PascalCase e.Name.LocalName) NoName ct
+                        |> applyElementCardinality e
+                        
+                    let md = (e.Name.LocalName, e.Name, propType, i)
+                    if contract then
+                        CTContract md
+                    else
+                        CTElement md
+                | XsAny _ -> CTAny
+                | XsChoice choices ->
+                    CTChoice (choices.Items |> List.map (getCT false i), i)
+                
 
             let elements = 
                 match t.Elements with
-                | Sequence elts ->
+                | Sequence((_ :: _ :: _) as choices, { Max = MaxOccurs.Unbounded}) ->
+                    [CTArrayChoice(choices |> List.map (getCT contract 0), 0)]
+                | Sequence([item], { Max = MaxOccurs.Unbounded}) ->
+                    let ct = getCT contract 0 item 
+
+                    [ ct.MakeArrayType() ]
+
+                | Sequence(elts, seqOccurs) ->
                     [ for i,p in elts |> Seq.indexed do
-
-                        let rec getCT p =
-                          [ match p with
-                            | XsElement ({ Type = TypeRef t } as e) 
-                            | XsElement ({ Type = InlineType (XsSimpleType { BaseType = t }) } as e) ->
-                                
-
-                                let innerType = 
-                                    if Schema.isBuiltInSimpleType t then
-                                        None
-                                    else
-                                        Some wsdl.Schemas.Types[t]
-
-                                match innerType with
-                                | Some { Type = XsComplexType { Attributes = []; Elements = Sequence [ XsElement { Name = itemName; Occurs = { Max = max }; Type = TypeRef titem } ]}} when max > MaxOccurs 1 ->
-                                    // This is actually an array
-                                    let ref = typeRef titem
-                                    let propType = ref.MakeArrayType()
-                                    let md = (e.Name.LocalName, e.Name, propType, itemName.LocalName, i)
-                                    if contract then
-                                        CTArrayContract md
-                                    else
-                                        CTArray md
-                                | Some { Name = arrayName ; Type = XsComplexType { Attributes = []; Elements = Sequence [ XsElement { Name = itemName; Occurs = { Max = max }; Type = InlineType (XsComplexType ct) } ]}} when max > MaxOccurs 1 ->
-                                
-                                    let pt = flattenComplexType false (String.PascalCase arrayName.LocalName + String.PascalCase itemName.LocalName) (Anonymous arrayName) ct
-                                    let propType = pt.MakeArrayType()
-                                    CTArray (e.Name.LocalName, e.Name, propType, itemName.LocalName, i)
-
-                                | _ ->
-
-                                    let propType = applyElementCardinality e (typeRef t) 
-                                    let md = (e.Name.LocalName, e.Name, propType, i)
-                                    if contract then
-                                        CTContract md
-                                    else
-                                        CTElement md
-
-                                     
-                                      
-                            | XsElement ( { Type = InlineType (XsComplexType ct)} as e) ->
-                                let propType = 
-                                    let pt = flattenComplexType false (name + String.PascalCase e.Name.LocalName) NoName ct
-                                    applyElementCardinality e pt
-                                    
-                                let md = (e.Name.LocalName, e.Name, propType, i)
-                                if contract then
-                                    CTContract md
-                                else
-                                    CTElement md
-                            | XsAny _ -> ()
-                            | XsChoice choices ->
-                                CTChoice (choices.Items |> List.collect getCT)
-                            
-                            ]
-
-                        yield! getCT p
+                        getCT contract i p
                            
-                        ]
+                    ]
                 | _ -> []
 
 
 
-            let elementNames = set [ for e in elements ->
-                                        match e with
-                                        | CTElement(n,_,_,_)
-                                        | CTContract(n,_,_,_)
-                                        | CTAttribute(n,_,_)
-                                        | CTArray(n,_,_,_,_)
-                                        | CTArrayContract(n,_,_,_,_) -> n
-                                        | CTChoice _ -> "Item"
+            let elementNames = set [ for e in elements -> e.PropName 
                                         ]
             let fixAttributeName name  = 
                 if Set.contains name elementNames then
@@ -338,6 +400,13 @@ let flattenWsdl wsdl =
             tr
 
 
+    and applyCardinality cardinality (ref: TRef) =
+        if cardinality.Max > MaxOccurs 1 then
+            ref.MakeArrayType()
+        elif cardinality.Min = MinOccurs 0 then
+            ref.MakeNullableType()
+        else
+            ref
     and applyElementCardinality e (ref: TRef) =
         if e.Occurs.Max > MaxOccurs 1 then
             ref.MakeArrayType()
@@ -394,14 +463,20 @@ let flattenWsdl wsdl =
         match e with
         | { Type = t   ; Occurs = { Max = Unbounded }} ->
             flattenMessage contract  e.Name t
-        | { Type = InlineType (XsComplexType { Elements = Sequence [ XsElement { Type = TypeRef t} ] })} when not contract  ->
+        | { Type = InlineType (XsComplexType { Elements = Sequence([ XsElement { Type = TypeRef t} ], _) })} when not contract  ->
             flattenMessage contract e.Name (TypeRef t)
         | { Type = InlineType (XsSimpleType { BaseType = t}) } when not contract ->
             flattenMessage contract e.Name (TypeRef t)
         | { Type = InlineType (XsComplexType { BaseType = None; Elements = NoContent; Mixed = false; Attributes = []; AnyAttribute = false}) } ->
             let name = e.Name
             let typeName = fixTypeName name.LocalName
-            types.Add(TypeDef.ComplexType { TypeName = typeName; XmlName = name; Members = []})
+            let def = { TypeName = typeName; XmlName = name; Members = []}
+            let ct = 
+                if contract then
+                    Contract def
+                else
+                    ComplexType def
+            types.Add(ct)
             typeRefs.Add(name, TRef typeName)
             
         | { Type = ct } ->
@@ -412,7 +487,7 @@ let flattenWsdl wsdl =
         | InlineType (XsComplexType { Elements = NoContent; BaseType = None}) ->
             // no content, this is a void method
             ()
-        | InlineType (XsComplexType { Elements = Sequence [ XsElement ({ Type = tn} as elt) ]}) ->
+        | InlineType (XsComplexType { Elements = Sequence([ XsElement ({ Type = tn} as elt) ],_)}) ->
             // No need for all this wrapping. Just use the element/type inside
             flattenMessage contract name tn 
         | tn ->
@@ -476,7 +551,7 @@ let createModel wsdl =
         | InlineType (XsComplexType { Elements = NoContent; BaseType = None}) ->
             // no content, this is a void method
             []
-        | InlineType (XsComplexType { Elements = Sequence [ XsElement ({ Type = TypeRef tn} as elt) ]}) ->
+        | InlineType (XsComplexType { Elements = Sequence([ XsElement ({ Type = TypeRef tn} as elt) ],_)}) ->
             // No need for all this wrapping. Just use the element/type inside
 
             [ String.camlCase elt.Name.LocalName, findTypeRef tn ]

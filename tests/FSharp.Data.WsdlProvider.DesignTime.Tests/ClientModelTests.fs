@@ -104,5 +104,44 @@ let ``Choice is loaded correctly`` () =
     
     Assert.IsNotNull(wsdl)
 
+[<Test>]
+let ``TestResponse is a contract`` () =
+    // this wsdl first failed to load because of the choice element type
+    let wsdl = loadClientModel "ChangeSetService.wsdl"
+    let testResponse = wsdl.Types |> Seq.find( fun t -> t.TypeName = "TestResponse")
+    let expected =
+        TypeDef.Contract {ComplexTypeDef.TypeName = "TestResponse"
+                          ComplexTypeDef.XmlName = (XNamespace.op_Implicit "http://ws.availpro.com/internal/schemas/planning/2012A") + "TestResponse"
+                          ComplexTypeDef.Members = [] }
+    
+    Assert.AreEqual(expected, testResponse)
+
+
+
+[<Test>]
+let ``ChangeSetSearchResponse changeSet property should be an array`` () =
+    // this wsdl first failed to load because of the choice element type
+    let wsdl = loadClientModel "ChangeSetService.wsdl"
+    let testResponse = wsdl.Types |> Seq.find( fun t -> t.TypeName = "ChangeSetSearchResponse")
+    let expected =
+        TypeDef.ComplexType { TypeName = "ChangeSetSearchResponse"
+                              XmlName = (XNamespace.op_Implicit "http://ws.availpro.com/internal/schemas/planning/2012A") + "ChangeSetSearchResponse"
+                              Members = [ CTElement("changeSet", (XNamespace.op_Implicit "http://ws.availpro.com/internal/schemas/planning/2012A") + "changeSet", TRArray (TRef.TRef "ChangeSetSearchResponseChangeSet"), 0 ) ] }
+    
+    Assert.AreEqual(expected, testResponse)
+
+
+[<Test>]
+let ``ChangePropertyResultChangeDependencies items property should be an array`` () =
+    // this wsdl first failed to load because of the choice element type
+    let wsdl = loadClientModel "ChangeSetService.wsdl"
+    let testResponse = wsdl.Types |> Seq.find( fun t -> t.TypeName = "ChangePropertyResultChangeDependencies")
+    let expected =
+        TypeDef.NoNameType { TypeName = "ChangePropertyResultChangeDependencies"
+                             XmlName = null
+                             Members = [ CTChild.CTArrayChoice( [CTElement("property", (XNamespace.op_Implicit "http://ws.availpro.com/internal/schemas/planning/2012A") + "property", TRArray (TRef "ChangePropertyResult"),0)
+                                                                 CTElement("entity", (XNamespace.op_Implicit "http://ws.availpro.com/internal/schemas/planning/2012A") + "entity", TRArray (TRef "ChangeEntityResult"),0)], 0) ] }
+    
+    Assert.AreEqual(expected, testResponse)
 
 

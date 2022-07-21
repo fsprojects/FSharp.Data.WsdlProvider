@@ -347,7 +347,7 @@ module Provided =
                     | CTArray(_, xsname,_, itemName, index) ->
                         prop.AddCustomAttribute(mkXmlArrayAttribute index)
                         prop.AddCustomAttribute(mkXmlArrayItemAttribute(itemName, false))
-                    | CTChoice choices ->
+                    | CTChoice (choices,_) ->
                         for c in choices do
                             match c with
                             | CTElement(_,xsname,t, _)
@@ -360,6 +360,25 @@ module Provided =
                             | CTArray _
                             | CTArrayContract _
                             | CTChoice _ -> ()
+                            | CTArrayChoice _ -> ()
+                            | CTAny _ -> ()
+                    | CTArrayChoice(choices,_) ->
+                        for c in choices do
+                            match c with
+                            | CTElement(_,xsname,t, _)
+                            | CTContract(_,xsname,t, _) ->
+                                let t = getType types m.TypeRef
+                                prop.AddCustomAttribute(mkXmlElementNameAttribute(xsname,t))
+                            | CTAttribute(_,xsname,t) ->
+                                let t = getType types m.TypeRef
+                                prop.AddCustomAttribute(mkXmlAttributeNameAttribute(xsname,t))
+                            | CTArray _
+                            | CTArrayContract _
+                            | CTChoice _ -> ()
+                            | CTArrayChoice _ -> ()
+                            | CTAny -> ()
+                    | CTAny -> ()
+
                             
                     prop ]
 
@@ -381,7 +400,13 @@ module Provided =
                                 let field = fields[i]  
                                 ProvidedParameter(String.camlCase name, field.FieldType)
                             | CTChoice _ ->
-                                ProvidedParameter("item", typeof<obj>) ]
+                                ProvidedParameter("item", typeof<obj>)
+                            | CTArrayChoice _ ->
+                                ProvidedParameter("items", typeof<obj[]>)
+                            | CTAny _ ->
+                                ProvidedParameter("item", typeof<obj>)
+                                
+                                ]
 
                     ProvidedConstructor(ps, fun args -> 
                         let this = args[0]
@@ -489,12 +514,15 @@ module Provided =
         asm.AddTypes([p])
         p
 
+
 [<TypeProvider>]
 type WsdlProvider (config : TypeProviderConfig) as this =
     inherit TypeProviderForNamespaces(config, assemblyReplacementMap=[("FSharp.Data.WsdlProvider.DesignTime", "FSharp.Data.WsdlProvider.Runtime")], addDefaultProbingLocation=true)
 
     let ns = "FSharp.Data"
     let selfAsm = Assembly.GetExecutingAssembly()
+
+
 
 
     // check we contain a copy of runtime files, and are not referencing the runtime DLL
@@ -567,6 +595,7 @@ type WsdlProvider (config : TypeProviderConfig) as this =
     do this.AddNamespace(
         ns, [service]
     )
+
 
 [<TypeProviderAssembly>]
 do ()

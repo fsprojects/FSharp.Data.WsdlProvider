@@ -1,5 +1,0 @@
-﻿<Project>
-  <ItemGroup>
-    <MyriadSdkGenerator Include="$(MSBuildThisFileDirectory)/../lib/netstandard6.0/Generator.dll" />
-  </ItemGroup>
-</Project>

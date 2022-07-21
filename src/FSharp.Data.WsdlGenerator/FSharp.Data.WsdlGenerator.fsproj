@@ -11,14 +11,16 @@
     <Compile Include="..\FSharp.Data.WsdlProvider.DesignTime\Wsdl.fs" Link="Wsdl.fs" />
     <Compile Include="..\FSharp.Data.WsdlProvider.DesignTime\ClientModel.fs" Link="ClientModel.fs" />
     <Compile Include="Generator.fs" />
-    <Content Include="build\Generator.props">
+    <Content Include="build\FSharp.Data.WsdlGenerator.props">
       <Pack>true</Pack>
       <PackagePath>%(Identity)</PackagePath>
       <Visible>true</Visible>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
   <ItemGroup>
     <None Include="paket.references" />
+    <None Include="paket.template" />
   </ItemGroup>
   <Import Project="..\..\.paket\Paket.Restore.targets" />
 </Project>

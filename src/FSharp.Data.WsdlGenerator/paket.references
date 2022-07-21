@@ -1,4 +1,5 @@
 group Generator
+FSharp.Core
 System.ServiceModel.Duplex
 System.ServiceModel.Http
 Myriad.Core

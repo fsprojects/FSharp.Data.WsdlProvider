@@ -1,0 +1,5 @@
+﻿<Project>
+  <ItemGroup>
+    <MyriadSdkGenerator Include="$(MSBuildThisFileDirectory)/../lib/net6.0/FSharp.Data.WsdlGenerator.dll" />
+  </ItemGroup>
+</Project>

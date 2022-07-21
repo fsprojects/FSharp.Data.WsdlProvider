@@ -65,6 +65,9 @@ type Builder =
     member this.Apply(f: 'a -> Builder -> Builder , item) =
         f item this
 
+    member this.Apply(f: Builder -> Builder) =
+        f this
+
     override this.ToString() =
         this.Writer.ToString()
         
@@ -104,7 +107,7 @@ module Generation =
         | :? uint64 as v -> string v
         | :? string as v -> "\"" + v + "\""
         | :? Type as v -> $"typeof<{v.FullName}>"
-        | :? TRef as v -> $"typeof<{v.Name}>"
+        | :? TRef as v -> $"typeof<{v.FsName}>"
         | _ -> failwith $"Unable to convert attribute value of type {arg.GetType().FullName} to string"
 
     let cleanAttribute (name: string ) =
@@ -128,6 +131,10 @@ module Generation =
         | "type"
         | "for"
         | "member"
+        | "exception"
+        | "end"
+        | "class"
+        | "default"
         | "constraint" -> $"``{id}``"
         | _ -> id
 
@@ -142,13 +149,19 @@ module Generation =
                 .AppendJoin(", ", attrArgs)
                 .AppendLine(")>]")
                 
+    let mkAllowNullLiteralAttribute =
+        mkdAttribute<AllowNullLiteralAttribute> [] [] 
+
+    let mkSerializableAttribute =
+        mkdAttribute<SerializableAttribute> [] [] 
 
     let mkXmlElementAttribute (order: int) =  
         mkdAttribute<XmlElementAttribute> [] [ "Order", box order ]
 
-    let mkXmlElementNameAttribute (name: XName, t: TRef) =
+    let mkXmlElementNameAttribute (name: XName, t: TRef, order: int) =
         mkdAttribute<XmlElementAttribute> [typeof<string>, box name.LocalName]
-            [ "Type", box t
+            [ "Order", box order
+              "Type", box t
               if name.NamespaceName <> "" then
                 "Namespace", box name.NamespaceName 
             ]
@@ -188,7 +201,7 @@ module Generation =
             [ "Namespace", box ns
               "Order", box order ]
 
-    let mkXmlSerializerFormatAttribute() =
+    let mkXmlSerializerFormatAttribute =
         mkdAttribute<XmlSerializerFormatAttribute> [] [ "SupportFaults", box true]
     
     let mkXmlEnumAttribute (name: string) =
@@ -241,13 +254,13 @@ module Generation =
     let taskType (tref: TRef) =
         match tref with
         | TSimple t when t = typeof<unit> -> "Task"
-        | n -> $"Task<{n.Name}>"
+        | n -> $"Task<{n.FsName}>"
 
     let defineOperationMethod (op: OperationDef) (builder: Builder) =
         let name = op.Name
         builder.StartAppend($"member this.{name}(")
-               .AppendJoin(", ", [ for name, t in op.Input -> $"{cleanId name}: {t.Name}"])
-               .AppendLine($") : {op.Output.Name} =")
+               .AppendJoin(", ", [ for name, t in op.Input -> $"{cleanId name}: {t.FsName}"])
+               .AppendLine($") : {op.Output.FsName} =")
                .Indent()
                    .StartAppend($"base.Channel.{name}(")
                    .AppendJoin(", ", [ for name,_ in op.Input -> cleanId name ])
@@ -259,7 +272,7 @@ module Generation =
     let defineAsyncOperationMethod (op: OperationDef) (builder: Builder) =
         let name = op.Name + "Async"
         builder.StartAppend($"member this.{name}(")
-               .AppendJoin(", ", [ for name, t in op.Input -> $"{cleanId name}: {t.Name}"])
+               .AppendJoin(", ", [ for name, t in op.Input -> $"{cleanId name}: {t.FsName}"])
                .AppendLine($") : {taskType op.Output} =")
                .Indent()
                    .StartAppend($"base.Channel.{name}(")
@@ -273,15 +286,19 @@ module Generation =
         match op.Input with
         | [] ->
             builder.Indent()
-                   .StartAppend($"abstract {name}: unit -> {op.Output.Name}")
+                    .Apply(mkOperationContractAttribute op.Action "*")
+                    .Apply(mkXmlSerializerFormatAttribute)
+                   .StartAppend($"abstract {name}: unit -> {op.Output.FsName}")
                    .Unindent()
 
         | _ ->
 
             builder.Indent()
+                   .Apply(mkOperationContractAttribute op.Action "*")
+                   .Apply(mkXmlSerializerFormatAttribute)
                    .StartAppend($"abstract {name}: ")
-                   .AppendJoin("* ", [ for name, t in op.Input -> $"{t.Name}"])
-                   .AppendLine($" -> {op.Output.Name}")
+                   .AppendJoin(" * ", [ for name, t in op.Input -> $"{cleanId name}: {t.FsName}"])
+                   .AppendLine($" -> {op.Output.FsName}")
                    .Unindent()
 
 
@@ -290,14 +307,18 @@ module Generation =
         match op.Input with
         | [] ->
             builder.Indent()
+                   .Apply(mkOperationContractAttribute op.Action "*")
+                   .Apply(mkXmlSerializerFormatAttribute)
                    .StartAppend($"abstract {name}: unit -> {taskType op.Output}")
                    .Unindent()
 
 
         | _ ->
             builder.Indent()
+                   .Apply(mkOperationContractAttribute op.Action "*")
+                   .Apply(mkXmlSerializerFormatAttribute)
                    .StartAppend($"abstract {name}: ")
-                   .AppendJoin(", ", [ for name, t in op.Input -> $"{t.Name}"])
+                   .AppendJoin(", ", [ for name, t in op.Input -> $"{cleanId name}: {t.FsName}"])
                    .AppendLine($" -> {taskType op.Output}")
                    .Unindent()
 
@@ -318,26 +339,45 @@ module Generation =
                     mkMessageBodyMember(xsname.NamespaceName , i)
                     >> mkXmlArrayItemAttribute(itemName, false)
 
-                | CTChoice choices ->
+                | CTChoice (choices,i) ->
                         
                     Builder.fold (fun c -> 
                         match c with
-                        | CTElement(_,xsname,t, _)
-                        | CTContract(_,xsname,t, _) ->
-                            mkXmlElementNameAttribute(xsname,t)
+                        | CTElement(_,xsname,t, i)
+                        | CTContract(_,xsname,t, i) ->
+                            mkXmlElementNameAttribute(xsname,t,i)
                         | CTAttribute(_,xsname,t) ->
                             mkXmlAttributeNameAttribute(xsname,t)
                         | CTArray _
                         | CTArrayContract _
                         | CTChoice _ -> id
+                        | CTArrayChoice _ -> id
+                        | CTAny -> id
                     )  choices
 
-            builder.Apply(mkAttribute, m).StartLine($"member val {m.PropName} : { m.TypeName } = {cleanId m.FieldName} with get, set")
+                | CTArrayChoice(choices,i) ->
+                    Builder.fold (fun c -> 
+                        match c with
+                        | CTElement(_,xsname,t, _)
+                        | CTContract(_,xsname,t, _) ->
+                            mkXmlElementNameAttribute(xsname,t,i)
+                        | CTAttribute(_,xsname,t) ->
+                            mkXmlAttributeNameAttribute(xsname,t)
+                        | CTArray _
+                        | CTArrayContract _
+                        | CTChoice _ -> id
+                        | CTArrayChoice _ -> id
+                        | CTAny _ -> id
+                    )  choices
+                | CTAny -> id
+
+            builder.Apply(mkAttribute, m).StartLine($"member val {cleanId m.PropName} : { m.FsTypeName } = {cleanId m.FieldName} with get, set")
 
         and buildComplexType (t: ComplexTypeDef) (builder: Builder) =
             match t.Members with
             | [] ->
-                builder.StartLine($"type {t.TypeName}() =")
+                builder.Apply(mkSerializableAttribute)
+                        .StartLine($"type {t.TypeName}() =")
                         .Indent()
                         .StartLine("class")
                         .StartLine("end")
@@ -345,11 +385,15 @@ module Generation =
                         .AppendLine()
 
             | _ ->
-                builder.StartLine($"type {t.TypeName}(")
+                builder.Apply(mkSerializableAttribute)
+                        .StartLine($"type {t.TypeName}(")
                         .AppendJoin(", ", [ for  m in t.Members -> cleanId m.FieldName ])
                         .AppendLine(") =")
                         .Indent()
                         .Fold(buildMember, t.Members)
+                        .StartAppend($"new() = {t.TypeName}(")
+                        .AppendJoin(", ", [ for m in t.Members -> $"Unchecked.defaultof<{m.FsTypeName}>" ])
+                        .AppendLine(")")
                         .Unindent()
                         .AppendLine()
 
@@ -373,18 +417,22 @@ module Generation =
             match typeDef with
             | Contract t ->
                 builder
+                |> mkAllowNullLiteralAttribute
                 |> mkMessageContractAttribute(t.XmlName , true)
                 |> buildComplexType t
             | ComplexType t ->
                 builder
+                |> mkAllowNullLiteralAttribute
                 |> mkXmlTypeAttribute(t.XmlName.NamespaceName, false)
                 |> buildComplexType t
             | AnonymousType t -> 
                 builder
+                |> mkAllowNullLiteralAttribute
                 |> mkXmlTypeAttribute(t.XmlName.NamespaceName, true)
                 |> buildComplexType t
             | NoNameType t -> 
                 builder
+                |> mkAllowNullLiteralAttribute
                 |> buildComplexType t
             | EnumType t ->
                 builder

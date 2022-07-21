@@ -7,14 +7,18 @@ namespace rec TestWsdl
 open System
 open System.Threading.Tasks
 
+[<AllowNullLiteral>]
 [<System.Xml.Serialization.XmlType(Namespace = "http://ws.availpro.com/internal/schemas/planning/2012A")>]
+[<System.Serializable>]
 type TestResponse() =
     class
     end
 
+[<AllowNullLiteral>]
 [<System.ServiceModel.MessageContract(WrapperName = "GetChangeSetStatus",
                                       WrapperNamespace = "http://ws.availpro.com/internal/schemas/planning/2012A",
                                       IsWrapped = true)>]
+[<System.Serializable>]
 type GetChangeSetStatus(hotelId, changeSetId) =
     [<System.ServiceModel.MessageBodyMember(Namespace = "http://ws.availpro.com/internal/schemas/planning/2012A",
                                             Order = 0)>]
@@ -24,11 +28,17 @@ type GetChangeSetStatus(hotelId, changeSetId) =
                                             Order = 1)>]
     member val ChangeSetId: System.String = changeSetId with get, set
 
+    new() = GetChangeSetStatus(Unchecked.defaultof<System.Int32>, Unchecked.defaultof<System.String>)
+
+[<AllowNullLiteral>]
+[<System.Serializable>]
 type PlanningResponseMessageSuccess() =
     class
     end
 
+[<AllowNullLiteral>]
 [<System.Xml.Serialization.XmlType(Namespace = "http://ws.availpro.com/internal/schemas/planning/2012A")>]
+[<System.Serializable>]
 type Error(comment, ``type``, message) =
     [<System.Xml.Serialization.XmlElement(Order = 0)>]
     member val Comment: System.String = comment with get, set
@@ -39,6 +49,13 @@ type Error(comment, ``type``, message) =
     [<System.Xml.Serialization.XmlAttribute("message")>]
     member val Message: System.String = message with get, set
 
+    new() =
+        Error(
+            Unchecked.defaultof<System.String>,
+            Unchecked.defaultof<System.String>,
+            Unchecked.defaultof<System.String>
+        )
+
 [<System.Xml.Serialization.XmlType(Namespace = "http://ws.availpro.com/internal/schemas/planning/2012A")>]
 type ChangeStatus =
     | [<System.Xml.Serialization.XmlEnum("None")>] None = 0
@@ -47,7 +64,9 @@ type ChangeStatus =
     | [<System.Xml.Serialization.XmlEnum("Warning")>] Warning = 3
     | [<System.Xml.Serialization.XmlEnum("Failure")>] Failure = 4
 
+[<AllowNullLiteral>]
 [<System.Xml.Serialization.XmlType(Namespace = "http://ws.availpro.com/internal/schemas/planning/2012A")>]
+[<System.Serializable>]
 type ChangeResponse(id, status) =
     [<System.Xml.Serialization.XmlAttribute("id")>]
     member val Id: System.String = id with get, set
@@ -55,6 +74,10 @@ type ChangeResponse(id, status) =
     [<System.Xml.Serialization.XmlAttribute("status")>]
     member val Status: ChangeStatus = status with get, set
 
+    new() = ChangeResponse(Unchecked.defaultof<System.String>, Unchecked.defaultof<ChangeStatus>)
+
+[<AllowNullLiteral>]
+[<System.Serializable>]
 type MetadataApplication(name, version) =
     [<System.Xml.Serialization.XmlAttribute("name")>]
     member val Name: System.String = name with get, set
@@ -62,7 +85,11 @@ type MetadataApplication(name, version) =
     [<System.Xml.Serialization.XmlAttribute("version")>]
     member val Version: System.String = version with get, set
 
+    new() = MetadataApplication(Unchecked.defaultof<System.String>, Unchecked.defaultof<System.String>)
+
+[<AllowNullLiteral>]
 [<System.Xml.Serialization.XmlType(Namespace = "http://ws.availpro.com/internal/schemas/planning/2012A")>]
+[<System.Serializable>]
 type Metadata(application, groupId, hotelId, userId, sirionaUserId, bookingReference) =
     [<System.Xml.Serialization.XmlElement(Order = 0)>]
     member val Application: MetadataApplication = application with get, set
@@ -82,6 +109,16 @@ type Metadata(application, groupId, hotelId, userId, sirionaUserId, bookingRefer
     [<System.Xml.Serialization.XmlAttribute("bookingReference")>]
     member val BookingReference: System.String = bookingReference with get, set
 
+    new() =
+        Metadata(
+            Unchecked.defaultof<MetadataApplication>,
+            Unchecked.defaultof<System.UInt32>,
+            Unchecked.defaultof<System.UInt32>,
+            Unchecked.defaultof<System.UInt32>,
+            Unchecked.defaultof<System.String>,
+            Unchecked.defaultof<System.String>
+        )
+
 [<System.Xml.Serialization.XmlType(Namespace = "http://ws.availpro.com/internal/schemas/planning/2012A")>]
 type DayOfWeek =
     | [<System.Xml.Serialization.XmlEnum("Monday")>] Monday = 0
@@ -92,10 +129,16 @@ type DayOfWeek =
     | [<System.Xml.Serialization.XmlEnum("Saturday")>] Saturday = 5
     | [<System.Xml.Serialization.XmlEnum("Sunday")>] Sunday = 6
 
+[<AllowNullLiteral>]
+[<System.Serializable>]
 type ChangePropertyResultChangePeriodDayOfWeek(day) =
     [<System.Xml.Serialization.XmlAttribute("day")>]
     member val Day: DayOfWeek = day with get, set
 
+    new() = ChangePropertyResultChangePeriodDayOfWeek(Unchecked.defaultof<DayOfWeek>)
+
+[<AllowNullLiteral>]
+[<System.Serializable>]
 type ChangePropertyResultChangePeriod(dayOfWeek, beginDate, endDate) =
     [<System.Xml.Serialization.XmlElement(Order = 0)>]
     member val DayOfWeek: ChangePropertyResultChangePeriodDayOfWeek[] = dayOfWeek with get, set
@@ -106,12 +149,27 @@ type ChangePropertyResultChangePeriod(dayOfWeek, beginDate, endDate) =
     [<System.Xml.Serialization.XmlAttribute("endDate")>]
     member val EndDate: System.String = endDate with get, set
 
+    new() =
+        ChangePropertyResultChangePeriod(
+            Unchecked.defaultof<ChangePropertyResultChangePeriodDayOfWeek[]>,
+            Unchecked.defaultof<System.String>,
+            Unchecked.defaultof<System.String>
+        )
+
+[<AllowNullLiteral>]
+[<System.Serializable>]
 type ChangePropertyResultChangeDependencies(property, entity) =
     [<System.Xml.Serialization.XmlElement(Order = 0)>]
     member val Property: ChangePropertyResult[] = property with get, set
 
     [<System.Xml.Serialization.XmlElement(Order = 1)>]
     member val Entity: ChangeEntityResult[] = entity with get, set
+
+    new() =
+        ChangePropertyResultChangeDependencies(
+            Unchecked.defaultof<ChangePropertyResult[]>,
+            Unchecked.defaultof<ChangeEntityResult[]>
+        )
 
 [<System.Xml.Serialization.XmlType(Namespace = "http://ws.availpro.com/internal/schemas/planning/2012A")>]
 type ChangeAction =
@@ -135,6 +193,8 @@ type ChangeConstraint =
     | [<System.Xml.Serialization.XmlEnum("StayDatePassed")>] StayDatePassed = 11
     | [<System.Xml.Serialization.XmlEnum("ErrorOccurred")>] ErrorOccurred = 12
 
+[<AllowNullLiteral>]
+[<System.Serializable>]
 type ChangePropertyResultChange
     (
         period,
@@ -170,6 +230,18 @@ type ChangePropertyResultChange
     [<System.Xml.Serialization.XmlAttribute("conflictingValue")>]
     member val ConflictingValue: System.String = conflictingValue with get, set
 
+    new() =
+        ChangePropertyResultChange(
+            Unchecked.defaultof<ChangePropertyResultChangePeriod>,
+            Unchecked.defaultof<ChangePropertyResultChangeDependencies>,
+            Unchecked.defaultof<ChangeAction>,
+            Unchecked.defaultof<System.Boolean>,
+            Unchecked.defaultof<System.String>,
+            Unchecked.defaultof<ChangeStatus>,
+            Unchecked.defaultof<ChangeConstraint>,
+            Unchecked.defaultof<System.String>
+        )
+
 [<System.Xml.Serialization.XmlType(Namespace = "http://ws.availpro.com/internal/schemas/planning/2012A")>]
 type PropertyName =
     | [<System.Xml.Serialization.XmlEnum("InitialAvailability")>] InitialAvailability = 0
@@ -186,13 +258,17 @@ type PropertyName =
     | [<System.Xml.Serialization.XmlEnum("OnDepartureMaximumStay")>] OnDepartureMaximumStay = 11
     | [<System.Xml.Serialization.XmlEnum("CancelConditions")>] CancelConditions = 12
 
+[<AllowNullLiteral>]
 [<System.Xml.Serialization.XmlType(Namespace = "http://ws.availpro.com/internal/schemas/planning/2012A")>]
+[<System.Serializable>]
 type ChangePropertyResult(change, name) =
     [<System.Xml.Serialization.XmlElement(Order = 0)>]
     member val Change: ChangePropertyResultChange[] = change with get, set
 
     [<System.Xml.Serialization.XmlAttribute("name")>]
     member val Name: PropertyName = name with get, set
+
+    new() = ChangePropertyResult(Unchecked.defaultof<ChangePropertyResultChange[]>, Unchecked.defaultof<PropertyName>)
 
 [<System.Xml.Serialization.XmlType(Namespace = "http://ws.availpro.com/internal/schemas/planning/2012A")>]
 type EntityType =
@@ -203,7 +279,9 @@ type EntityType =
     | [<System.Xml.Serialization.XmlEnum("ArticleChannelGroup")>] ArticleChannelGroup = 4
     | [<System.Xml.Serialization.XmlEnum("RateChannelGroup")>] RateChannelGroup = 5
 
+[<AllowNullLiteral>]
 [<System.Xml.Serialization.XmlType(Namespace = "http://ws.availpro.com/internal/schemas/planning/2012A")>]
+[<System.Serializable>]
 type ChangeEntityResult(property, ``type``, hotelId, roomId, articleId, rateId, channelGroupId) =
     [<System.Xml.Serialization.XmlElement(Order = 0)>]
     member val Property: ChangePropertyResult[] = property with get, set
@@ -226,11 +304,28 @@ type ChangeEntityResult(property, ``type``, hotelId, roomId, articleId, rateId, 
     [<System.Xml.Serialization.XmlAttribute("channelGroupId")>]
     member val ChannelGroupId: System.String = channelGroupId with get, set
 
+    new() =
+        ChangeEntityResult(
+            Unchecked.defaultof<ChangePropertyResult[]>,
+            Unchecked.defaultof<EntityType>,
+            Unchecked.defaultof<System.UInt32>,
+            Unchecked.defaultof<System.UInt32>,
+            Unchecked.defaultof<System.UInt32>,
+            Unchecked.defaultof<System.UInt32>,
+            Unchecked.defaultof<System.String>
+        )
+
+[<AllowNullLiteral>]
+[<System.Serializable>]
 type ChangeSetResponseChanges(entity) =
     [<System.Xml.Serialization.XmlElement(Order = 0)>]
     member val Entity: ChangeEntityResult[] = entity with get, set
 
+    new() = ChangeSetResponseChanges(Unchecked.defaultof<ChangeEntityResult[]>)
+
+[<AllowNullLiteral>]
 [<System.Xml.Serialization.XmlType(Namespace = "http://ws.availpro.com/internal/schemas/planning/2012A")>]
+[<System.Serializable>]
 type ChangeSetResponse(metadata, changes, id, requestDate, completionDate, status, ignoreFailures, legacyReload) =
     [<System.Xml.Serialization.XmlElement(Order = 0)>]
     member val Metadata: Metadata = metadata with get, set
@@ -256,6 +351,20 @@ type ChangeSetResponse(metadata, changes, id, requestDate, completionDate, statu
     [<System.Xml.Serialization.XmlAttribute("legacyReload")>]
     member val LegacyReload: System.Boolean = legacyReload with get, set
 
+    new() =
+        ChangeSetResponse(
+            Unchecked.defaultof<Metadata>,
+            Unchecked.defaultof<ChangeSetResponseChanges>,
+            Unchecked.defaultof<System.String>,
+            Unchecked.defaultof<System.DateTime>,
+            Unchecked.defaultof<System.DateTime>,
+            Unchecked.defaultof<ChangeStatus>,
+            Unchecked.defaultof<System.Boolean>,
+            Unchecked.defaultof<System.Boolean>
+        )
+
+[<AllowNullLiteral>]
+[<System.Serializable>]
 type ChangeSetSearchResponseChangeSet(metadata, id, requestDate, completionDate, status, ignoreFailures, legacyReload) =
     [<System.Xml.Serialization.XmlElement(Order = 0)>]
     member val Metadata: Metadata = metadata with get, set
@@ -278,12 +387,29 @@ type ChangeSetSearchResponseChangeSet(metadata, id, requestDate, completionDate,
     [<System.Xml.Serialization.XmlAttribute("legacyReload")>]
     member val LegacyReload: System.Boolean = legacyReload with get, set
 
+    new() =
+        ChangeSetSearchResponseChangeSet(
+            Unchecked.defaultof<Metadata>,
+            Unchecked.defaultof<System.String>,
+            Unchecked.defaultof<System.DateTime>,
+            Unchecked.defaultof<System.DateTime>,
+            Unchecked.defaultof<ChangeStatus>,
+            Unchecked.defaultof<System.Boolean>,
+            Unchecked.defaultof<System.Boolean>
+        )
+
+[<AllowNullLiteral>]
 [<System.Xml.Serialization.XmlType(Namespace = "http://ws.availpro.com/internal/schemas/planning/2012A")>]
+[<System.Serializable>]
 type ChangeSetSearchResponse(changeSet) =
     [<System.Xml.Serialization.XmlElement(Order = 0)>]
     member val ChangeSet: ChangeSetSearchResponseChangeSet = changeSet with get, set
 
+    new() = ChangeSetSearchResponse(Unchecked.defaultof<ChangeSetSearchResponseChangeSet>)
+
+[<AllowNullLiteral>]
 [<System.Xml.Serialization.XmlType(Namespace = "http://ws.availpro.com/internal/schemas/planning/2012A")>]
+[<System.Serializable>]
 type PlanningResponseMessage(success, warning, failure, item) =
     [<System.Xml.Serialization.XmlElement(Order = 0)>]
     member val Success: PlanningResponseMessageSuccess = success with get, set
@@ -295,27 +421,44 @@ type PlanningResponseMessage(success, warning, failure, item) =
     member val Failure: Error = failure with get, set
 
     [<System.Xml.Serialization.XmlElement("changeResponse",
+                                          Order = 3,
                                           Type = typeof<ChangeResponse>,
                                           Namespace = "http://ws.availpro.com/internal/schemas/planning/2012A")>]
     [<System.Xml.Serialization.XmlElement("changeSetResponse",
+                                          Order = 3,
                                           Type = typeof<ChangeSetResponse>,
                                           Namespace = "http://ws.availpro.com/internal/schemas/planning/2012A")>]
     [<System.Xml.Serialization.XmlElement("changeSetSearchResponse",
+                                          Order = 3,
                                           Type = typeof<ChangeSetSearchResponse>,
                                           Namespace = "http://ws.availpro.com/internal/schemas/planning/2012A")>]
     member val Item: obj = item with get, set
 
+    new() =
+        PlanningResponseMessage(
+            Unchecked.defaultof<PlanningResponseMessageSuccess>,
+            Unchecked.defaultof<Error>,
+            Unchecked.defaultof<Error>,
+            Unchecked.defaultof<obj>
+        )
+
+[<AllowNullLiteral>]
 [<System.ServiceModel.MessageContract(WrapperName = "GetChangeSetStatusResponse",
                                       WrapperNamespace = "http://ws.availpro.com/internal/schemas/planning/2012A",
                                       IsWrapped = true)>]
+[<System.Serializable>]
 type GetChangeSetStatusResponse(getChangeSetStatusResult) =
     [<System.ServiceModel.MessageBodyMember(Namespace = "http://ws.availpro.com/internal/schemas/planning/2012A",
                                             Order = 0)>]
     member val GetChangeSetStatusResult: PlanningResponseMessage = getChangeSetStatusResult with get, set
 
+    new() = GetChangeSetStatusResponse(Unchecked.defaultof<PlanningResponseMessage>)
+
+[<AllowNullLiteral>]
 [<System.ServiceModel.MessageContract(WrapperName = "GetChangeSet",
                                       WrapperNamespace = "http://ws.availpro.com/internal/schemas/planning/2012A",
                                       IsWrapped = true)>]
+[<System.Serializable>]
 type GetChangeSet(hotelId, changeSetId) =
     [<System.ServiceModel.MessageBodyMember(Namespace = "http://ws.availpro.com/internal/schemas/planning/2012A",
                                             Order = 0)>]
@@ -325,17 +468,25 @@ type GetChangeSet(hotelId, changeSetId) =
                                             Order = 1)>]
     member val ChangeSetId: System.String = changeSetId with get, set
 
+    new() = GetChangeSet(Unchecked.defaultof<System.Int32>, Unchecked.defaultof<System.String>)
+
+[<AllowNullLiteral>]
 [<System.ServiceModel.MessageContract(WrapperName = "GetChangeSetResponse",
                                       WrapperNamespace = "http://ws.availpro.com/internal/schemas/planning/2012A",
                                       IsWrapped = true)>]
+[<System.Serializable>]
 type GetChangeSetResponse(getChangeSetResult) =
     [<System.ServiceModel.MessageBodyMember(Namespace = "http://ws.availpro.com/internal/schemas/planning/2012A",
                                             Order = 0)>]
     member val GetChangeSetResult: PlanningResponseMessage = getChangeSetResult with get, set
 
+    new() = GetChangeSetResponse(Unchecked.defaultof<PlanningResponseMessage>)
+
+[<AllowNullLiteral>]
 [<System.ServiceModel.MessageContract(WrapperName = "SearchChangeSets",
                                       WrapperNamespace = "http://ws.availpro.com/internal/schemas/planning/2012A",
                                       IsWrapped = true)>]
+[<System.Serializable>]
 type SearchChangeSets(startDate, endDate) =
     [<System.ServiceModel.MessageBodyMember(Namespace = "http://ws.availpro.com/internal/schemas/planning/2012A",
                                             Order = 0)>]
@@ -345,17 +496,25 @@ type SearchChangeSets(startDate, endDate) =
                                             Order = 1)>]
     member val EndDate: System.DateTime = endDate with get, set
 
+    new() = SearchChangeSets(Unchecked.defaultof<System.DateTime>, Unchecked.defaultof<System.DateTime>)
+
+[<AllowNullLiteral>]
 [<System.ServiceModel.MessageContract(WrapperName = "SearchChangeSetsResponse",
                                       WrapperNamespace = "http://ws.availpro.com/internal/schemas/planning/2012A",
                                       IsWrapped = true)>]
+[<System.Serializable>]
 type SearchChangeSetsResponse(searchChangeSetsResult) =
     [<System.ServiceModel.MessageBodyMember(Namespace = "http://ws.availpro.com/internal/schemas/planning/2012A",
                                             Order = 0)>]
     member val SearchChangeSetsResult: PlanningResponseMessage = searchChangeSetsResult with get, set
 
+    new() = SearchChangeSetsResponse(Unchecked.defaultof<PlanningResponseMessage>)
+
+[<AllowNullLiteral>]
 [<System.ServiceModel.MessageContract(WrapperName = "SearchHotelChangeSets",
                                       WrapperNamespace = "http://ws.availpro.com/internal/schemas/planning/2012A",
                                       IsWrapped = true)>]
+[<System.Serializable>]
 type SearchHotelChangeSets(hotelId, startDate, endDate) =
     [<System.ServiceModel.MessageBodyMember(Namespace = "http://ws.availpro.com/internal/schemas/planning/2012A",
                                             Order = 0)>]
@@ -369,17 +528,30 @@ type SearchHotelChangeSets(hotelId, startDate, endDate) =
                                             Order = 2)>]
     member val EndDate: System.DateTime = endDate with get, set
 
+    new() =
+        SearchHotelChangeSets(
+            Unchecked.defaultof<System.Int32>,
+            Unchecked.defaultof<System.DateTime>,
+            Unchecked.defaultof<System.DateTime>
+        )
+
+[<AllowNullLiteral>]
 [<System.ServiceModel.MessageContract(WrapperName = "SearchHotelChangeSetsResponse",
                                       WrapperNamespace = "http://ws.availpro.com/internal/schemas/planning/2012A",
                                       IsWrapped = true)>]
+[<System.Serializable>]
 type SearchHotelChangeSetsResponse(searchHotelChangeSetsResult) =
     [<System.ServiceModel.MessageBodyMember(Namespace = "http://ws.availpro.com/internal/schemas/planning/2012A",
                                             Order = 0)>]
     member val SearchHotelChangeSetsResult: PlanningResponseMessage = searchHotelChangeSetsResult with get, set
 
+    new() = SearchHotelChangeSetsResponse(Unchecked.defaultof<PlanningResponseMessage>)
+
+[<AllowNullLiteral>]
 [<System.ServiceModel.MessageContract(WrapperName = "SearchPendingHotelChangeSets",
                                       WrapperNamespace = "http://ws.availpro.com/internal/schemas/planning/2012A",
                                       IsWrapped = true)>]
+[<System.Serializable>]
 type SearchPendingHotelChangeSets(hotelId, startDate, endDate) =
     [<System.ServiceModel.MessageBodyMember(Namespace = "http://ws.availpro.com/internal/schemas/planning/2012A",
                                             Order = 0)>]
@@ -393,14 +565,25 @@ type SearchPendingHotelChangeSets(hotelId, startDate, endDate) =
                                             Order = 2)>]
     member val EndDate: System.DateTime = endDate with get, set
 
+    new() =
+        SearchPendingHotelChangeSets(
+            Unchecked.defaultof<System.Int32>,
+            Unchecked.defaultof<System.DateTime>,
+            Unchecked.defaultof<System.DateTime>
+        )
+
+[<AllowNullLiteral>]
 [<System.ServiceModel.MessageContract(WrapperName = "SearchPendingHotelChangeSetsResponse",
                                       WrapperNamespace = "http://ws.availpro.com/internal/schemas/planning/2012A",
                                       IsWrapped = true)>]
+[<System.Serializable>]
 type SearchPendingHotelChangeSetsResponse(searchPendingHotelChangeSetsResult) =
     [<System.ServiceModel.MessageBodyMember(Namespace = "http://ws.availpro.com/internal/schemas/planning/2012A",
                                             Order = 0)>]
     member val SearchPendingHotelChangeSetsResult: PlanningResponseMessage =
         searchPendingHotelChangeSetsResult with get, set
+
+    new() = SearchPendingHotelChangeSetsResponse(Unchecked.defaultof<PlanningResponseMessage>)
 
 type DefaultBinding =
     static member SelectBinding(uri: string) =
@@ -413,47 +596,173 @@ type DefaultBinding =
                                       ConfigurationName = "TestWsdl.ChangeSetService2012A")>]
 [<Interface>]
 type IChangeSetService2012ASoap =
+    [<System.ServiceModel.OperationContract(Action = "http://ws.availpro.com/internal/schemas/planning/2012A/Test",
+                                            ReplyAction = "*")>]
+    [<System.ServiceModel.XmlSerializerFormat(SupportFaults = true)>]
     abstract Test: unit -> TestResponse
+
+    [<System.ServiceModel.OperationContract(Action = "http://ws.availpro.com/internal/schemas/planning/2012A/Test",
+                                            ReplyAction = "*")>]
+    [<System.ServiceModel.XmlSerializerFormat(SupportFaults = true)>]
     abstract TestAsync: unit -> Task<TestResponse>
-    abstract GetChangeSetStatus: GetChangeSetStatus -> GetChangeSetStatusResponse
-    abstract GetChangeSetStatusAsync: GetChangeSetStatus -> Task<GetChangeSetStatusResponse>
-    abstract GetChangeSet: GetChangeSet -> GetChangeSetResponse
-    abstract GetChangeSetAsync: GetChangeSet -> Task<GetChangeSetResponse>
-    abstract SearchChangeSets: SearchChangeSets -> SearchChangeSetsResponse
-    abstract SearchChangeSetsAsync: SearchChangeSets -> Task<SearchChangeSetsResponse>
-    abstract SearchHotelChangeSets: SearchHotelChangeSets -> SearchHotelChangeSetsResponse
-    abstract SearchHotelChangeSetsAsync: SearchHotelChangeSets -> Task<SearchHotelChangeSetsResponse>
-    abstract SearchPendingHotelChangeSets: SearchPendingHotelChangeSets -> SearchPendingHotelChangeSetsResponse
 
+    [<System.ServiceModel.OperationContract(Action = "http://ws.availpro.com/internal/schemas/planning/2012A/GetChangeSetStatus",
+                                            ReplyAction = "*")>]
+    [<System.ServiceModel.XmlSerializerFormat(SupportFaults = true)>]
+    abstract GetChangeSetStatus: getChangeSetStatus: GetChangeSetStatus -> GetChangeSetStatusResponse
+
+    [<System.ServiceModel.OperationContract(Action = "http://ws.availpro.com/internal/schemas/planning/2012A/GetChangeSetStatus",
+                                            ReplyAction = "*")>]
+    [<System.ServiceModel.XmlSerializerFormat(SupportFaults = true)>]
+    abstract GetChangeSetStatusAsync: getChangeSetStatus: GetChangeSetStatus -> Task<GetChangeSetStatusResponse>
+
+    [<System.ServiceModel.OperationContract(Action = "http://ws.availpro.com/internal/schemas/planning/2012A/GetChangeSet",
+                                            ReplyAction = "*")>]
+    [<System.ServiceModel.XmlSerializerFormat(SupportFaults = true)>]
+    abstract GetChangeSet: getChangeSet: GetChangeSet -> GetChangeSetResponse
+
+    [<System.ServiceModel.OperationContract(Action = "http://ws.availpro.com/internal/schemas/planning/2012A/GetChangeSet",
+                                            ReplyAction = "*")>]
+    [<System.ServiceModel.XmlSerializerFormat(SupportFaults = true)>]
+    abstract GetChangeSetAsync: getChangeSet: GetChangeSet -> Task<GetChangeSetResponse>
+
+    [<System.ServiceModel.OperationContract(Action = "http://ws.availpro.com/internal/schemas/planning/2012A/SearchChangeSets",
+                                            ReplyAction = "*")>]
+    [<System.ServiceModel.XmlSerializerFormat(SupportFaults = true)>]
+    abstract SearchChangeSets: searchChangeSets: SearchChangeSets -> SearchChangeSetsResponse
+
+    [<System.ServiceModel.OperationContract(Action = "http://ws.availpro.com/internal/schemas/planning/2012A/SearchChangeSets",
+                                            ReplyAction = "*")>]
+    [<System.ServiceModel.XmlSerializerFormat(SupportFaults = true)>]
+    abstract SearchChangeSetsAsync: searchChangeSets: SearchChangeSets -> Task<SearchChangeSetsResponse>
+
+    [<System.ServiceModel.OperationContract(Action = "http://ws.availpro.com/internal/schemas/planning/2012A/SearchHotelChangeSets",
+                                            ReplyAction = "*")>]
+    [<System.ServiceModel.XmlSerializerFormat(SupportFaults = true)>]
+    abstract SearchHotelChangeSets: searchHotelChangeSets: SearchHotelChangeSets -> SearchHotelChangeSetsResponse
+
+    [<System.ServiceModel.OperationContract(Action = "http://ws.availpro.com/internal/schemas/planning/2012A/SearchHotelChangeSets",
+                                            ReplyAction = "*")>]
+    [<System.ServiceModel.XmlSerializerFormat(SupportFaults = true)>]
+    abstract SearchHotelChangeSetsAsync:
+        searchHotelChangeSets: SearchHotelChangeSets -> Task<SearchHotelChangeSetsResponse>
+
+    [<System.ServiceModel.OperationContract(Action = "http://ws.availpro.com/internal/schemas/planning/2012A/SearchPendingHotelChangeSets",
+                                            ReplyAction = "*")>]
+    [<System.ServiceModel.XmlSerializerFormat(SupportFaults = true)>]
+    abstract SearchPendingHotelChangeSets:
+        searchPendingHotelChangeSets: SearchPendingHotelChangeSets -> SearchPendingHotelChangeSetsResponse
+
+    [<System.ServiceModel.OperationContract(Action = "http://ws.availpro.com/internal/schemas/planning/2012A/SearchPendingHotelChangeSets",
+                                            ReplyAction = "*")>]
+    [<System.ServiceModel.XmlSerializerFormat(SupportFaults = true)>]
     abstract SearchPendingHotelChangeSetsAsync:
-        SearchPendingHotelChangeSets -> Task<SearchPendingHotelChangeSetsResponse>
+        searchPendingHotelChangeSets: SearchPendingHotelChangeSets -> Task<SearchPendingHotelChangeSetsResponse>
 
-    abstract SearchBookingChangeSets: System.Int32 -> PlanningResponseMessage
-    abstract SearchBookingChangeSetsAsync: System.Int32 -> Task<PlanningResponseMessage>
-    abstract SearchBookingReferenceChangeSets: System.String -> PlanningResponseMessage
-    abstract SearchBookingReferenceChangeSetsAsync: System.String -> Task<PlanningResponseMessage>
+    [<System.ServiceModel.OperationContract(Action = "http://ws.availpro.com/internal/schemas/planning/2012A/SearchBookingChangeSets",
+                                            ReplyAction = "*")>]
+    [<System.ServiceModel.XmlSerializerFormat(SupportFaults = true)>]
+    abstract SearchBookingChangeSets: bookingId: System.Int32 -> PlanningResponseMessage
+
+    [<System.ServiceModel.OperationContract(Action = "http://ws.availpro.com/internal/schemas/planning/2012A/SearchBookingChangeSets",
+                                            ReplyAction = "*")>]
+    [<System.ServiceModel.XmlSerializerFormat(SupportFaults = true)>]
+    abstract SearchBookingChangeSetsAsync: bookingId: System.Int32 -> Task<PlanningResponseMessage>
+
+    [<System.ServiceModel.OperationContract(Action = "http://ws.availpro.com/internal/schemas/planning/2012A/SearchBookingReferenceChangeSets",
+                                            ReplyAction = "*")>]
+    [<System.ServiceModel.XmlSerializerFormat(SupportFaults = true)>]
+    abstract SearchBookingReferenceChangeSets: bookingReference: System.String -> PlanningResponseMessage
+
+    [<System.ServiceModel.OperationContract(Action = "http://ws.availpro.com/internal/schemas/planning/2012A/SearchBookingReferenceChangeSets",
+                                            ReplyAction = "*")>]
+    [<System.ServiceModel.XmlSerializerFormat(SupportFaults = true)>]
+    abstract SearchBookingReferenceChangeSetsAsync: bookingReference: System.String -> Task<PlanningResponseMessage>
 
 [<Interface>]
 type ChangeSetService2012ASoap =
+    [<System.ServiceModel.OperationContract(Action = "http://ws.availpro.com/internal/schemas/planning/2012A/Test",
+                                            ReplyAction = "*")>]
+    [<System.ServiceModel.XmlSerializerFormat(SupportFaults = true)>]
     abstract Test: unit -> TestResponse
+
+    [<System.ServiceModel.OperationContract(Action = "http://ws.availpro.com/internal/schemas/planning/2012A/Test",
+                                            ReplyAction = "*")>]
+    [<System.ServiceModel.XmlSerializerFormat(SupportFaults = true)>]
     abstract TestAsync: unit -> Task<TestResponse>
-    abstract GetChangeSetStatus: GetChangeSetStatus -> GetChangeSetStatusResponse
-    abstract GetChangeSetStatusAsync: GetChangeSetStatus -> Task<GetChangeSetStatusResponse>
-    abstract GetChangeSet: GetChangeSet -> GetChangeSetResponse
-    abstract GetChangeSetAsync: GetChangeSet -> Task<GetChangeSetResponse>
-    abstract SearchChangeSets: SearchChangeSets -> SearchChangeSetsResponse
-    abstract SearchChangeSetsAsync: SearchChangeSets -> Task<SearchChangeSetsResponse>
-    abstract SearchHotelChangeSets: SearchHotelChangeSets -> SearchHotelChangeSetsResponse
-    abstract SearchHotelChangeSetsAsync: SearchHotelChangeSets -> Task<SearchHotelChangeSetsResponse>
-    abstract SearchPendingHotelChangeSets: SearchPendingHotelChangeSets -> SearchPendingHotelChangeSetsResponse
 
+    [<System.ServiceModel.OperationContract(Action = "http://ws.availpro.com/internal/schemas/planning/2012A/GetChangeSetStatus",
+                                            ReplyAction = "*")>]
+    [<System.ServiceModel.XmlSerializerFormat(SupportFaults = true)>]
+    abstract GetChangeSetStatus: getChangeSetStatus: GetChangeSetStatus -> GetChangeSetStatusResponse
+
+    [<System.ServiceModel.OperationContract(Action = "http://ws.availpro.com/internal/schemas/planning/2012A/GetChangeSetStatus",
+                                            ReplyAction = "*")>]
+    [<System.ServiceModel.XmlSerializerFormat(SupportFaults = true)>]
+    abstract GetChangeSetStatusAsync: getChangeSetStatus: GetChangeSetStatus -> Task<GetChangeSetStatusResponse>
+
+    [<System.ServiceModel.OperationContract(Action = "http://ws.availpro.com/internal/schemas/planning/2012A/GetChangeSet",
+                                            ReplyAction = "*")>]
+    [<System.ServiceModel.XmlSerializerFormat(SupportFaults = true)>]
+    abstract GetChangeSet: getChangeSet: GetChangeSet -> GetChangeSetResponse
+
+    [<System.ServiceModel.OperationContract(Action = "http://ws.availpro.com/internal/schemas/planning/2012A/GetChangeSet",
+                                            ReplyAction = "*")>]
+    [<System.ServiceModel.XmlSerializerFormat(SupportFaults = true)>]
+    abstract GetChangeSetAsync: getChangeSet: GetChangeSet -> Task<GetChangeSetResponse>
+
+    [<System.ServiceModel.OperationContract(Action = "http://ws.availpro.com/internal/schemas/planning/2012A/SearchChangeSets",
+                                            ReplyAction = "*")>]
+    [<System.ServiceModel.XmlSerializerFormat(SupportFaults = true)>]
+    abstract SearchChangeSets: searchChangeSets: SearchChangeSets -> SearchChangeSetsResponse
+
+    [<System.ServiceModel.OperationContract(Action = "http://ws.availpro.com/internal/schemas/planning/2012A/SearchChangeSets",
+                                            ReplyAction = "*")>]
+    [<System.ServiceModel.XmlSerializerFormat(SupportFaults = true)>]
+    abstract SearchChangeSetsAsync: searchChangeSets: SearchChangeSets -> Task<SearchChangeSetsResponse>
+
+    [<System.ServiceModel.OperationContract(Action = "http://ws.availpro.com/internal/schemas/planning/2012A/SearchHotelChangeSets",
+                                            ReplyAction = "*")>]
+    [<System.ServiceModel.XmlSerializerFormat(SupportFaults = true)>]
+    abstract SearchHotelChangeSets: searchHotelChangeSets: SearchHotelChangeSets -> SearchHotelChangeSetsResponse
+
+    [<System.ServiceModel.OperationContract(Action = "http://ws.availpro.com/internal/schemas/planning/2012A/SearchHotelChangeSets",
+                                            ReplyAction = "*")>]
+    [<System.ServiceModel.XmlSerializerFormat(SupportFaults = true)>]
+    abstract SearchHotelChangeSetsAsync:
+        searchHotelChangeSets: SearchHotelChangeSets -> Task<SearchHotelChangeSetsResponse>
+
+    [<System.ServiceModel.OperationContract(Action = "http://ws.availpro.com/internal/schemas/planning/2012A/SearchPendingHotelChangeSets",
+                                            ReplyAction = "*")>]
+    [<System.ServiceModel.XmlSerializerFormat(SupportFaults = true)>]
+    abstract SearchPendingHotelChangeSets:
+        searchPendingHotelChangeSets: SearchPendingHotelChangeSets -> SearchPendingHotelChangeSetsResponse
+
+    [<System.ServiceModel.OperationContract(Action = "http://ws.availpro.com/internal/schemas/planning/2012A/SearchPendingHotelChangeSets",
+                                            ReplyAction = "*")>]
+    [<System.ServiceModel.XmlSerializerFormat(SupportFaults = true)>]
     abstract SearchPendingHotelChangeSetsAsync:
-        SearchPendingHotelChangeSets -> Task<SearchPendingHotelChangeSetsResponse>
+        searchPendingHotelChangeSets: SearchPendingHotelChangeSets -> Task<SearchPendingHotelChangeSetsResponse>
 
-    abstract SearchBookingChangeSets: System.Int32 -> PlanningResponseMessage
-    abstract SearchBookingChangeSetsAsync: System.Int32 -> Task<PlanningResponseMessage>
-    abstract SearchBookingReferenceChangeSets: System.String -> PlanningResponseMessage
-    abstract SearchBookingReferenceChangeSetsAsync: System.String -> Task<PlanningResponseMessage>
+    [<System.ServiceModel.OperationContract(Action = "http://ws.availpro.com/internal/schemas/planning/2012A/SearchBookingChangeSets",
+                                            ReplyAction = "*")>]
+    [<System.ServiceModel.XmlSerializerFormat(SupportFaults = true)>]
+    abstract SearchBookingChangeSets: bookingId: System.Int32 -> PlanningResponseMessage
+
+    [<System.ServiceModel.OperationContract(Action = "http://ws.availpro.com/internal/schemas/planning/2012A/SearchBookingChangeSets",
+                                            ReplyAction = "*")>]
+    [<System.ServiceModel.XmlSerializerFormat(SupportFaults = true)>]
+    abstract SearchBookingChangeSetsAsync: bookingId: System.Int32 -> Task<PlanningResponseMessage>
+
+    [<System.ServiceModel.OperationContract(Action = "http://ws.availpro.com/internal/schemas/planning/2012A/SearchBookingReferenceChangeSets",
+                                            ReplyAction = "*")>]
+    [<System.ServiceModel.XmlSerializerFormat(SupportFaults = true)>]
+    abstract SearchBookingReferenceChangeSets: bookingReference: System.String -> PlanningResponseMessage
+
+    [<System.ServiceModel.OperationContract(Action = "http://ws.availpro.com/internal/schemas/planning/2012A/SearchBookingReferenceChangeSets",
+                                            ReplyAction = "*")>]
+    [<System.ServiceModel.XmlSerializerFormat(SupportFaults = true)>]
+    abstract SearchBookingReferenceChangeSetsAsync: bookingReference: System.String -> Task<PlanningResponseMessage>
 
 type ChangeSetService2012A(binding: System.ServiceModel.Channels.Binding, address: System.ServiceModel.EndpointAddress) =
     inherit System.ServiceModel.ClientBase<IChangeSetService2012ASoap>(binding, address)

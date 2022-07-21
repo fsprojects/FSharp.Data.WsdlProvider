@@ -481,7 +481,6 @@ type PortOperation with
         | None 
         | Some { Element = SimpleType _ }
         | Some { Element = Element { Type = InlineType (XsSimpleType _ ) }} 
-        | Some { Element = Element { Type = InlineType (XsComplexType { Elements = NoContent }) } }
-        | Some { Element = Element { Type = InlineType (XsComplexType { Elements = Sequence [ XsElement _ ] }) } }
+        | Some { Element = Element { Type = InlineType (XsComplexType { Elements = Sequence([ XsElement _ ],_) }) } }
             -> false
         | _ -> true

@@ -41,9 +41,9 @@ and XsTypeRef =
     | InlineType of XsType
 and Ordrer =
     | NoContent
-    | Sequence of XsParticle list
-    | All of XsParticle list
-    | Choice of XsParticle list
+    | Sequence of XsParticle list * Occurs
+    | All of XsParticle list * Occurs
+    | Choice of XsParticle list * Occurs
 and XsComplexType =
     { BaseType: XName option
       Elements: Ordrer
@@ -160,25 +160,29 @@ and parseType (t: XmlSchemaType) =
                         Some n.XName
 
             Elements = 
+                let occurs = parseOccurs t.ContentTypeParticle
                 match t.ContentTypeParticle with
                 | :? XmlSchemaSequence as s ->
-                    s.Items
-                    |> Seq.cast<XmlSchemaParticle>
-                    |> Seq.map parseParticle
-                    |> Seq.toList
-                    |> Sequence
+                    let ps =
+                        s.Items
+                        |> Seq.cast<XmlSchemaParticle>
+                        |> Seq.map parseParticle
+                        |> Seq.toList
+                    Sequence(ps, occurs)
                 | :? XmlSchemaAll as s ->
-                    s.Items
-                    |> Seq.cast<XmlSchemaElement>
-                    |> Seq.map parseParticle
-                    |> Seq.toList
-                    |> All
+                    let ps =
+                        s.Items
+                        |> Seq.cast<XmlSchemaElement>
+                        |> Seq.map parseParticle
+                        |> Seq.toList
+                    All(ps, occurs)
                 | :? XmlSchemaChoice as s ->
-                    s.Items
-                    |> Seq.cast<XmlSchemaElement>
-                    |> Seq.map parseParticle
-                    |> Seq.toList
-                    |> Choice
+                    let ps = 
+                        s.Items
+                        |> Seq.cast<XmlSchemaElement>
+                        |> Seq.map parseParticle
+                        |> Seq.toList
+                    Choice(ps, occurs)
                 | _ -> NoContent
 
                 

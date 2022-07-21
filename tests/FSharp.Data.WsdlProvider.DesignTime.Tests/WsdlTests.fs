@@ -75,6 +75,23 @@ let ``ChangeSetService Wsld loading should succeed`` () =
 
 
 
+[<Test>]
+let ``ChangeSetService Test should have contract output`` () =
+    let wsdl = loadWsdl "./ChangeSetService.wsdl"
+
+    let testOperation = wsdl.Services[0].Ports[0].Binding.Operations |> Seq.find(fun op -> op.PortOperation.Name = "Test")    
+    Assert.True(testOperation.PortOperation.Output.IsSome)
+    Assert.True(testOperation.PortOperation.RequireContract)
+
+
+    
+
+
+
+
+
+
+
 
 [<Test>]
 let ``Element can be lists (with min=0 and max=unbounded)`` () =
@@ -90,14 +107,15 @@ let ``Element can be lists (with min=0 and max=unbounded)`` () =
             XsComplexType
                 { XsType.empty with
                     Elements = 
-                        Sequence [ 
+                        Sequence([ 
                             XsElement 
                                 { Name = ns + "WeatherDescription"
                                   Type = TypeRef (ns + "WeatherDescription")
                                   Occurs = { Min = MinOccurs 0; Max = Unbounded }
                                   DefaultValue = None 
                                   Nillable = false;
-                                  SubstitutionGroup = None } ]
+                                  SubstitutionGroup = None } ],
+                            {  Min = MinOccurs 1; Max = MaxOccurs 1})
                 }
         }
     Assert.AreEqual(expected, t)
@@ -137,7 +155,7 @@ let ``ComplexType contains elements``() =
             XsComplexType
                 { XsType.empty with
                     Elements = 
-                        Sequence [ XsElement 
+                        Sequence([ XsElement 
                                     { Name = ns + "MorningLow"
                                       Type = TypeRef(xs + "string")
                                       Occurs = Occurs.optional
@@ -150,7 +168,8 @@ let ``ComplexType contains elements``() =
                                       Occurs = Occurs.optional
                                       Nillable = false
                                       DefaultValue = None
-                                      SubstitutionGroup = None }]}
+                                      SubstitutionGroup = None }],
+                                 {  Min = MinOccurs 1; Max = MaxOccurs 1})}
         }
 
     Assert.AreEqual(expected , complexType)
