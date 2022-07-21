@@ -155,6 +155,10 @@ module Generation =
     let mkSerializableAttribute =
         mkdAttribute<SerializableAttribute> [] [] 
 
+    let mkDefaultValueAttribute =
+        mkdAttribute<DefaultValueAttribute> [] [] 
+
+
     let mkXmlElementAttribute (order: int) =  
         mkdAttribute<XmlElementAttribute> [] [ "Order", box order ]
 
@@ -324,7 +328,7 @@ module Generation =
 
 
     let buildWsdlTypes nsp wsdl =
-        let rec buildMember (m: CTChild) (builder: Builder) =
+        let rec buildProp (m: CTChild) (builder: Builder) =
             let mkAttribute m =
                 match m with
                 | CTElement(_, _, _, i)  -> 
@@ -371,7 +375,12 @@ module Generation =
                     )  choices
                 | CTAny -> id
 
-            builder.Apply(mkAttribute, m).StartLine($"member val {cleanId m.PropName} : { m.FsTypeName } = {cleanId m.FieldName} with get, set")
+            builder.Apply(mkAttribute, m).StartLine($"member this.{cleanId m.PropName} with get() = this.{m.FieldName} and set v = this.{m.FieldName} <- v")
+
+        let rec buildField (m: CTChild) (builder: Builder) =
+
+            builder.Apply(mkDefaultValueAttribute).StartLine($"val mutable private {m.FieldName}: { m.FsTypeName }")
+
 
         and buildComplexType (t: ComplexTypeDef) (builder: Builder) =
             match t.Members with
@@ -386,14 +395,21 @@ module Generation =
 
             | _ ->
                 builder.Apply(mkSerializableAttribute)
-                        .StartLine($"type {t.TypeName}(")
-                        .AppendJoin(", ", [ for  m in t.Members -> cleanId m.FieldName ])
-                        .AppendLine(") =")
+                        .StartLine($"type {t.TypeName}() =")
                         .Indent()
-                        .Fold(buildMember, t.Members)
-                        .StartAppend($"new() = {t.TypeName}(")
-                        .AppendJoin(", ", [ for m in t.Members -> $"Unchecked.defaultof<{m.FsTypeName}>" ])
-                        .AppendLine(")")
+                            .Fold(buildField, t.Members)
+                            .AppendLine()
+                            .Fold(buildProp, t.Members)
+                            .StartAppend($"new(")
+                               .AppendJoin(", ", [ for  m in t.Members -> m.FieldName ])
+                            
+                            .AppendLine(") as this =")
+                            .Indent()
+                                .StartLine($"{t.TypeName}() then")
+                                .Indent()
+                                .Fold( ( fun (m: CTChild) b -> b.StartLine($"this.{m.FieldName} <- {m.FieldName}")), t.Members )
+                                .Unindent()
+                            .Unindent()
                         .Unindent()
                         .AppendLine()
 
