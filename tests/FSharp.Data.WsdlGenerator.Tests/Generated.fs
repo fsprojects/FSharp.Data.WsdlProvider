@@ -8,7 +8,9 @@ open System
 open System.Threading.Tasks
 
 [<AllowNullLiteral>]
-[<System.Xml.Serialization.XmlType(Namespace = "http://ws.availpro.com/internal/schemas/planning/2012A")>]
+[<System.ServiceModel.MessageContract(WrapperName = "TestResponse",
+                                      WrapperNamespace = "http://ws.availpro.com/internal/schemas/planning/2012A",
+                                      IsWrapped = true)>]
 [<System.Serializable>]
 type TestResponse() =
     class
@@ -19,42 +21,65 @@ type TestResponse() =
                                       WrapperNamespace = "http://ws.availpro.com/internal/schemas/planning/2012A",
                                       IsWrapped = true)>]
 [<System.Serializable>]
-type GetChangeSetStatus(hotelId, changeSetId) =
+type GetChangeSetStatus() =
+    [<DefaultValue>]
+    val mutable private hotelIdField: int
+
+    [<DefaultValue>]
+    val mutable private changeSetIdField: string
+
     [<System.ServiceModel.MessageBodyMember(Namespace = "http://ws.availpro.com/internal/schemas/planning/2012A",
                                             Order = 0)>]
-    member val HotelId: System.Int32 = hotelId with get, set
+    member this.hotelId
+        with get () = this.hotelIdField
+        and set v = this.hotelIdField <- v
 
     [<System.ServiceModel.MessageBodyMember(Namespace = "http://ws.availpro.com/internal/schemas/planning/2012A",
                                             Order = 1)>]
-    member val ChangeSetId: System.String = changeSetId with get, set
+    member this.changeSetId
+        with get () = this.changeSetIdField
+        and set v = this.changeSetIdField <- v
 
-    new() = GetChangeSetStatus(Unchecked.defaultof<System.Int32>, Unchecked.defaultof<System.String>)
-
-[<AllowNullLiteral>]
-[<System.Serializable>]
-type PlanningResponseMessageSuccess() =
-    class
-    end
+    new(hotelIdField, changeSetIdField) as this =
+        GetChangeSetStatus()
+        then
+            this.hotelIdField <- hotelIdField
+            this.changeSetIdField <- changeSetIdField
 
 [<AllowNullLiteral>]
 [<System.Xml.Serialization.XmlType(Namespace = "http://ws.availpro.com/internal/schemas/planning/2012A")>]
 [<System.Serializable>]
-type Error(comment, ``type``, message) =
+type Error() =
+    [<DefaultValue>]
+    val mutable private commentField: string
+
+    [<DefaultValue>]
+    val mutable private typeField: string
+
+    [<DefaultValue>]
+    val mutable private messageField: string
+
     [<System.Xml.Serialization.XmlElement(Order = 0)>]
-    member val Comment: System.String = comment with get, set
+    member this.comment
+        with get () = this.commentField
+        and set v = this.commentField <- v
 
     [<System.Xml.Serialization.XmlAttribute("type")>]
-    member val Type: System.String = ``type`` with get, set
+    member this.``type``
+        with get () = this.typeField
+        and set v = this.typeField <- v
 
     [<System.Xml.Serialization.XmlAttribute("message")>]
-    member val Message: System.String = message with get, set
+    member this.message
+        with get () = this.messageField
+        and set v = this.messageField <- v
 
-    new() =
-        Error(
-            Unchecked.defaultof<System.String>,
-            Unchecked.defaultof<System.String>,
-            Unchecked.defaultof<System.String>
-        )
+    new(commentField, typeField, messageField) as this =
+        Error()
+        then
+            this.commentField <- commentField
+            this.typeField <- typeField
+            this.messageField <- messageField
 
 [<System.Xml.Serialization.XmlType(Namespace = "http://ws.availpro.com/internal/schemas/planning/2012A")>]
 type ChangeStatus =
@@ -67,57 +92,139 @@ type ChangeStatus =
 [<AllowNullLiteral>]
 [<System.Xml.Serialization.XmlType(Namespace = "http://ws.availpro.com/internal/schemas/planning/2012A")>]
 [<System.Serializable>]
-type ChangeResponse(id, status) =
+type ChangeResponse() =
+    [<DefaultValue>]
+    val mutable private idField: string
+
+    [<DefaultValue>]
+    val mutable private statusField: ChangeStatus
+
     [<System.Xml.Serialization.XmlAttribute("id")>]
-    member val Id: System.String = id with get, set
+    member this.id
+        with get () = this.idField
+        and set v = this.idField <- v
 
     [<System.Xml.Serialization.XmlAttribute("status")>]
-    member val Status: ChangeStatus = status with get, set
+    member this.status
+        with get () = this.statusField
+        and set v = this.statusField <- v
 
-    new() = ChangeResponse(Unchecked.defaultof<System.String>, Unchecked.defaultof<ChangeStatus>)
+    new(idField, statusField) as this =
+        ChangeResponse()
+        then
+            this.idField <- idField
+            this.statusField <- statusField
 
 [<AllowNullLiteral>]
 [<System.Serializable>]
-type MetadataApplication(name, version) =
+type MetadataApplication() =
+    [<DefaultValue>]
+    val mutable private nameField: string
+
+    [<DefaultValue>]
+    val mutable private versionField: string
+
     [<System.Xml.Serialization.XmlAttribute("name")>]
-    member val Name: System.String = name with get, set
+    member this.name
+        with get () = this.nameField
+        and set v = this.nameField <- v
 
     [<System.Xml.Serialization.XmlAttribute("version")>]
-    member val Version: System.String = version with get, set
+    member this.version
+        with get () = this.versionField
+        and set v = this.versionField <- v
 
-    new() = MetadataApplication(Unchecked.defaultof<System.String>, Unchecked.defaultof<System.String>)
+    new(nameField, versionField) as this =
+        MetadataApplication()
+        then
+            this.nameField <- nameField
+            this.versionField <- versionField
 
 [<AllowNullLiteral>]
 [<System.Xml.Serialization.XmlType(Namespace = "http://ws.availpro.com/internal/schemas/planning/2012A")>]
 [<System.Serializable>]
-type Metadata(application, groupId, hotelId, userId, sirionaUserId, bookingReference) =
+type Metadata() =
+    [<DefaultValue>]
+    val mutable private applicationField: MetadataApplication
+
+    [<DefaultValue>]
+    val mutable private groupIdField: uint
+
+    [<DefaultValue>]
+    val mutable private hotelIdField: uint
+
+    [<DefaultValue>]
+    val mutable private userIdField: uint
+
+    [<DefaultValue>]
+    val mutable private userIdFieldSpecified: bool
+
+    [<DefaultValue>]
+    val mutable private sirionaUserIdField: string
+
+    [<DefaultValue>]
+    val mutable private sirionaUserIdFieldSpecified: bool
+
+    [<DefaultValue>]
+    val mutable private bookingReferenceField: string
+
+    [<DefaultValue>]
+    val mutable private bookingReferenceFieldSpecified: bool
+
     [<System.Xml.Serialization.XmlElement(Order = 0)>]
-    member val Application: MetadataApplication = application with get, set
+    member this.application
+        with get () = this.applicationField
+        and set v = this.applicationField <- v
 
     [<System.Xml.Serialization.XmlAttribute("groupId")>]
-    member val GroupId: System.UInt32 = groupId with get, set
+    member this.groupId
+        with get () = this.groupIdField
+        and set v = this.groupIdField <- v
 
     [<System.Xml.Serialization.XmlAttribute("hotelId")>]
-    member val HotelId: System.UInt32 = hotelId with get, set
+    member this.hotelId
+        with get () = this.hotelIdField
+        and set v = this.hotelIdField <- v
 
     [<System.Xml.Serialization.XmlAttribute("userId")>]
-    member val UserId: System.UInt32 = userId with get, set
+    member this.userId
+        with get () = this.userIdField
+        and set v =
+            this.userIdField <- v
+            this.userIdFieldSpecified <- true
+
+    [<System.Xml.Serialization.XmlIgnore>]
+    member this.userIdSpecified = this.userIdFieldSpecified
 
     [<System.Xml.Serialization.XmlAttribute("sirionaUserId")>]
-    member val SirionaUserId: System.String = sirionaUserId with get, set
+    member this.sirionaUserId
+        with get () = this.sirionaUserIdField
+        and set v =
+            this.sirionaUserIdField <- v
+            this.sirionaUserIdFieldSpecified <- true
+
+    [<System.Xml.Serialization.XmlIgnore>]
+    member this.sirionaUserIdSpecified = this.sirionaUserIdFieldSpecified
 
     [<System.Xml.Serialization.XmlAttribute("bookingReference")>]
-    member val BookingReference: System.String = bookingReference with get, set
+    member this.bookingReference
+        with get () = this.bookingReferenceField
+        and set v =
+            this.bookingReferenceField <- v
+            this.bookingReferenceFieldSpecified <- true
 
-    new() =
-        Metadata(
-            Unchecked.defaultof<MetadataApplication>,
-            Unchecked.defaultof<System.UInt32>,
-            Unchecked.defaultof<System.UInt32>,
-            Unchecked.defaultof<System.UInt32>,
-            Unchecked.defaultof<System.String>,
-            Unchecked.defaultof<System.String>
-        )
+    [<System.Xml.Serialization.XmlIgnore>]
+    member this.bookingReferenceSpecified = this.bookingReferenceFieldSpecified
+
+    new(applicationField, groupIdField, hotelIdField, userIdField, sirionaUserIdField, bookingReferenceField) as this =
+        Metadata()
+        then
+            this.applicationField <- applicationField
+            this.groupIdField <- groupIdField
+            this.hotelIdField <- hotelIdField
+            this.userIdField <- userIdField
+            this.sirionaUserIdField <- sirionaUserIdField
+            this.bookingReferenceField <- bookingReferenceField
 
 [<System.Xml.Serialization.XmlType(Namespace = "http://ws.availpro.com/internal/schemas/planning/2012A")>]
 type DayOfWeek =
@@ -131,45 +238,74 @@ type DayOfWeek =
 
 [<AllowNullLiteral>]
 [<System.Serializable>]
-type ChangePropertyResultChangePeriodDayOfWeek(day) =
-    [<System.Xml.Serialization.XmlAttribute("day")>]
-    member val Day: DayOfWeek = day with get, set
+type ChangePropertyResultChangePeriodDayOfWeek() =
+    [<DefaultValue>]
+    val mutable private dayField: DayOfWeek
 
-    new() = ChangePropertyResultChangePeriodDayOfWeek(Unchecked.defaultof<DayOfWeek>)
+    [<System.Xml.Serialization.XmlAttribute("day")>]
+    member this.day
+        with get () = this.dayField
+        and set v = this.dayField <- v
+
+    new(dayField) as this =
+        ChangePropertyResultChangePeriodDayOfWeek()
+        then this.dayField <- dayField
 
 [<AllowNullLiteral>]
 [<System.Serializable>]
-type ChangePropertyResultChangePeriod(dayOfWeek, beginDate, endDate) =
+type ChangePropertyResultChangePeriod() =
+    [<DefaultValue>]
+    val mutable private dayOfWeekField: ChangePropertyResultChangePeriodDayOfWeek[]
+
+    [<DefaultValue>]
+    val mutable private beginDateField: string
+
+    [<DefaultValue>]
+    val mutable private endDateField: string
+
     [<System.Xml.Serialization.XmlElement(Order = 0)>]
-    member val DayOfWeek: ChangePropertyResultChangePeriodDayOfWeek[] = dayOfWeek with get, set
+    member this.dayOfWeek
+        with get () = this.dayOfWeekField
+        and set v = this.dayOfWeekField <- v
 
     [<System.Xml.Serialization.XmlAttribute("beginDate")>]
-    member val BeginDate: System.String = beginDate with get, set
+    member this.beginDate
+        with get () = this.beginDateField
+        and set v = this.beginDateField <- v
 
     [<System.Xml.Serialization.XmlAttribute("endDate")>]
-    member val EndDate: System.String = endDate with get, set
+    member this.endDate
+        with get () = this.endDateField
+        and set v = this.endDateField <- v
 
-    new() =
-        ChangePropertyResultChangePeriod(
-            Unchecked.defaultof<ChangePropertyResultChangePeriodDayOfWeek[]>,
-            Unchecked.defaultof<System.String>,
-            Unchecked.defaultof<System.String>
-        )
+    new(dayOfWeekField, beginDateField, endDateField) as this =
+        ChangePropertyResultChangePeriod()
+        then
+            this.dayOfWeekField <- dayOfWeekField
+            this.beginDateField <- beginDateField
+            this.endDateField <- endDateField
 
 [<AllowNullLiteral>]
 [<System.Serializable>]
-type ChangePropertyResultChangeDependencies(property, entity) =
-    [<System.Xml.Serialization.XmlElement(Order = 0)>]
-    member val Property: ChangePropertyResult[] = property with get, set
+type ChangePropertyResultChangeDependencies() =
+    [<DefaultValue>]
+    val mutable private items: obj[]
 
-    [<System.Xml.Serialization.XmlElement(Order = 1)>]
-    member val Entity: ChangeEntityResult[] = entity with get, set
+    [<System.Xml.Serialization.XmlElement("property",
+                                          Order = 0,
+                                          Type = typeof<ChangePropertyResult[]>,
+                                          Namespace = "http://ws.availpro.com/internal/schemas/planning/2012A")>]
+    [<System.Xml.Serialization.XmlElement("entity",
+                                          Order = 0,
+                                          Type = typeof<ChangeEntityResult[]>,
+                                          Namespace = "http://ws.availpro.com/internal/schemas/planning/2012A")>]
+    member this.Items
+        with get () = this.items
+        and set v = this.items <- v
 
-    new() =
-        ChangePropertyResultChangeDependencies(
-            Unchecked.defaultof<ChangePropertyResult[]>,
-            Unchecked.defaultof<ChangeEntityResult[]>
-        )
+    new(items) as this =
+        ChangePropertyResultChangeDependencies()
+        then this.items <- items
 
 [<System.Xml.Serialization.XmlType(Namespace = "http://ws.availpro.com/internal/schemas/planning/2012A")>]
 type ChangeAction =
@@ -195,52 +331,121 @@ type ChangeConstraint =
 
 [<AllowNullLiteral>]
 [<System.Serializable>]
-type ChangePropertyResultChange
-    (
-        period,
-        dependencies,
-        action,
-        automatic,
-        value,
-        status,
-        ``constraint``,
-        conflictingValue
-    ) =
+type ChangePropertyResultChange() =
+    [<DefaultValue>]
+    val mutable private periodField: ChangePropertyResultChangePeriod
+
+    [<DefaultValue>]
+    val mutable private dependenciesField: ChangePropertyResultChangeDependencies
+
+    [<DefaultValue>]
+    val mutable private actionField: ChangeAction
+
+    [<DefaultValue>]
+    val mutable private automaticField: bool
+
+    [<DefaultValue>]
+    val mutable private automaticFieldSpecified: bool
+
+    [<DefaultValue>]
+    val mutable private valueField: string
+
+    [<DefaultValue>]
+    val mutable private valueFieldSpecified: bool
+
+    [<DefaultValue>]
+    val mutable private statusField: ChangeStatus
+
+    [<DefaultValue>]
+    val mutable private constraintField: ChangeConstraint
+
+    [<DefaultValue>]
+    val mutable private constraintFieldSpecified: bool
+
+    [<DefaultValue>]
+    val mutable private conflictingValueField: string
+
+    [<DefaultValue>]
+    val mutable private conflictingValueFieldSpecified: bool
+
     [<System.Xml.Serialization.XmlElement(Order = 0)>]
-    member val Period: ChangePropertyResultChangePeriod = period with get, set
+    member this.period
+        with get () = this.periodField
+        and set v = this.periodField <- v
 
     [<System.Xml.Serialization.XmlElement(Order = 1)>]
-    member val Dependencies: ChangePropertyResultChangeDependencies = dependencies with get, set
+    member this.dependencies
+        with get () = this.dependenciesField
+        and set v = this.dependenciesField <- v
 
     [<System.Xml.Serialization.XmlAttribute("action")>]
-    member val Action: ChangeAction = action with get, set
+    member this.action
+        with get () = this.actionField
+        and set v = this.actionField <- v
 
     [<System.Xml.Serialization.XmlAttribute("automatic")>]
-    member val Automatic: System.Boolean = automatic with get, set
+    member this.automatic
+        with get () = this.automaticField
+        and set v =
+            this.automaticField <- v
+            this.automaticFieldSpecified <- true
+
+    [<System.Xml.Serialization.XmlIgnore>]
+    member this.automaticSpecified = this.automaticFieldSpecified
 
     [<System.Xml.Serialization.XmlAttribute("value")>]
-    member val Value: System.String = value with get, set
+    member this.value
+        with get () = this.valueField
+        and set v =
+            this.valueField <- v
+            this.valueFieldSpecified <- true
+
+    [<System.Xml.Serialization.XmlIgnore>]
+    member this.valueSpecified = this.valueFieldSpecified
 
     [<System.Xml.Serialization.XmlAttribute("status")>]
-    member val Status: ChangeStatus = status with get, set
+    member this.status
+        with get () = this.statusField
+        and set v = this.statusField <- v
 
     [<System.Xml.Serialization.XmlAttribute("constraint")>]
-    member val Constraint: ChangeConstraint = ``constraint`` with get, set
+    member this.``constraint``
+        with get () = this.constraintField
+        and set v =
+            this.constraintField <- v
+            this.constraintFieldSpecified <- true
+
+    [<System.Xml.Serialization.XmlIgnore>]
+    member this.constraintSpecified = this.constraintFieldSpecified
 
     [<System.Xml.Serialization.XmlAttribute("conflictingValue")>]
-    member val ConflictingValue: System.String = conflictingValue with get, set
+    member this.conflictingValue
+        with get () = this.conflictingValueField
+        and set v =
+            this.conflictingValueField <- v
+            this.conflictingValueFieldSpecified <- true
 
-    new() =
-        ChangePropertyResultChange(
-            Unchecked.defaultof<ChangePropertyResultChangePeriod>,
-            Unchecked.defaultof<ChangePropertyResultChangeDependencies>,
-            Unchecked.defaultof<ChangeAction>,
-            Unchecked.defaultof<System.Boolean>,
-            Unchecked.defaultof<System.String>,
-            Unchecked.defaultof<ChangeStatus>,
-            Unchecked.defaultof<ChangeConstraint>,
-            Unchecked.defaultof<System.String>
-        )
+    [<System.Xml.Serialization.XmlIgnore>]
+    member this.conflictingValueSpecified = this.conflictingValueFieldSpecified
+
+    new(periodField,
+        dependenciesField,
+        actionField,
+        automaticField,
+        valueField,
+        statusField,
+        constraintField,
+        conflictingValueField) as this =
+        ChangePropertyResultChange()
+        then
+            this.periodField <- periodField
+            this.dependenciesField <- dependenciesField
+            this.actionField <- actionField
+            this.automaticField <- automaticField
+            this.valueField <- valueField
+            this.statusField <- statusField
+            this.constraintField <- constraintField
+            this.conflictingValueField <- conflictingValueField
 
 [<System.Xml.Serialization.XmlType(Namespace = "http://ws.availpro.com/internal/schemas/planning/2012A")>]
 type PropertyName =
@@ -261,14 +466,28 @@ type PropertyName =
 [<AllowNullLiteral>]
 [<System.Xml.Serialization.XmlType(Namespace = "http://ws.availpro.com/internal/schemas/planning/2012A")>]
 [<System.Serializable>]
-type ChangePropertyResult(change, name) =
+type ChangePropertyResult() =
+    [<DefaultValue>]
+    val mutable private changeField: ChangePropertyResultChange[]
+
+    [<DefaultValue>]
+    val mutable private nameField: PropertyName
+
     [<System.Xml.Serialization.XmlElement(Order = 0)>]
-    member val Change: ChangePropertyResultChange[] = change with get, set
+    member this.change
+        with get () = this.changeField
+        and set v = this.changeField <- v
 
     [<System.Xml.Serialization.XmlAttribute("name")>]
-    member val Name: PropertyName = name with get, set
+    member this.name
+        with get () = this.nameField
+        and set v = this.nameField <- v
 
-    new() = ChangePropertyResult(Unchecked.defaultof<ChangePropertyResultChange[]>, Unchecked.defaultof<PropertyName>)
+    new(changeField, nameField) as this =
+        ChangePropertyResult()
+        then
+            this.changeField <- changeField
+            this.nameField <- nameField
 
 [<System.Xml.Serialization.XmlType(Namespace = "http://ws.availpro.com/internal/schemas/planning/2012A")>]
 type EntityType =
@@ -282,143 +501,386 @@ type EntityType =
 [<AllowNullLiteral>]
 [<System.Xml.Serialization.XmlType(Namespace = "http://ws.availpro.com/internal/schemas/planning/2012A")>]
 [<System.Serializable>]
-type ChangeEntityResult(property, ``type``, hotelId, roomId, articleId, rateId, channelGroupId) =
+type ChangeEntityResult() =
+    [<DefaultValue>]
+    val mutable private propertyField: ChangePropertyResult[]
+
+    [<DefaultValue>]
+    val mutable private typeField: EntityType
+
+    [<DefaultValue>]
+    val mutable private hotelIdField: uint
+
+    [<DefaultValue>]
+    val mutable private hotelIdFieldSpecified: bool
+
+    [<DefaultValue>]
+    val mutable private roomIdField: uint
+
+    [<DefaultValue>]
+    val mutable private roomIdFieldSpecified: bool
+
+    [<DefaultValue>]
+    val mutable private articleIdField: uint
+
+    [<DefaultValue>]
+    val mutable private articleIdFieldSpecified: bool
+
+    [<DefaultValue>]
+    val mutable private rateIdField: uint
+
+    [<DefaultValue>]
+    val mutable private rateIdFieldSpecified: bool
+
+    [<DefaultValue>]
+    val mutable private channelGroupIdField: string
+
+    [<DefaultValue>]
+    val mutable private channelGroupIdFieldSpecified: bool
+
     [<System.Xml.Serialization.XmlElement(Order = 0)>]
-    member val Property: ChangePropertyResult[] = property with get, set
+    member this.property
+        with get () = this.propertyField
+        and set v = this.propertyField <- v
 
     [<System.Xml.Serialization.XmlAttribute("type")>]
-    member val Type: EntityType = ``type`` with get, set
+    member this.``type``
+        with get () = this.typeField
+        and set v = this.typeField <- v
 
     [<System.Xml.Serialization.XmlAttribute("hotelId")>]
-    member val HotelId: System.UInt32 = hotelId with get, set
+    member this.hotelId
+        with get () = this.hotelIdField
+        and set v =
+            this.hotelIdField <- v
+            this.hotelIdFieldSpecified <- true
+
+    [<System.Xml.Serialization.XmlIgnore>]
+    member this.hotelIdSpecified = this.hotelIdFieldSpecified
 
     [<System.Xml.Serialization.XmlAttribute("roomId")>]
-    member val RoomId: System.UInt32 = roomId with get, set
+    member this.roomId
+        with get () = this.roomIdField
+        and set v =
+            this.roomIdField <- v
+            this.roomIdFieldSpecified <- true
+
+    [<System.Xml.Serialization.XmlIgnore>]
+    member this.roomIdSpecified = this.roomIdFieldSpecified
 
     [<System.Xml.Serialization.XmlAttribute("articleId")>]
-    member val ArticleId: System.UInt32 = articleId with get, set
+    member this.articleId
+        with get () = this.articleIdField
+        and set v =
+            this.articleIdField <- v
+            this.articleIdFieldSpecified <- true
+
+    [<System.Xml.Serialization.XmlIgnore>]
+    member this.articleIdSpecified = this.articleIdFieldSpecified
 
     [<System.Xml.Serialization.XmlAttribute("rateId")>]
-    member val RateId: System.UInt32 = rateId with get, set
+    member this.rateId
+        with get () = this.rateIdField
+        and set v =
+            this.rateIdField <- v
+            this.rateIdFieldSpecified <- true
+
+    [<System.Xml.Serialization.XmlIgnore>]
+    member this.rateIdSpecified = this.rateIdFieldSpecified
 
     [<System.Xml.Serialization.XmlAttribute("channelGroupId")>]
-    member val ChannelGroupId: System.String = channelGroupId with get, set
+    member this.channelGroupId
+        with get () = this.channelGroupIdField
+        and set v =
+            this.channelGroupIdField <- v
+            this.channelGroupIdFieldSpecified <- true
 
-    new() =
-        ChangeEntityResult(
-            Unchecked.defaultof<ChangePropertyResult[]>,
-            Unchecked.defaultof<EntityType>,
-            Unchecked.defaultof<System.UInt32>,
-            Unchecked.defaultof<System.UInt32>,
-            Unchecked.defaultof<System.UInt32>,
-            Unchecked.defaultof<System.UInt32>,
-            Unchecked.defaultof<System.String>
-        )
+    [<System.Xml.Serialization.XmlIgnore>]
+    member this.channelGroupIdSpecified = this.channelGroupIdFieldSpecified
+
+    new(propertyField, typeField, hotelIdField, roomIdField, articleIdField, rateIdField, channelGroupIdField) as this =
+        ChangeEntityResult()
+        then
+            this.propertyField <- propertyField
+            this.typeField <- typeField
+            this.hotelIdField <- hotelIdField
+            this.roomIdField <- roomIdField
+            this.articleIdField <- articleIdField
+            this.rateIdField <- rateIdField
+            this.channelGroupIdField <- channelGroupIdField
 
 [<AllowNullLiteral>]
 [<System.Serializable>]
-type ChangeSetResponseChanges(entity) =
-    [<System.Xml.Serialization.XmlElement(Order = 0)>]
-    member val Entity: ChangeEntityResult[] = entity with get, set
+type ChangeSetResponseChanges() =
+    [<DefaultValue>]
+    val mutable private entityField: ChangeEntityResult[]
 
-    new() = ChangeSetResponseChanges(Unchecked.defaultof<ChangeEntityResult[]>)
+    [<System.Xml.Serialization.XmlElement(Order = 0)>]
+    member this.entity
+        with get () = this.entityField
+        and set v = this.entityField <- v
+
+    new(entityField) as this =
+        ChangeSetResponseChanges()
+        then this.entityField <- entityField
 
 [<AllowNullLiteral>]
 [<System.Xml.Serialization.XmlType(Namespace = "http://ws.availpro.com/internal/schemas/planning/2012A")>]
 [<System.Serializable>]
-type ChangeSetResponse(metadata, changes, id, requestDate, completionDate, status, ignoreFailures, legacyReload) =
+type ChangeSetResponse() =
+    [<DefaultValue>]
+    val mutable private metadataField: Metadata
+
+    [<DefaultValue>]
+    val mutable private changesField: ChangeSetResponseChanges
+
+    [<DefaultValue>]
+    val mutable private idField: string
+
+    [<DefaultValue>]
+    val mutable private requestDateField: System.DateTime
+
+    [<DefaultValue>]
+    val mutable private completionDateField: System.DateTime
+
+    [<DefaultValue>]
+    val mutable private completionDateFieldSpecified: bool
+
+    [<DefaultValue>]
+    val mutable private statusField: ChangeStatus
+
+    [<DefaultValue>]
+    val mutable private ignoreFailuresField: bool
+
+    [<DefaultValue>]
+    val mutable private ignoreFailuresFieldSpecified: bool
+
+    [<DefaultValue>]
+    val mutable private legacyReloadField: bool
+
+    [<DefaultValue>]
+    val mutable private legacyReloadFieldSpecified: bool
+
     [<System.Xml.Serialization.XmlElement(Order = 0)>]
-    member val Metadata: Metadata = metadata with get, set
+    member this.metadata
+        with get () = this.metadataField
+        and set v = this.metadataField <- v
 
     [<System.Xml.Serialization.XmlElement(Order = 1)>]
-    member val Changes: ChangeSetResponseChanges = changes with get, set
+    member this.changes
+        with get () = this.changesField
+        and set v = this.changesField <- v
 
     [<System.Xml.Serialization.XmlAttribute("id")>]
-    member val Id: System.String = id with get, set
+    member this.id
+        with get () = this.idField
+        and set v = this.idField <- v
 
     [<System.Xml.Serialization.XmlAttribute("requestDate")>]
-    member val RequestDate: System.DateTime = requestDate with get, set
+    member this.requestDate
+        with get () = this.requestDateField
+        and set v = this.requestDateField <- v
 
     [<System.Xml.Serialization.XmlAttribute("completionDate")>]
-    member val CompletionDate: System.DateTime = completionDate with get, set
+    member this.completionDate
+        with get () = this.completionDateField
+        and set v =
+            this.completionDateField <- v
+            this.completionDateFieldSpecified <- true
+
+    [<System.Xml.Serialization.XmlIgnore>]
+    member this.completionDateSpecified = this.completionDateFieldSpecified
 
     [<System.Xml.Serialization.XmlAttribute("status")>]
-    member val Status: ChangeStatus = status with get, set
+    member this.status
+        with get () = this.statusField
+        and set v = this.statusField <- v
 
     [<System.Xml.Serialization.XmlAttribute("ignoreFailures")>]
-    member val IgnoreFailures: System.Boolean = ignoreFailures with get, set
+    member this.ignoreFailures
+        with get () = this.ignoreFailuresField
+        and set v =
+            this.ignoreFailuresField <- v
+            this.ignoreFailuresFieldSpecified <- true
+
+    [<System.Xml.Serialization.XmlIgnore>]
+    member this.ignoreFailuresSpecified = this.ignoreFailuresFieldSpecified
 
     [<System.Xml.Serialization.XmlAttribute("legacyReload")>]
-    member val LegacyReload: System.Boolean = legacyReload with get, set
+    member this.legacyReload
+        with get () = this.legacyReloadField
+        and set v =
+            this.legacyReloadField <- v
+            this.legacyReloadFieldSpecified <- true
 
-    new() =
-        ChangeSetResponse(
-            Unchecked.defaultof<Metadata>,
-            Unchecked.defaultof<ChangeSetResponseChanges>,
-            Unchecked.defaultof<System.String>,
-            Unchecked.defaultof<System.DateTime>,
-            Unchecked.defaultof<System.DateTime>,
-            Unchecked.defaultof<ChangeStatus>,
-            Unchecked.defaultof<System.Boolean>,
-            Unchecked.defaultof<System.Boolean>
-        )
+    [<System.Xml.Serialization.XmlIgnore>]
+    member this.legacyReloadSpecified = this.legacyReloadFieldSpecified
+
+    new(metadataField,
+        changesField,
+        idField,
+        requestDateField,
+        completionDateField,
+        statusField,
+        ignoreFailuresField,
+        legacyReloadField) as this =
+        ChangeSetResponse()
+        then
+            this.metadataField <- metadataField
+            this.changesField <- changesField
+            this.idField <- idField
+            this.requestDateField <- requestDateField
+            this.completionDateField <- completionDateField
+            this.statusField <- statusField
+            this.ignoreFailuresField <- ignoreFailuresField
+            this.legacyReloadField <- legacyReloadField
 
 [<AllowNullLiteral>]
 [<System.Serializable>]
-type ChangeSetSearchResponseChangeSet(metadata, id, requestDate, completionDate, status, ignoreFailures, legacyReload) =
+type ChangeSetSearchResponseChangeSet() =
+    [<DefaultValue>]
+    val mutable private metadataField: Metadata
+
+    [<DefaultValue>]
+    val mutable private idField: string
+
+    [<DefaultValue>]
+    val mutable private requestDateField: System.DateTime
+
+    [<DefaultValue>]
+    val mutable private completionDateField: System.DateTime
+
+    [<DefaultValue>]
+    val mutable private completionDateFieldSpecified: bool
+
+    [<DefaultValue>]
+    val mutable private statusField: ChangeStatus
+
+    [<DefaultValue>]
+    val mutable private ignoreFailuresField: bool
+
+    [<DefaultValue>]
+    val mutable private ignoreFailuresFieldSpecified: bool
+
+    [<DefaultValue>]
+    val mutable private legacyReloadField: bool
+
+    [<DefaultValue>]
+    val mutable private legacyReloadFieldSpecified: bool
+
     [<System.Xml.Serialization.XmlElement(Order = 0)>]
-    member val Metadata: Metadata = metadata with get, set
+    member this.metadata
+        with get () = this.metadataField
+        and set v = this.metadataField <- v
 
     [<System.Xml.Serialization.XmlAttribute("id")>]
-    member val Id: System.String = id with get, set
+    member this.id
+        with get () = this.idField
+        and set v = this.idField <- v
 
     [<System.Xml.Serialization.XmlAttribute("requestDate")>]
-    member val RequestDate: System.DateTime = requestDate with get, set
+    member this.requestDate
+        with get () = this.requestDateField
+        and set v = this.requestDateField <- v
 
     [<System.Xml.Serialization.XmlAttribute("completionDate")>]
-    member val CompletionDate: System.DateTime = completionDate with get, set
+    member this.completionDate
+        with get () = this.completionDateField
+        and set v =
+            this.completionDateField <- v
+            this.completionDateFieldSpecified <- true
+
+    [<System.Xml.Serialization.XmlIgnore>]
+    member this.completionDateSpecified = this.completionDateFieldSpecified
 
     [<System.Xml.Serialization.XmlAttribute("status")>]
-    member val Status: ChangeStatus = status with get, set
+    member this.status
+        with get () = this.statusField
+        and set v = this.statusField <- v
 
     [<System.Xml.Serialization.XmlAttribute("ignoreFailures")>]
-    member val IgnoreFailures: System.Boolean = ignoreFailures with get, set
+    member this.ignoreFailures
+        with get () = this.ignoreFailuresField
+        and set v =
+            this.ignoreFailuresField <- v
+            this.ignoreFailuresFieldSpecified <- true
+
+    [<System.Xml.Serialization.XmlIgnore>]
+    member this.ignoreFailuresSpecified = this.ignoreFailuresFieldSpecified
 
     [<System.Xml.Serialization.XmlAttribute("legacyReload")>]
-    member val LegacyReload: System.Boolean = legacyReload with get, set
+    member this.legacyReload
+        with get () = this.legacyReloadField
+        and set v =
+            this.legacyReloadField <- v
+            this.legacyReloadFieldSpecified <- true
 
-    new() =
-        ChangeSetSearchResponseChangeSet(
-            Unchecked.defaultof<Metadata>,
-            Unchecked.defaultof<System.String>,
-            Unchecked.defaultof<System.DateTime>,
-            Unchecked.defaultof<System.DateTime>,
-            Unchecked.defaultof<ChangeStatus>,
-            Unchecked.defaultof<System.Boolean>,
-            Unchecked.defaultof<System.Boolean>
-        )
+    [<System.Xml.Serialization.XmlIgnore>]
+    member this.legacyReloadSpecified = this.legacyReloadFieldSpecified
+
+    new(metadataField,
+        idField,
+        requestDateField,
+        completionDateField,
+        statusField,
+        ignoreFailuresField,
+        legacyReloadField) as this =
+        ChangeSetSearchResponseChangeSet()
+        then
+            this.metadataField <- metadataField
+            this.idField <- idField
+            this.requestDateField <- requestDateField
+            this.completionDateField <- completionDateField
+            this.statusField <- statusField
+            this.ignoreFailuresField <- ignoreFailuresField
+            this.legacyReloadField <- legacyReloadField
 
 [<AllowNullLiteral>]
 [<System.Xml.Serialization.XmlType(Namespace = "http://ws.availpro.com/internal/schemas/planning/2012A")>]
 [<System.Serializable>]
-type ChangeSetSearchResponse(changeSet) =
-    [<System.Xml.Serialization.XmlElement(Order = 0)>]
-    member val ChangeSet: ChangeSetSearchResponseChangeSet = changeSet with get, set
+type ChangeSetSearchResponse() =
+    [<DefaultValue>]
+    val mutable private changeSetField: ChangeSetSearchResponseChangeSet[]
 
-    new() = ChangeSetSearchResponse(Unchecked.defaultof<ChangeSetSearchResponseChangeSet>)
+    [<System.Xml.Serialization.XmlElement(Order = 0)>]
+    member this.changeSet
+        with get () = this.changeSetField
+        and set v = this.changeSetField <- v
+
+    new(changeSetField) as this =
+        ChangeSetSearchResponse()
+        then this.changeSetField <- changeSetField
 
 [<AllowNullLiteral>]
 [<System.Xml.Serialization.XmlType(Namespace = "http://ws.availpro.com/internal/schemas/planning/2012A")>]
 [<System.Serializable>]
-type PlanningResponseMessage(success, warning, failure, item) =
+type PlanningResponseMessage() =
+    [<DefaultValue>]
+    val mutable private successField: obj
+
+    [<DefaultValue>]
+    val mutable private warningField: Error
+
+    [<DefaultValue>]
+    val mutable private failureField: Error
+
+    [<DefaultValue>]
+    val mutable private item: obj
+
     [<System.Xml.Serialization.XmlElement(Order = 0)>]
-    member val Success: PlanningResponseMessageSuccess = success with get, set
+    member this.success
+        with get () = this.successField
+        and set v = this.successField <- v
 
     [<System.Xml.Serialization.XmlElement(Order = 1)>]
-    member val Warning: Error = warning with get, set
+    member this.warning
+        with get () = this.warningField
+        and set v = this.warningField <- v
 
     [<System.Xml.Serialization.XmlElement(Order = 2)>]
-    member val Failure: Error = failure with get, set
+    member this.failure
+        with get () = this.failureField
+        and set v = this.failureField <- v
 
     [<System.Xml.Serialization.XmlElement("changeResponse",
                                           Order = 3,
@@ -432,158 +894,252 @@ type PlanningResponseMessage(success, warning, failure, item) =
                                           Order = 3,
                                           Type = typeof<ChangeSetSearchResponse>,
                                           Namespace = "http://ws.availpro.com/internal/schemas/planning/2012A")>]
-    member val Item: obj = item with get, set
+    member this.Item
+        with get () = this.item
+        and set v = this.item <- v
 
-    new() =
-        PlanningResponseMessage(
-            Unchecked.defaultof<PlanningResponseMessageSuccess>,
-            Unchecked.defaultof<Error>,
-            Unchecked.defaultof<Error>,
-            Unchecked.defaultof<obj>
-        )
+    new(successField, warningField, failureField, item) as this =
+        PlanningResponseMessage()
+        then
+            this.successField <- successField
+            this.warningField <- warningField
+            this.failureField <- failureField
+            this.item <- item
 
 [<AllowNullLiteral>]
 [<System.ServiceModel.MessageContract(WrapperName = "GetChangeSetStatusResponse",
                                       WrapperNamespace = "http://ws.availpro.com/internal/schemas/planning/2012A",
                                       IsWrapped = true)>]
 [<System.Serializable>]
-type GetChangeSetStatusResponse(getChangeSetStatusResult) =
+type GetChangeSetStatusResponse() =
+    [<DefaultValue>]
+    val mutable private getChangeSetStatusResultField: PlanningResponseMessage
+
     [<System.ServiceModel.MessageBodyMember(Namespace = "http://ws.availpro.com/internal/schemas/planning/2012A",
                                             Order = 0)>]
-    member val GetChangeSetStatusResult: PlanningResponseMessage = getChangeSetStatusResult with get, set
+    member this.GetChangeSetStatusResult
+        with get () = this.getChangeSetStatusResultField
+        and set v = this.getChangeSetStatusResultField <- v
 
-    new() = GetChangeSetStatusResponse(Unchecked.defaultof<PlanningResponseMessage>)
+    new(getChangeSetStatusResultField) as this =
+        GetChangeSetStatusResponse()
+        then this.getChangeSetStatusResultField <- getChangeSetStatusResultField
 
 [<AllowNullLiteral>]
 [<System.ServiceModel.MessageContract(WrapperName = "GetChangeSet",
                                       WrapperNamespace = "http://ws.availpro.com/internal/schemas/planning/2012A",
                                       IsWrapped = true)>]
 [<System.Serializable>]
-type GetChangeSet(hotelId, changeSetId) =
+type GetChangeSet() =
+    [<DefaultValue>]
+    val mutable private hotelIdField: int
+
+    [<DefaultValue>]
+    val mutable private changeSetIdField: string
+
     [<System.ServiceModel.MessageBodyMember(Namespace = "http://ws.availpro.com/internal/schemas/planning/2012A",
                                             Order = 0)>]
-    member val HotelId: System.Int32 = hotelId with get, set
+    member this.hotelId
+        with get () = this.hotelIdField
+        and set v = this.hotelIdField <- v
 
     [<System.ServiceModel.MessageBodyMember(Namespace = "http://ws.availpro.com/internal/schemas/planning/2012A",
                                             Order = 1)>]
-    member val ChangeSetId: System.String = changeSetId with get, set
+    member this.changeSetId
+        with get () = this.changeSetIdField
+        and set v = this.changeSetIdField <- v
 
-    new() = GetChangeSet(Unchecked.defaultof<System.Int32>, Unchecked.defaultof<System.String>)
+    new(hotelIdField, changeSetIdField) as this =
+        GetChangeSet()
+        then
+            this.hotelIdField <- hotelIdField
+            this.changeSetIdField <- changeSetIdField
 
 [<AllowNullLiteral>]
 [<System.ServiceModel.MessageContract(WrapperName = "GetChangeSetResponse",
                                       WrapperNamespace = "http://ws.availpro.com/internal/schemas/planning/2012A",
                                       IsWrapped = true)>]
 [<System.Serializable>]
-type GetChangeSetResponse(getChangeSetResult) =
+type GetChangeSetResponse() =
+    [<DefaultValue>]
+    val mutable private getChangeSetResultField: PlanningResponseMessage
+
     [<System.ServiceModel.MessageBodyMember(Namespace = "http://ws.availpro.com/internal/schemas/planning/2012A",
                                             Order = 0)>]
-    member val GetChangeSetResult: PlanningResponseMessage = getChangeSetResult with get, set
+    member this.GetChangeSetResult
+        with get () = this.getChangeSetResultField
+        and set v = this.getChangeSetResultField <- v
 
-    new() = GetChangeSetResponse(Unchecked.defaultof<PlanningResponseMessage>)
+    new(getChangeSetResultField) as this =
+        GetChangeSetResponse()
+        then this.getChangeSetResultField <- getChangeSetResultField
 
 [<AllowNullLiteral>]
 [<System.ServiceModel.MessageContract(WrapperName = "SearchChangeSets",
                                       WrapperNamespace = "http://ws.availpro.com/internal/schemas/planning/2012A",
                                       IsWrapped = true)>]
 [<System.Serializable>]
-type SearchChangeSets(startDate, endDate) =
+type SearchChangeSets() =
+    [<DefaultValue>]
+    val mutable private startDateField: System.DateTime
+
+    [<DefaultValue>]
+    val mutable private endDateField: System.DateTime
+
     [<System.ServiceModel.MessageBodyMember(Namespace = "http://ws.availpro.com/internal/schemas/planning/2012A",
                                             Order = 0)>]
-    member val StartDate: System.DateTime = startDate with get, set
+    member this.startDate
+        with get () = this.startDateField
+        and set v = this.startDateField <- v
 
     [<System.ServiceModel.MessageBodyMember(Namespace = "http://ws.availpro.com/internal/schemas/planning/2012A",
                                             Order = 1)>]
-    member val EndDate: System.DateTime = endDate with get, set
+    member this.endDate
+        with get () = this.endDateField
+        and set v = this.endDateField <- v
 
-    new() = SearchChangeSets(Unchecked.defaultof<System.DateTime>, Unchecked.defaultof<System.DateTime>)
+    new(startDateField, endDateField) as this =
+        SearchChangeSets()
+        then
+            this.startDateField <- startDateField
+            this.endDateField <- endDateField
 
 [<AllowNullLiteral>]
 [<System.ServiceModel.MessageContract(WrapperName = "SearchChangeSetsResponse",
                                       WrapperNamespace = "http://ws.availpro.com/internal/schemas/planning/2012A",
                                       IsWrapped = true)>]
 [<System.Serializable>]
-type SearchChangeSetsResponse(searchChangeSetsResult) =
+type SearchChangeSetsResponse() =
+    [<DefaultValue>]
+    val mutable private searchChangeSetsResultField: PlanningResponseMessage
+
     [<System.ServiceModel.MessageBodyMember(Namespace = "http://ws.availpro.com/internal/schemas/planning/2012A",
                                             Order = 0)>]
-    member val SearchChangeSetsResult: PlanningResponseMessage = searchChangeSetsResult with get, set
+    member this.SearchChangeSetsResult
+        with get () = this.searchChangeSetsResultField
+        and set v = this.searchChangeSetsResultField <- v
 
-    new() = SearchChangeSetsResponse(Unchecked.defaultof<PlanningResponseMessage>)
+    new(searchChangeSetsResultField) as this =
+        SearchChangeSetsResponse()
+        then this.searchChangeSetsResultField <- searchChangeSetsResultField
 
 [<AllowNullLiteral>]
 [<System.ServiceModel.MessageContract(WrapperName = "SearchHotelChangeSets",
                                       WrapperNamespace = "http://ws.availpro.com/internal/schemas/planning/2012A",
                                       IsWrapped = true)>]
 [<System.Serializable>]
-type SearchHotelChangeSets(hotelId, startDate, endDate) =
+type SearchHotelChangeSets() =
+    [<DefaultValue>]
+    val mutable private hotelIdField: int
+
+    [<DefaultValue>]
+    val mutable private startDateField: System.DateTime
+
+    [<DefaultValue>]
+    val mutable private endDateField: System.DateTime
+
     [<System.ServiceModel.MessageBodyMember(Namespace = "http://ws.availpro.com/internal/schemas/planning/2012A",
                                             Order = 0)>]
-    member val HotelId: System.Int32 = hotelId with get, set
+    member this.hotelId
+        with get () = this.hotelIdField
+        and set v = this.hotelIdField <- v
 
     [<System.ServiceModel.MessageBodyMember(Namespace = "http://ws.availpro.com/internal/schemas/planning/2012A",
                                             Order = 1)>]
-    member val StartDate: System.DateTime = startDate with get, set
+    member this.startDate
+        with get () = this.startDateField
+        and set v = this.startDateField <- v
 
     [<System.ServiceModel.MessageBodyMember(Namespace = "http://ws.availpro.com/internal/schemas/planning/2012A",
                                             Order = 2)>]
-    member val EndDate: System.DateTime = endDate with get, set
+    member this.endDate
+        with get () = this.endDateField
+        and set v = this.endDateField <- v
 
-    new() =
-        SearchHotelChangeSets(
-            Unchecked.defaultof<System.Int32>,
-            Unchecked.defaultof<System.DateTime>,
-            Unchecked.defaultof<System.DateTime>
-        )
+    new(hotelIdField, startDateField, endDateField) as this =
+        SearchHotelChangeSets()
+        then
+            this.hotelIdField <- hotelIdField
+            this.startDateField <- startDateField
+            this.endDateField <- endDateField
 
 [<AllowNullLiteral>]
 [<System.ServiceModel.MessageContract(WrapperName = "SearchHotelChangeSetsResponse",
                                       WrapperNamespace = "http://ws.availpro.com/internal/schemas/planning/2012A",
                                       IsWrapped = true)>]
 [<System.Serializable>]
-type SearchHotelChangeSetsResponse(searchHotelChangeSetsResult) =
+type SearchHotelChangeSetsResponse() =
+    [<DefaultValue>]
+    val mutable private searchHotelChangeSetsResultField: PlanningResponseMessage
+
     [<System.ServiceModel.MessageBodyMember(Namespace = "http://ws.availpro.com/internal/schemas/planning/2012A",
                                             Order = 0)>]
-    member val SearchHotelChangeSetsResult: PlanningResponseMessage = searchHotelChangeSetsResult with get, set
+    member this.SearchHotelChangeSetsResult
+        with get () = this.searchHotelChangeSetsResultField
+        and set v = this.searchHotelChangeSetsResultField <- v
 
-    new() = SearchHotelChangeSetsResponse(Unchecked.defaultof<PlanningResponseMessage>)
+    new(searchHotelChangeSetsResultField) as this =
+        SearchHotelChangeSetsResponse()
+        then this.searchHotelChangeSetsResultField <- searchHotelChangeSetsResultField
 
 [<AllowNullLiteral>]
 [<System.ServiceModel.MessageContract(WrapperName = "SearchPendingHotelChangeSets",
                                       WrapperNamespace = "http://ws.availpro.com/internal/schemas/planning/2012A",
                                       IsWrapped = true)>]
 [<System.Serializable>]
-type SearchPendingHotelChangeSets(hotelId, startDate, endDate) =
+type SearchPendingHotelChangeSets() =
+    [<DefaultValue>]
+    val mutable private hotelIdField: int
+
+    [<DefaultValue>]
+    val mutable private startDateField: System.DateTime
+
+    [<DefaultValue>]
+    val mutable private endDateField: System.DateTime
+
     [<System.ServiceModel.MessageBodyMember(Namespace = "http://ws.availpro.com/internal/schemas/planning/2012A",
                                             Order = 0)>]
-    member val HotelId: System.Int32 = hotelId with get, set
+    member this.hotelId
+        with get () = this.hotelIdField
+        and set v = this.hotelIdField <- v
 
     [<System.ServiceModel.MessageBodyMember(Namespace = "http://ws.availpro.com/internal/schemas/planning/2012A",
                                             Order = 1)>]
-    member val StartDate: System.DateTime = startDate with get, set
+    member this.startDate
+        with get () = this.startDateField
+        and set v = this.startDateField <- v
 
     [<System.ServiceModel.MessageBodyMember(Namespace = "http://ws.availpro.com/internal/schemas/planning/2012A",
                                             Order = 2)>]
-    member val EndDate: System.DateTime = endDate with get, set
+    member this.endDate
+        with get () = this.endDateField
+        and set v = this.endDateField <- v
 
-    new() =
-        SearchPendingHotelChangeSets(
-            Unchecked.defaultof<System.Int32>,
-            Unchecked.defaultof<System.DateTime>,
-            Unchecked.defaultof<System.DateTime>
-        )
+    new(hotelIdField, startDateField, endDateField) as this =
+        SearchPendingHotelChangeSets()
+        then
+            this.hotelIdField <- hotelIdField
+            this.startDateField <- startDateField
+            this.endDateField <- endDateField
 
 [<AllowNullLiteral>]
 [<System.ServiceModel.MessageContract(WrapperName = "SearchPendingHotelChangeSetsResponse",
                                       WrapperNamespace = "http://ws.availpro.com/internal/schemas/planning/2012A",
                                       IsWrapped = true)>]
 [<System.Serializable>]
-type SearchPendingHotelChangeSetsResponse(searchPendingHotelChangeSetsResult) =
+type SearchPendingHotelChangeSetsResponse() =
+    [<DefaultValue>]
+    val mutable private searchPendingHotelChangeSetsResultField: PlanningResponseMessage
+
     [<System.ServiceModel.MessageBodyMember(Namespace = "http://ws.availpro.com/internal/schemas/planning/2012A",
                                             Order = 0)>]
-    member val SearchPendingHotelChangeSetsResult: PlanningResponseMessage =
-        searchPendingHotelChangeSetsResult with get, set
+    member this.SearchPendingHotelChangeSetsResult
+        with get () = this.searchPendingHotelChangeSetsResultField
+        and set v = this.searchPendingHotelChangeSetsResultField <- v
 
-    new() = SearchPendingHotelChangeSetsResponse(Unchecked.defaultof<PlanningResponseMessage>)
+    new(searchPendingHotelChangeSetsResultField) as this =
+        SearchPendingHotelChangeSetsResponse()
+        then this.searchPendingHotelChangeSetsResultField <- searchPendingHotelChangeSetsResultField
 
 type DefaultBinding =
     static member SelectBinding(uri: string) =
@@ -662,22 +1218,22 @@ type IChangeSetService2012ASoap =
     [<System.ServiceModel.OperationContract(Action = "http://ws.availpro.com/internal/schemas/planning/2012A/SearchBookingChangeSets",
                                             ReplyAction = "*")>]
     [<System.ServiceModel.XmlSerializerFormat(SupportFaults = true)>]
-    abstract SearchBookingChangeSets: bookingId: System.Int32 -> PlanningResponseMessage
+    abstract SearchBookingChangeSets: bookingId: int -> PlanningResponseMessage
 
     [<System.ServiceModel.OperationContract(Action = "http://ws.availpro.com/internal/schemas/planning/2012A/SearchBookingChangeSets",
                                             ReplyAction = "*")>]
     [<System.ServiceModel.XmlSerializerFormat(SupportFaults = true)>]
-    abstract SearchBookingChangeSetsAsync: bookingId: System.Int32 -> Task<PlanningResponseMessage>
+    abstract SearchBookingChangeSetsAsync: bookingId: int -> Task<PlanningResponseMessage>
 
     [<System.ServiceModel.OperationContract(Action = "http://ws.availpro.com/internal/schemas/planning/2012A/SearchBookingReferenceChangeSets",
                                             ReplyAction = "*")>]
     [<System.ServiceModel.XmlSerializerFormat(SupportFaults = true)>]
-    abstract SearchBookingReferenceChangeSets: bookingReference: System.String -> PlanningResponseMessage
+    abstract SearchBookingReferenceChangeSets: bookingReference: string -> PlanningResponseMessage
 
     [<System.ServiceModel.OperationContract(Action = "http://ws.availpro.com/internal/schemas/planning/2012A/SearchBookingReferenceChangeSets",
                                             ReplyAction = "*")>]
     [<System.ServiceModel.XmlSerializerFormat(SupportFaults = true)>]
-    abstract SearchBookingReferenceChangeSetsAsync: bookingReference: System.String -> Task<PlanningResponseMessage>
+    abstract SearchBookingReferenceChangeSetsAsync: bookingReference: string -> Task<PlanningResponseMessage>
 
 [<Interface>]
 type ChangeSetService2012ASoap =
@@ -747,22 +1303,22 @@ type ChangeSetService2012ASoap =
     [<System.ServiceModel.OperationContract(Action = "http://ws.availpro.com/internal/schemas/planning/2012A/SearchBookingChangeSets",
                                             ReplyAction = "*")>]
     [<System.ServiceModel.XmlSerializerFormat(SupportFaults = true)>]
-    abstract SearchBookingChangeSets: bookingId: System.Int32 -> PlanningResponseMessage
+    abstract SearchBookingChangeSets: bookingId: int -> PlanningResponseMessage
 
     [<System.ServiceModel.OperationContract(Action = "http://ws.availpro.com/internal/schemas/planning/2012A/SearchBookingChangeSets",
                                             ReplyAction = "*")>]
     [<System.ServiceModel.XmlSerializerFormat(SupportFaults = true)>]
-    abstract SearchBookingChangeSetsAsync: bookingId: System.Int32 -> Task<PlanningResponseMessage>
+    abstract SearchBookingChangeSetsAsync: bookingId: int -> Task<PlanningResponseMessage>
 
     [<System.ServiceModel.OperationContract(Action = "http://ws.availpro.com/internal/schemas/planning/2012A/SearchBookingReferenceChangeSets",
                                             ReplyAction = "*")>]
     [<System.ServiceModel.XmlSerializerFormat(SupportFaults = true)>]
-    abstract SearchBookingReferenceChangeSets: bookingReference: System.String -> PlanningResponseMessage
+    abstract SearchBookingReferenceChangeSets: bookingReference: string -> PlanningResponseMessage
 
     [<System.ServiceModel.OperationContract(Action = "http://ws.availpro.com/internal/schemas/planning/2012A/SearchBookingReferenceChangeSets",
                                             ReplyAction = "*")>]
     [<System.ServiceModel.XmlSerializerFormat(SupportFaults = true)>]
-    abstract SearchBookingReferenceChangeSetsAsync: bookingReference: System.String -> Task<PlanningResponseMessage>
+    abstract SearchBookingReferenceChangeSetsAsync: bookingReference: string -> Task<PlanningResponseMessage>
 
 type ChangeSetService2012A(binding: System.ServiceModel.Channels.Binding, address: System.ServiceModel.EndpointAddress) =
     inherit System.ServiceModel.ClientBase<IChangeSetService2012ASoap>(binding, address)
@@ -819,15 +1375,15 @@ type ChangeSetService2012A(binding: System.ServiceModel.Channels.Binding, addres
         : Task<SearchPendingHotelChangeSetsResponse> =
         base.Channel.SearchPendingHotelChangeSetsAsync(searchPendingHotelChangeSets)
 
-    member this.SearchBookingChangeSets(bookingId: System.Int32) : PlanningResponseMessage =
+    member this.SearchBookingChangeSets(bookingId: int) : PlanningResponseMessage =
         base.Channel.SearchBookingChangeSets(bookingId)
 
-    member this.SearchBookingChangeSetsAsync(bookingId: System.Int32) : Task<PlanningResponseMessage> =
+    member this.SearchBookingChangeSetsAsync(bookingId: int) : Task<PlanningResponseMessage> =
         base.Channel.SearchBookingChangeSetsAsync(bookingId)
 
-    member this.SearchBookingReferenceChangeSets(bookingReference: System.String) : PlanningResponseMessage =
+    member this.SearchBookingReferenceChangeSets(bookingReference: string) : PlanningResponseMessage =
         base.Channel.SearchBookingReferenceChangeSets(bookingReference)
 
-    member this.SearchBookingReferenceChangeSetsAsync(bookingReference: System.String) : Task<PlanningResponseMessage> =
+    member this.SearchBookingReferenceChangeSetsAsync(bookingReference: string) : Task<PlanningResponseMessage> =
         base.Channel.SearchBookingReferenceChangeSetsAsync(bookingReference)
 

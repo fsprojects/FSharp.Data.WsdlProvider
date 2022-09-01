@@ -1,3 +1,9 @@
+## 0.11-alpha
+* Feat: simplify single case choices
+
+## 0.10-alpha
+* Feat: implement Specified property on optional attributes
+
 ## 0.9-alpha
 * Fix: Add support for wsdl choice element. To make it run, a change to the F# compiler is needed. [#384](https://github.com/fsprojects/FSharp.TypeProviders.SDK/issues/384)
 * Feat: Myriad generator

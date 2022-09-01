@@ -79,7 +79,7 @@ type TRef =
 type CTChild =
     | CTElement of string * XName * TRef * int
     | CTContract of string * XName * TRef * int
-    | CTAttribute of string * XName * TRef 
+    | CTAttribute of string * XName * TRef * optional: bool
     | CTArray of string * XName * TRef * string * int
     | CTArrayContract of string * XName * TRef * string * int
     | CTChoice of CTChild list * int
@@ -90,7 +90,7 @@ type CTChild =
             match this with
             | CTElement(name, _,_,_)
             | CTContract(name, _,_,_)
-            | CTAttribute(name, _,_)
+            | CTAttribute(name, _,_,_)
             | CTArray(name, _,_,_,_)
             | CTArrayContract(name, _,_,_,_) ->
                  String.camlCase name + "Field"
@@ -98,22 +98,27 @@ type CTChild =
             | CTArrayChoice _ -> "items"
             | CTAny -> "item"
 
+        member this.SpecifiedFieldName = this.FieldName + "Specified"
+
         member this.PropName =
             match this with
             | CTElement(name, _,_,_)
             | CTContract(name, _,_,_)
-            | CTAttribute(name, _,_)
+            | CTAttribute(name, _,_,_)
             | CTArray(name, _,_,_,_)
             | CTArrayContract(name, _,_,_,_) ->
                 name
             | CTChoice _ -> "Item"
             | CTArrayChoice _ -> "Items"
             | CTAny _ -> "Item"
+
+        member this.SpecifiedPropName = this.PropName + "Specified"
+
         member this.TypeName =
             match this with
             | CTElement(_, _,t,_)
             | CTContract(_, _,t,_)
-            | CTAttribute(_, _,t)
+            | CTAttribute(_, _,t,_)
             | CTArray(_, _,t,_,_)
             | CTArrayContract(_, _,t,_,_) ->
                 t.Name 
@@ -125,7 +130,7 @@ type CTChild =
             match this with
             | CTElement(_, _,t,_)
             | CTContract(_, _,t,_)
-            | CTAttribute(_, _,t)
+            | CTAttribute(_, _,t,_)
             | CTArray(_, _,t,_,_)
             | CTArrayContract(_, _,t,_,_) ->
                 t.FsName 
@@ -137,7 +142,7 @@ type CTChild =
             match this with
             | CTElement(_, _,t,_)
             | CTContract(_, _,t,_)
-            | CTAttribute(_, _,t)
+            | CTAttribute(_, _,t,_)
             | CTArray(_, _,t,_,_)
             | CTArrayContract(_, _,t,_,_) ->
                 t
@@ -149,12 +154,17 @@ type CTChild =
             match this with
             | CTElement(name, xn, t, i) -> CTElement(name, xn, t.MakeArrayType(), i)
             | CTContract(name, xn, t,i) -> CTContract(name, xn, t.MakeArrayType(), i)
-            | CTAttribute(name, xn, t) -> CTAttribute(name, xn, t.MakeArrayType())
+            | CTAttribute(name, xn, t,opt) -> CTAttribute(name, xn, t.MakeArrayType(),opt)
             | CTArray(name, xn, t, ixn, i) -> CTArray(name, xn, t.MakeArrayType(), ixn, i)
             | CTArrayContract(name, xn, t, ixn, i) -> CTArrayContract(name, xn, t.MakeArrayType(), ixn, i)
             | CTChoice(choices,i) -> CTArrayChoice(choices, i)
             | CTArrayChoice _ -> this
             | CTAny _ -> this
+
+        member this.RequireSpecifiedField =
+            match this with
+            | CTAttribute(_,_,_,opt) -> opt
+            | _ -> false
 
 type CTXmlName =
     | XmlType of XName
@@ -312,7 +322,9 @@ let flattenWsdl wsdl =
                         CTElement md
                 | XsAny _ -> CTAny
                 | XsChoice choices ->
-                    CTChoice (choices.Items |> List.map (getCT false i), i)
+                    match  List.map (getCT false i) choices.Items with
+                    | [ choice ] -> choice
+                    | choices -> CTChoice (choices, i)
                 
 
             let elements = 
@@ -346,7 +358,7 @@ let flattenWsdl wsdl =
                     let attrType = attributeTypeRef a.Type
                     let name = fixAttributeName a.Name.LocalName
 
-                    CTAttribute(name, a.Name, attrType) ]
+                    CTAttribute(name, a.Name, attrType, a.Use = System.Xml.Schema.XmlSchemaUse.Optional ) ]
 
             let all = elements @ attributes
             match

@@ -62,7 +62,8 @@ and XsType =
 and XsAttribute =
     { Name: XName
       Type: XsAttributeType
-      DefaultValue: string option }
+      DefaultValue: string option
+      Use: XmlSchemaUse }
 and XsAttributeType =
     | XsSimple of XName
     | XsList of XName
@@ -254,7 +255,7 @@ and parseAttribute (a: XmlSchemaAttribute) =
             XsSimple a.SchemaTypeName.XName
              
       DefaultValue = (Option.ofObj a.DefaultValue) |> Option.orElse (Option.ofObj a.FixedValue)
-
+      Use = a.Use 
     }
 and parseTypeDef (t: XmlSchemaType) =
     { Name = t.QualifiedName.XName

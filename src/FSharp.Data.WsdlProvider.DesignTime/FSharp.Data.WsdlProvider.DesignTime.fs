@@ -340,7 +340,7 @@ module Provided =
                         prop.AddCustomAttribute(mkMessageBodyMember(xsname.NamespaceName , index))
 
 
-                    | CTAttribute(_, xsname,_) -> prop.AddCustomAttribute(mkXmlAttributeAttribute xsname)
+                    | CTAttribute(_, xsname,_,_) -> prop.AddCustomAttribute(mkXmlAttributeAttribute xsname)
                     | CTArrayContract(_, xsname,_, itemName, index) ->
                         prop.AddCustomAttribute(mkMessageBodyMember(xsname.NamespaceName , index))
                         prop.AddCustomAttribute(mkXmlArrayItemAttribute(itemName, false))
@@ -354,7 +354,7 @@ module Provided =
                             | CTContract(_,xsname,t, _) ->
                                 let t = getType types t
                                 prop.AddCustomAttribute(mkXmlElementNameAttribute(xsname,t,i))
-                            | CTAttribute(_,xsname,t) ->
+                            | CTAttribute(_,xsname,t,_) ->
                                 let t = getType types m.TypeRef
                                 prop.AddCustomAttribute(mkXmlAttributeNameAttribute(xsname,t))
                             | CTArray _
@@ -369,7 +369,7 @@ module Provided =
                             | CTContract(_,xsname,t, _) ->
                                 let t = getType types t
                                 prop.AddCustomAttribute(mkXmlElementNameAttribute(xsname,t,i))
-                            | CTAttribute(_,xsname,t) ->
+                            | CTAttribute(_,xsname,t,_) ->
                                 let t = getType types m.TypeRef
                                 prop.AddCustomAttribute(mkXmlAttributeNameAttribute(xsname,t))
                             | CTArray _
@@ -394,7 +394,7 @@ module Provided =
                             match e with
                             | CTElement(name,_,_,_)
                             | CTContract(name,_,_,_)
-                            | CTAttribute(name,_,_)
+                            | CTAttribute(name,_,_,_)
                             | CTArray(name,_,_,_,_) 
                             | CTArrayContract(name,_,_,_,_) ->
                                 let field = fields[i]  

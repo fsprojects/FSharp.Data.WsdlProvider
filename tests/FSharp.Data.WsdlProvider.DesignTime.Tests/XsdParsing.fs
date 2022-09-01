@@ -175,7 +175,7 @@ let ``ComplexType element with attribute element``() =
              (XsComplexType
                 { XsType.empty with
                       Attributes = 
-                        [{ Name = XName.Get "prodid"; Type = XsSimple (xs + "positiveInteger"); DefaultValue = None }] })
+                        [{ Name = XName.Get "prodid"; Type = XsSimple (xs + "positiveInteger"); DefaultValue = None; Use = XmlSchemaUse.None }] })
           DefaultValue = None
           Occurs = Occurs.once
           Nillable = false
@@ -350,7 +350,7 @@ let ``ComplexType with base simple type``() =
         (XsComplexType
             { XsType.empty with
                 BaseType = Some (xs + "integer")
-                Attributes = [ { Name = XName.Get "country"; Type = XsSimple (xs + "string"); DefaultValue = None} ] })
+                Attributes = [ { Name = XName.Get "country"; Type = XsSimple (xs + "string"); DefaultValue = None; Use = XmlSchemaUse.None} ] })
        DefaultValue = None
        Occurs = Occurs.once
        Nillable = false
@@ -634,10 +634,10 @@ let ``ComplexType with attribute group``() =
        Type = InlineType
         (XsComplexType
             { XsType.empty with
-                  Attributes = [ { Name = XName.Get "firstname"; Type = XsSimple(xs + "string"); DefaultValue = None} 
-                                 { Name = XName.Get "lastname"; Type = XsSimple(xs + "string");  DefaultValue = None}
-                                 { Name = XName.Get "birthday"; Type = XsSimple(xs + "date"); DefaultValue = None; }
-                                 { Name = XName.Get "country"; Type = XsSimple(xs + "string"); DefaultValue = None} ] })
+                  Attributes = [ { Name = XName.Get "firstname"; Type = XsSimple(xs + "string"); DefaultValue = None; Use = XmlSchemaUse.None} 
+                                 { Name = XName.Get "lastname"; Type = XsSimple(xs + "string");  DefaultValue = None; Use = XmlSchemaUse.None}
+                                 { Name = XName.Get "birthday"; Type = XsSimple(xs + "date"); DefaultValue = None; Use = XmlSchemaUse.None }
+                                 { Name = XName.Get "country"; Type = XsSimple(xs + "string"); DefaultValue = None; Use = XmlSchemaUse.None} ] })
 
        DefaultValue = None
        Occurs = Occurs.once
@@ -841,7 +841,7 @@ let ``SimpleType with list``() =
     |> loadSchema
     let expectedElement = 
      { Name = dedge + "persons"
-       Type = InlineType (XsComplexType { XsType.empty with Attributes = [ { Name = XName.Get "Ages"; Type = XsList (xs + "string"); DefaultValue = None} ] })
+       Type = InlineType (XsComplexType { XsType.empty with Attributes = [ { Name = XName.Get "Ages"; Type = XsList (xs + "string"); DefaultValue = None; Use = XmlSchemaUse.None} ] })
        DefaultValue = None
        Occurs = Occurs.once
        Nillable = false

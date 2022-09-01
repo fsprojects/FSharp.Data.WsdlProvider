@@ -155,6 +155,8 @@ module Generation =
     let mkDefaultValueAttribute =
         mkdAttribute<DefaultValueAttribute> [] [] 
 
+    let mkXmlIgnoreAttribute =
+        mkdAttribute<XmlIgnoreAttribute> [] [] 
 
     let mkXmlElementAttribute (order: int) =  
         mkdAttribute<XmlElementAttribute> [] [ "Order", box order ]
@@ -331,7 +333,7 @@ module Generation =
                         mkXmlElementAttribute i
                 | CTContract(_, xsname, _, i)  -> 
                         mkMessageBodyMember(xsname.NamespaceName , i)
-                | CTAttribute(_, xsname,_) -> mkXmlAttributeAttribute xsname
+                | CTAttribute(_, xsname,_,_) -> mkXmlAttributeAttribute xsname
                 | CTArray(_, _,_, itemName, i) ->
                         mkXmlArrayAttribute i
                         >> mkXmlArrayItemAttribute(itemName, false)
@@ -346,7 +348,7 @@ module Generation =
                         | CTElement(_,xsname,t, i)
                         | CTContract(_,xsname,t, i) ->
                             mkXmlElementNameAttribute(xsname,t,i)
-                        | CTAttribute(_,xsname,t) ->
+                        | CTAttribute(_,xsname,t,_) ->
                             mkXmlAttributeNameAttribute(xsname,t)
                         | CTArray _
                         | CTArrayContract _
@@ -361,7 +363,7 @@ module Generation =
                         | CTElement(_,xsname,t, _)
                         | CTContract(_,xsname,t, _) ->
                             mkXmlElementNameAttribute(xsname,t,i)
-                        | CTAttribute(_,xsname,t) ->
+                        | CTAttribute(_,xsname,t,_) ->
                             mkXmlAttributeNameAttribute(xsname,t)
                         | CTArray _
                         | CTArrayContract _
@@ -371,11 +373,21 @@ module Generation =
                     )  choices
                 | CTAny -> id
 
-            builder.Apply(mkAttribute m).StartLine($"member this.{cleanId m.PropName} with get() = this.{m.FieldName} and set v = this.{m.FieldName} <- v")
+            if m.RequireSpecifiedField then
+                builder.Apply(mkAttribute m).StartLine($"member this.{cleanId m.PropName} with get() = this.{m.FieldName} and set v = this.{m.FieldName} <- v; this.{m.SpecifiedFieldName} <- true")
+                    .Apply(mkXmlIgnoreAttribute).StartLine($"member this.{cleanId m.SpecifiedPropName } = this.{m.SpecifiedFieldName}")
+
+            else
+                builder.Apply(mkAttribute m).StartLine($"member this.{cleanId m.PropName} with get() = this.{m.FieldName} and set v = this.{m.FieldName} <- v")
 
         let rec buildField (m: CTChild) (builder: Builder) =
 
-            builder.Apply(mkDefaultValueAttribute).StartLine($"val mutable private {m.FieldName}: { m.FsTypeName }")
+            let  b = builder.Apply(mkDefaultValueAttribute).StartLine($"val mutable private {m.FieldName}: { m.FsTypeName }")
+            if m.RequireSpecifiedField then
+                b.Apply(mkDefaultValueAttribute).StartLine($"val mutable private {m.SpecifiedFieldName}: bool")
+            else
+                b
+
 
 
         and buildComplexType (t: ComplexTypeDef) (builder: Builder) =
