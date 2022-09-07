@@ -555,7 +555,14 @@ type WsdlGenerator() =
 
     let loadWsdl inputFile uri =
         try
-            let basePath = IO.Path.GetDirectoryName(inputFile: string) + "/"
+            let basePath =
+            
+                let inputPath = IO.Path.GetDirectoryName(inputFile: string) + "/"
+                if IO.Path.IsPathRooted(inputPath) then
+                    inputPath
+                else
+                    IO.Path.Combine(IO.Directory.GetCurrentDirectory(), inputPath)
+
             let uri =
                 let u = Uri (uri, UriKind.RelativeOrAbsolute)
                 if u.IsAbsoluteUri then
@@ -580,7 +587,6 @@ type WsdlGenerator() =
             
             let config = ctx.ConfigGetter configKey 
             let ns = getConfig "namespace" "Wsdl" config
-            let name = getConfig "name" "Service" config
             let uri = getConfig "uri" "unknown uri" config
 
             let wsdl = loadWsdl ctx.InputFilename uri

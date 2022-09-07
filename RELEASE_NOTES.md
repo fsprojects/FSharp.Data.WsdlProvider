@@ -1,3 +1,6 @@
+## 0.12-alpha
+* Fix: Uri format exception when input file and uri are relative
+
 ## 0.11-alpha
 * Feat: simplify single case choices
 
