@@ -369,7 +369,7 @@ module Generation =
                         | CTArrayContract _
                         | CTChoice _ -> id
                         | CTArrayChoice _ -> id
-                        | CTAny _ -> id
+                        | CTAny-> id
                     )  choices
                 | CTAny -> id
 

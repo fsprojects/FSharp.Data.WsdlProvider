@@ -139,8 +139,8 @@ let ``ChangePropertyResultChangeDependencies items property should be an array``
     let expected =
         TypeDef.NoNameType { TypeName = "ChangePropertyResultChangeDependencies"
                              XmlName = null
-                             Members = [ CTChild.CTArrayChoice( [CTElement("property", (XNamespace.op_Implicit "http://ws.availpro.com/internal/schemas/planning/2012A") + "property", TRArray (TRef "ChangePropertyResult"),0)
-                                                                 CTElement("entity", (XNamespace.op_Implicit "http://ws.availpro.com/internal/schemas/planning/2012A") + "entity", TRArray (TRef "ChangeEntityResult"),0)], 0) ] }
+                             Members = [ CTChild.CTArrayChoice( [CTElement("property", (XNamespace.op_Implicit "http://ws.availpro.com/internal/schemas/planning/2012A") + "property", TRef "ChangePropertyResult",0)
+                                                                 CTElement("entity", (XNamespace.op_Implicit "http://ws.availpro.com/internal/schemas/planning/2012A") + "entity", TRef "ChangeEntityResult",0)], 0) ] }
     
     Assert.AreEqual(expected, testResponse)
 
@@ -281,4 +281,5 @@ let ``Single case choice should not have obj type`` () =
         | None ->
             failwith "changeSetResponse property not found because single choice was not reduced"
     | _ -> failwith "Invalid PlanningResponseMessage type"
+
 

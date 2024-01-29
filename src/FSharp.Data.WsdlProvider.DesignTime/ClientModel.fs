@@ -110,7 +110,7 @@ type CTChild =
                 name
             | CTChoice _ -> "Item"
             | CTArrayChoice _ -> "Items"
-            | CTAny _ -> "Item"
+            | CTAny -> "Item"
 
         member this.SpecifiedPropName = this.PropName + "Specified"
 
@@ -124,7 +124,7 @@ type CTChild =
                 t.Name 
             | CTChoice _ -> "System.Object"
             | CTArrayChoice _ -> "System.Object[]"
-            | CTAny _ -> "System.Object"
+            | CTAny -> "System.Object"
 
         member this.FsTypeName =
             match this with
@@ -136,7 +136,7 @@ type CTChild =
                 t.FsName 
             | CTChoice _ -> "obj"
             | CTArrayChoice _ -> "obj[]"
-            | CTAny _ -> "obj"
+            | CTAny -> "obj"
 
         member this.TypeRef =
             match this with
@@ -148,7 +148,7 @@ type CTChild =
                 t
             | CTChoice _ -> TSimple typeof<obj>
             | CTArrayChoice _ -> TRArray(TSimple typeof<obj>)
-            | CTAny _ -> TSimple typeof<obj>
+            | CTAny -> TSimple typeof<obj>
 
         member this.MakeArrayType() =
             match this with
@@ -159,7 +159,7 @@ type CTChild =
             | CTArrayContract(name, xn, t, ixn, i) -> CTArrayContract(name, xn, t.MakeArrayType(), ixn, i)
             | CTChoice(choices,i) -> CTArrayChoice(choices, i)
             | CTArrayChoice _ -> this
-            | CTAny _ -> this
+            | CTAny -> this
 
         member this.RequireSpecifiedField =
             match this with
@@ -265,7 +265,7 @@ let flattenWsdl wsdl =
                 typeRefs.Add(n, tr)
             | NoName -> ()
 
-            let rec getCT contract i p =
+            let rec getCT contract i inCollection p =
                 match p with
                 | XsElement ({ Type = TypeRef t } as e) 
                 | XsElement ({ Type = InlineType (XsSimpleType { BaseType = t }) } as e) ->
@@ -296,8 +296,11 @@ let flattenWsdl wsdl =
                     | _ ->
 
                         let propType =
-                            (typeRef t) 
-                            |> applyElementCardinality e 
+                            if inCollection then
+                                typeRef t
+                            else
+                                typeRef t
+                                |> applyElementCardinality e 
                         let md = (e.Name.LocalName, e.Name, propType, i)
                         if contract then
                             CTContract md
@@ -322,7 +325,7 @@ let flattenWsdl wsdl =
                         CTElement md
                 | XsAny _ -> CTAny
                 | XsChoice choices ->
-                    match  List.map (getCT false i) choices.Items with
+                    match  List.map (getCT false i false) choices.Items with
                     | [ choice ] -> choice
                     | choices -> CTChoice (choices, i)
                 
@@ -330,15 +333,15 @@ let flattenWsdl wsdl =
             let elements = 
                 match t.Elements with
                 | Sequence((_ :: _ :: _) as choices, { Max = MaxOccurs.Unbounded}) ->
-                    [CTArrayChoice(choices |> List.map (getCT contract 0), 0)]
+                    [CTArrayChoice(choices |> List.map (getCT contract 0 true), 0)]
                 | Sequence([item], { Max = MaxOccurs.Unbounded}) ->
-                    let ct = getCT contract 0 item 
+                    let ct = getCT contract 0 false item 
 
                     [ ct.MakeArrayType() ]
 
                 | Sequence(elts, seqOccurs) ->
                     [ for i,p in elts |> Seq.indexed do
-                        getCT contract i p
+                        getCT contract i false p
                            
                     ]
                 | _ -> []

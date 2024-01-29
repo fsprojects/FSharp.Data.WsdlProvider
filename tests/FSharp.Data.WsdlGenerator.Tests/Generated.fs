@@ -293,11 +293,11 @@ type ChangePropertyResultChangeDependencies() =
 
     [<System.Xml.Serialization.XmlElement("property",
                                           Order = 0,
-                                          Type = typeof<ChangePropertyResult[]>,
+                                          Type = typeof<ChangePropertyResult>,
                                           Namespace = "http://ws.availpro.com/internal/schemas/planning/2012A")>]
     [<System.Xml.Serialization.XmlElement("entity",
                                           Order = 0,
-                                          Type = typeof<ChangeEntityResult[]>,
+                                          Type = typeof<ChangeEntityResult>,
                                           Namespace = "http://ws.availpro.com/internal/schemas/planning/2012A")>]
     member this.Items
         with get () = this.items
@@ -503,7 +503,7 @@ type EntityType =
 [<System.Serializable>]
 type ChangeEntityResult() =
     [<DefaultValue>]
-    val mutable private propertyField: ChangePropertyResult[]
+    val mutable private propertyField: ChangePropertyResult
 
     [<DefaultValue>]
     val mutable private typeField: EntityType
@@ -613,7 +613,7 @@ type ChangeEntityResult() =
 [<System.Serializable>]
 type ChangeSetResponseChanges() =
     [<DefaultValue>]
-    val mutable private entityField: ChangeEntityResult[]
+    val mutable private entityField: ChangeEntityResult
 
     [<System.Xml.Serialization.XmlElement(Order = 0)>]
     member this.entity
