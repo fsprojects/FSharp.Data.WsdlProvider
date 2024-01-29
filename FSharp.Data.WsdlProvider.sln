@@ -1,6 +1,7 @@
+﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.29709.97
+# Visual Studio Version 17
+VisualStudioVersion = 17.2.32616.157
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".paket", ".paket", "{63297B98-5CED-492C-A5B7-A5B4F73CF142}"
 	ProjectSection(SolutionItems) = preProject
@@ -15,7 +16,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{ED8079DD
 EndProject
 Project("{6EC3EE1D-3C4E-46DD-8F32-0CC8E7565705}") = "FSharp.Data.WsdlProvider.Tests", "tests\FSharp.Data.WsdlProvider.Tests\FSharp.Data.WsdlProvider.Tests.fsproj", "{B4407B76-F524-467E-8F2D-049F39526BFE}"
 EndProject
-Project("{6EC3EE1D-3C4E-46DD-8F32-0CC8E7565705}") = "FShap.Data.WsdlProvider.DesignTime.Tests", "tests\FShap.Data.WsdlProvider.DesignTime.Tests\FShap.Data.WsdlProvider.DesignTime.Tests.fsproj", "{4E830891-C825-4A2C-8B61-EACE6EBDF59B}"
+Project("{6EC3EE1D-3C4E-46DD-8F32-0CC8E7565705}") = "FSharp.Data.WsdlProvider.DesignTime.Tests", "tests\FSharp.Data.WsdlProvider.DesignTime.Tests\FSharp.Data.WsdlProvider.DesignTime.Tests.fsproj", "{4E830891-C825-4A2C-8B61-EACE6EBDF59B}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".build", ".build", "{187433B2-65CF-42F5-B504-6E34F4C77604}"
 	ProjectSection(SolutionItems) = preProject
@@ -25,6 +26,15 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".build", ".build", "{187433
 		paket.dependencies = paket.dependencies
 		README.md = README.md
 		RELEASE_NOTES.md = RELEASE_NOTES.md
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{EA9B11E5-9059-41FD-A287-DF5FA2A0D547}"
+EndProject
+Project("{6EC3EE1D-3C4E-46DD-8F32-0CC8E7565705}") = "FSharp.Data.WsdlGenerator", "src\FSharp.Data.WsdlGenerator\FSharp.Data.WsdlGenerator.fsproj", "{433D30F8-88EF-45B1-A2A5-4DD1E2D2241C}"
+EndProject
+Project("{6EC3EE1D-3C4E-46DD-8F32-0CC8E7565705}") = "FSharp.Data.WsdlGenerator.Tests", "tests\FSharp.Data.WsdlGenerator.Tests\FSharp.Data.WsdlGenerator.Tests.fsproj", "{053626D0-73CC-43E1-9943-06A1C357822B}"
+	ProjectSection(ProjectDependencies) = postProject
+		{433D30F8-88EF-45B1-A2A5-4DD1E2D2241C} = {433D30F8-88EF-45B1-A2A5-4DD1E2D2241C}
 	EndProjectSection
 EndProject
 Global
@@ -49,13 +59,25 @@ Global
 		{4E830891-C825-4A2C-8B61-EACE6EBDF59B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{4E830891-C825-4A2C-8B61-EACE6EBDF59B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{4E830891-C825-4A2C-8B61-EACE6EBDF59B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{433D30F8-88EF-45B1-A2A5-4DD1E2D2241C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{433D30F8-88EF-45B1-A2A5-4DD1E2D2241C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{433D30F8-88EF-45B1-A2A5-4DD1E2D2241C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{433D30F8-88EF-45B1-A2A5-4DD1E2D2241C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{053626D0-73CC-43E1-9943-06A1C357822B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{053626D0-73CC-43E1-9943-06A1C357822B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{053626D0-73CC-43E1-9943-06A1C357822B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{053626D0-73CC-43E1-9943-06A1C357822B}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
+		{E815D493-7C8C-4691-B9B0-CE38F42026A9} = {EA9B11E5-9059-41FD-A287-DF5FA2A0D547}
+		{D4919CBC-7FCE-4EED-94C5-28FF7B80187F} = {EA9B11E5-9059-41FD-A287-DF5FA2A0D547}
 		{B4407B76-F524-467E-8F2D-049F39526BFE} = {ED8079DD-2B06-4030-9F0F-DC548F98E1C4}
 		{4E830891-C825-4A2C-8B61-EACE6EBDF59B} = {ED8079DD-2B06-4030-9F0F-DC548F98E1C4}
+		{433D30F8-88EF-45B1-A2A5-4DD1E2D2241C} = {EA9B11E5-9059-41FD-A287-DF5FA2A0D547}
+		{053626D0-73CC-43E1-9943-06A1C357822B} = {ED8079DD-2B06-4030-9F0F-DC548F98E1C4}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {95189CD2-D445-47D1-BB6C-E0A96A7D6F9C}

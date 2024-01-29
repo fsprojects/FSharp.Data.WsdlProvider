@@ -153,7 +153,7 @@ let parseMessage (tns: XNamespace) (msg: XElement ) (schemas: XsSet) =
             let element =
                 match p with
                 | XAtt "element" (XName p name) ->
-                     schemas.Elements.[name]
+                     schemas.Elements[name]
                      |> Element
                 | XAtt "type" (XName p name) ->
                     name
@@ -416,7 +416,7 @@ type XmlLocalResolver(files: Map<DocUri, byte[]>) =
             match role with
             | "wsdl" -> WsdlUri (string uri)
             | _ -> XsdUri (string uri)
-        let bytes = files.[key]
+        let bytes = files[key]
         new IO.MemoryStream(bytes) |> box
             
         // api.microsofttranslator.com.V2.wsdl
@@ -459,7 +459,7 @@ let parseWsdlSchema (schema: XDocument) documentUri =
                     l
                 else
                     Uri(documentUri, l)
-            WsdlUri location.AbsoluteUri, docs.[WsdlUri ns]
+            WsdlUri location.AbsoluteUri, docs[WsdlUri ns]
        
           for import in schema.Root.Descendants(Xsd.ns + "import") ->
             let ns = import.Attribute(XName.Get "namespace").Value
@@ -469,7 +469,7 @@ let parseWsdlSchema (schema: XDocument) documentUri =
                     l
                 else
                     Uri(documentUri, l)
-            XsdUri location.AbsoluteUri, docs.[XsdUri ns]
+            XsdUri location.AbsoluteUri, docs[XsdUri ns]
         ] 
         |> Map.ofList
 
@@ -481,7 +481,6 @@ type PortOperation with
         | None 
         | Some { Element = SimpleType _ }
         | Some { Element = Element { Type = InlineType (XsSimpleType _ ) }} 
-        | Some { Element = Element { Type = InlineType (XsComplexType { Elements = NoContent }) } }
-        | Some { Element = Element { Type = InlineType (XsComplexType { Elements = Sequence [ XsElement _ ] }) } }
+        | Some { Element = Element { Type = InlineType (XsComplexType { Elements = Sequence([ XsElement _ ],_) }) } }
             -> false
         | _ -> true

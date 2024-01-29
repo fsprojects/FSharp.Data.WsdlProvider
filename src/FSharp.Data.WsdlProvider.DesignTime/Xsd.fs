@@ -32,14 +32,18 @@ type XsElement =
 and XsParticle =
     | XsElement of XsElement
     | XsAny of Occurs
+    | XsChoice of Choice
+and Choice =
+    { Items: XsParticle list
+      Occurs: Occurs }
 and XsTypeRef =
     | TypeRef of XName
     | InlineType of XsType
 and Ordrer =
     | NoContent
-    | Sequence of XsParticle list
-    | All of XsParticle list
-    | Choice of XsParticle list
+    | Sequence of XsParticle list * Occurs
+    | All of XsParticle list * Occurs
+    | Choice of XsParticle list * Occurs
 and XsComplexType =
     { BaseType: XName option
       Elements: Ordrer
@@ -58,7 +62,8 @@ and XsType =
 and XsAttribute =
     { Name: XName
       Type: XsAttributeType
-      DefaultValue: string option }
+      DefaultValue: string option
+      Use: XmlSchemaUse }
 and XsAttributeType =
     | XsSimple of XName
     | XsList of XName
@@ -120,10 +125,26 @@ let rec parseElement (e: XmlSchemaElement) =
             None
         else
             Some e.SubstitutionGroup.XName }
+and parseChoice (choice: XmlSchemaChoice) =
+    let particles = 
+        choice.Items
+        |> Seq.cast<XmlSchemaObject>
+        |> Seq.choose(fun i -> 
+            match i with 
+            | :? XmlSchemaParticle as p -> Some p
+            | _ -> None)
+                
+    { Items = [ for item in particles do
+                    yield parseParticle item ]
+      Occurs = 
+        {Min = MinOccurs (int choice.MinOccurs)
+         Max = MaxOccurs (int choice.MaxOccurs) } }
+    
 and parseParticle (p: XmlSchemaParticle) =
     match p with
     | :? XmlSchemaElement as e -> XsElement (parseElement e)
     | :? XmlSchemaAny as any -> XsAny (parseOccurs any)
+    | :? XmlSchemaChoice as choice -> XsChoice (parseChoice choice)
     | _ -> failwithf "Unknown particle"
 and parseType (t: XmlSchemaType) =
     match t with
@@ -140,25 +161,29 @@ and parseType (t: XmlSchemaType) =
                         Some n.XName
 
             Elements = 
+                let occurs = parseOccurs t.ContentTypeParticle
                 match t.ContentTypeParticle with
                 | :? XmlSchemaSequence as s ->
-                    s.Items
-                    |> Seq.cast<XmlSchemaParticle>
-                    |> Seq.map parseParticle
-                    |> Seq.toList
-                    |> Sequence
+                    let ps =
+                        s.Items
+                        |> Seq.cast<XmlSchemaParticle>
+                        |> Seq.map parseParticle
+                        |> Seq.toList
+                    Sequence(ps, occurs)
                 | :? XmlSchemaAll as s ->
-                    s.Items
-                    |> Seq.cast<XmlSchemaElement>
-                    |> Seq.map parseParticle
-                    |> Seq.toList
-                    |> All
+                    let ps =
+                        s.Items
+                        |> Seq.cast<XmlSchemaElement>
+                        |> Seq.map parseParticle
+                        |> Seq.toList
+                    All(ps, occurs)
                 | :? XmlSchemaChoice as s ->
-                    s.Items
-                    |> Seq.cast<XmlSchemaElement>
-                    |> Seq.map parseParticle
-                    |> Seq.toList
-                    |> Choice
+                    let ps = 
+                        s.Items
+                        |> Seq.cast<XmlSchemaElement>
+                        |> Seq.map parseParticle
+                        |> Seq.toList
+                    Choice(ps, occurs)
                 | _ -> NoContent
 
                 
@@ -230,7 +255,7 @@ and parseAttribute (a: XmlSchemaAttribute) =
             XsSimple a.SchemaTypeName.XName
              
       DefaultValue = (Option.ofObj a.DefaultValue) |> Option.orElse (Option.ofObj a.FixedValue)
-
+      Use = a.Use 
     }
 and parseTypeDef (t: XmlSchemaType) =
     { Name = t.QualifiedName.XName
@@ -275,12 +300,12 @@ type XsSet =
     
 module Schema =
     let element (xname: XName) (set: XmlSchemaSet) = 
-        set.GlobalElements.[xname.QualifiedName]
+        set.GlobalElements[xname.QualifiedName]
         :?> XmlSchemaElement
         |> parseElement
         
     let typeDef (xname: XName) (set: XmlSchemaSet) = 
-        set.GlobalTypes.[xname.QualifiedName]
+        set.GlobalTypes[xname.QualifiedName]
         :?> XmlSchemaType
         |> parseTypeDef
        

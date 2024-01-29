@@ -23,10 +23,6 @@
     <None Include="paket.references" />
     <None Include="paket.template" />
   </ItemGroup>
-  <ItemGroup>
-    <!-- Be explicit about the version of FSharp.Core since we mention it in the manual nuget package spec -->
-    <PackageReference Include="FSharp.Core" Version="4.7.2" />
-  </ItemGroup>
   <Target Name="BeforeBuild">
     <MSBuild Projects="..\FSharp.Data.WsdlProvider.DesignTime\FSharp.Data.WsdlProvider.DesignTime.fsproj" Targets="Restore" />
     <MSBuild Projects="..\FSharp.Data.WsdlProvider.DesignTime\FSharp.Data.WsdlProvider.DesignTime.fsproj" Targets="Build" Properties="Configuration=$(Configuration);TargetFramework=netstandard2.0" />

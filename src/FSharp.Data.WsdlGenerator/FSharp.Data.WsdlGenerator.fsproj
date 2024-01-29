@@ -1,0 +1,26 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net6.0</TargetFramework>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="..\FSharp.Data.WsdlProvider.DesignTime\Prelude.fs" Link="Prelude.fs" />
+    <Compile Include="..\FSharp.Data.WsdlProvider.DesignTime\Xsd.fs" Link="Xsd.fs" />
+    <Compile Include="..\FSharp.Data.WsdlProvider.DesignTime\Wsdl.fs" Link="Wsdl.fs" />
+    <Compile Include="..\FSharp.Data.WsdlProvider.DesignTime\ClientModel.fs" Link="ClientModel.fs" />
+    <Compile Include="Generator.fs" />
+    <Content Include="build\FSharp.Data.WsdlGenerator.props">
+      <Pack>true</Pack>
+      <PackagePath>%(Identity)</PackagePath>
+      <Visible>true</Visible>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="paket.references" />
+    <None Include="paket.template" />
+  </ItemGroup>
+  <Import Project="..\..\.paket\Paket.Restore.targets" />
+</Project>

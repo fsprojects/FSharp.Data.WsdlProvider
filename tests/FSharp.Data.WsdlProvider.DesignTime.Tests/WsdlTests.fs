@@ -1,5 +1,5 @@
 [<NUnit.Framework.TestFixture>]
-module FShap.Data.WsdlProvider.DesignTime.WsdlTests
+module FSharp.Data.WsdlProvider.DesignTime.WsdlTests
 
 #if INTERACTIVE
 #r "System.Xml.Linq"
@@ -37,37 +37,60 @@ let setup() =
     Environment.CurrentDirectory <- execDir
 
 [<Test>]
-let ``Weather Wsld loading should succeed`` () =
+let ``Weather Wsdl loading should succeed`` () =
     let wsdl = loadWsdl "./Weather.wsdl"
     
     Assert.NotNull(wsdl)
 
 [<Test>]
-let ``Synxis Wsld loading should succeed`` () =
+let ``Synxis Wsdl loading should succeed`` () =
     let wsdl = loadWsdl "./Synxis.wsdl"
     
     Assert.NotNull(wsdl)
 
 [<Test>]
-let ``Translator Wsld loading should succeed`` () =
+let ``Translator Wsdl loading should succeed`` () =
     let wsdl = loadWsdl "./Translator.wsdl"
-    //let wsdl = loadWsdl "http://api.microsofttranslator.com/V2/soap.svc"
     
     Assert.NotNull(wsdl)
 
 [<Test>]
-let ``Planning Wsld loading should succeed`` () =
+let ``Planning Wsdl loading should succeed`` () =
     let wsdl = loadWsdl "./Planning.wsdl"
     
     Assert.NotNull(wsdl)
 
 [<Test>]
-let ``Bug #6: NationalRail Wsld loading should succeed`` () =
+let ``Bug #6: NationalRail Wsdl loading should succeed`` () =
     let wsdl = loadWsdl "./NationalRail.wsdl"
     
     Assert.NotNull(wsdl)
     Assert.IsNotEmpty(wsdl.Services)
+
+[<Test>]
+let ``ChangeSetService Wsld loading should succeed`` () =
+    let wsdl = loadWsdl "./ChangeSetService.wsdl"
     
+    Assert.NotNull(wsdl)
+
+
+
+[<Test>]
+let ``ChangeSetService Test should have contract output`` () =
+    let wsdl = loadWsdl "./ChangeSetService.wsdl"
+
+    let testOperation = wsdl.Services[0].Ports[0].Binding.Operations |> Seq.find(fun op -> op.PortOperation.Name = "Test")    
+    Assert.True(testOperation.PortOperation.Output.IsSome)
+    Assert.True(testOperation.PortOperation.RequireContract)
+
+
+    
+
+
+
+
+
+
 
 
 [<Test>]
@@ -76,7 +99,7 @@ let ``Element can be lists (with min=0 and max=unbounded)`` () =
     let ns = XNamespace.Get "http://ws.cdyne.com/WeatherWS/"
 
     let t = 
-        wsdl.Schemas.Types.[ ns + "ArrayOfWeatherDescription"] 
+        wsdl.Schemas.Types[ ns + "ArrayOfWeatherDescription"] 
 
     let expected =
         { Name = ns + "ArrayOfWeatherDescription"
@@ -84,14 +107,15 @@ let ``Element can be lists (with min=0 and max=unbounded)`` () =
             XsComplexType
                 { XsType.empty with
                     Elements = 
-                        Sequence [ 
+                        Sequence([ 
                             XsElement 
                                 { Name = ns + "WeatherDescription"
                                   Type = TypeRef (ns + "WeatherDescription")
                                   Occurs = { Min = MinOccurs 0; Max = Unbounded }
                                   DefaultValue = None 
                                   Nillable = false;
-                                  SubstitutionGroup = None } ]
+                                  SubstitutionGroup = None } ],
+                            {  Min = MinOccurs 1; Max = MaxOccurs 1})
                 }
         }
     Assert.AreEqual(expected, t)
@@ -105,7 +129,7 @@ let ``Element can have empty complex type`` () =
     let ns = XNamespace.Get "http://ws.cdyne.com/WeatherWS/"
 
     let element = 
-        wsdl.Schemas.Elements.[ns + "GetWeatherInformation"]
+        wsdl.Schemas.Elements[ns + "GetWeatherInformation"]
 
     let expected =
         { Name = ns + "GetWeatherInformation"
@@ -124,14 +148,14 @@ let ``ComplexType contains elements``() =
     let ns = XNamespace.Get "http://ws.cdyne.com/WeatherWS/"
     let xs = XNamespace.Get "http://www.w3.org/2001/XMLSchema"
     let complexType = 
-        wsdl.Schemas.Types.[ns + "temp"]
+        wsdl.Schemas.Types[ns + "temp"]
     let expected = 
         { Name = ns + "temp"
           Type =
             XsComplexType
                 { XsType.empty with
                     Elements = 
-                        Sequence [ XsElement 
+                        Sequence([ XsElement 
                                     { Name = ns + "MorningLow"
                                       Type = TypeRef(xs + "string")
                                       Occurs = Occurs.optional
@@ -144,7 +168,8 @@ let ``ComplexType contains elements``() =
                                       Occurs = Occurs.optional
                                       Nillable = false
                                       DefaultValue = None
-                                      SubstitutionGroup = None }]}
+                                      SubstitutionGroup = None }],
+                                 {  Min = MinOccurs 1; Max = MaxOccurs 1})}
         }
 
     Assert.AreEqual(expected , complexType)
@@ -156,7 +181,7 @@ let ``Services contains declares services`` () =
     let wsdl = loadWsdl "./Weather.wsdl" 
     
     Assert.AreEqual(1, wsdl.Services.Length)
-    Assert.AreEqual("Weather", wsdl.Services.[0].Name)
+    Assert.AreEqual("Weather", wsdl.Services[0].Name)
 
 
 [<Test>]
@@ -164,10 +189,10 @@ let ``Services contains Soap ports `` () =
     // this is used for actions that take no inupt parameters
     let wsdl = loadWsdl "./Weather.wsdl"
     
-    let service = wsdl.Services.[0]
+    let service = wsdl.Services[0]
     Assert.AreEqual(1, service.Ports.Length)
-    Assert.AreEqual("WeatherSoap", service.Ports.[0].Name.LocalName )
-    Assert.AreEqual("http://wsf.cdyne.com/WeatherWS/Weather.asmx", service.Ports.[0].Location )
+    Assert.AreEqual("WeatherSoap", service.Ports[0].Name.LocalName )
+    Assert.AreEqual("http://wsf.cdyne.com/WeatherWS/Weather.asmx", service.Ports[0].Location )
 
 
 [<Test>]
@@ -175,8 +200,8 @@ let ``Document style wsdl is detected`` () =
     // this is used for actions that take no inupt parameters
     let wsdl = loadWsdl "./Eutax.wsdl"
     
-    let service = wsdl.Services.[0]
-    let binding = service.Ports.[0].Binding
+    let service = wsdl.Services[0]
+    let binding = service.Ports[0].Binding
     Assert.AreEqual(Document, binding.Style)
 
 

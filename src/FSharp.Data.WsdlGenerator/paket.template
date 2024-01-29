@@ -1,0 +1,34 @@
+﻿type file
+
+id FSharp.Data.WsdlGenerator
+authors
+    Jeremie Chassaing
+owners
+    Jeremie Chassaing
+projectUrl
+    https://github.com/thinkbeforecoding/FSharp.Data.WsdlProvider
+iconUrl
+    https://raw.githubusercontent.com/thinkbeforecoding/FSharp.Data.WsdlProvider/master/docs/img/logo.png
+licenseUrl
+    https://github.com/thinkbeforecoding/FSharp.Data.WsdlProvider/blob/master/LICENSE.md
+requireLicenseAcceptance
+    false
+tags
+    F# fsharp FSharp.Data.WsdlProvider wsdl myriad
+summary
+    This is a Myriad plugin to generate clients for soap services from wsdl
+description
+    This is a Myriad plugin to generate clients for soap services from wsdl.
+files
+    bin/Release/net6.0/*.dll ==> lib/net6.0
+    bin/Release/net6.0/*.pdb ==> lib/net6.0
+
+    build ==> build    
+dependencies
+  FSharp.Core >= LOCKEDVERSION-Generator
+  Myriad.Core >= LOCKEDVERSION-Generator
+  Fantomas.Core >= LOCKEDVERSION-Generator
+  System.ServiceModel.Duplex >= LOCKEDVERSION-Generator
+  System.ServiceModel.Http >= LOCKEDVERSION-Generator
+
+

@@ -9,22 +9,10 @@ open FSharp.Core.CompilerServices
 open ProviderImplementation.ProvidedTypes
 open System.ServiceModel
 open FSharp.Data.Wsdl
-open FSharp.Data.Xsd
+open FSharp.Data.ClientModel
 open System.Threading.Tasks
 open System.Xml.Linq
 open System.Collections.Concurrent
-
-module String =
-    let camlCase (s: string) =
-        if s.Length >= 1 then
-            string (Char.ToLowerInvariant(s.[0])) + s.Substring(1);
-        else
-            s
-    let PascalCase (s: string) =
-        if s.Length >= 1 then
-            string (Char.ToUpperInvariant(s.[0])) + s.Substring(1);
-        else
-            s
 
 module Provided = 
     open System.Xml.Serialization
@@ -35,7 +23,8 @@ module Provided =
                 upcast [| for t,v in args -> CustomAttributeTypedArgument(t,v) |]
             override _.NamedArguments =  
                 upcast [| for p,v in namedArgs -> CustomAttributeNamedArgument(typeof<'t>.GetProperty(p), v ) |]
-        
+
+
 
 
     let mkProvidedAttribute<'t> args namedArgs =
@@ -43,9 +32,23 @@ module Provided =
 
     let mkXmlElementAttribute (order: int) =  
         mkProvidedAttribute<XmlElementAttribute> [] [ "Order", box order ]
+
+    let mkXmlElementNameAttribute (name: XName, t: Type, order: int) =
+        mkProvidedAttribute<XmlElementAttribute> [typeof<string>, box name.LocalName]
+            [ "Type", box t
+              "Order", box order
+              if name.NamespaceName <> "" then
+                "Namespace", box name.NamespaceName 
+            ]
+
     let mkXmlAttributeAttribute (name: XName) =  
         mkProvidedAttribute<XmlAttributeAttribute> [typeof<string>, box name.LocalName] 
             [ if name.NamespaceName <> "" then
+                "Namespace", box name.NamespaceName ]
+    let mkXmlAttributeNameAttribute (name: XName, t: Type) =
+        mkProvidedAttribute<XmlAttributeAttribute> [typeof<string>, box name.LocalName]
+            [ "Type", box t
+              if name.NamespaceName <> "" then
                 "Namespace", box name.NamespaceName ]
     let mkXmlArrayAttribute (order: int) =  
         mkProvidedAttribute<XmlArrayAttribute> [] [ "Order", box order ]
@@ -99,7 +102,7 @@ module Provided =
                 let location = location
                 let binding = DefaultBinding.SelectBinding(location)
                 let parentCtorCall (args: Expr list) = 
-                    [ args.[0] // this
+                    [ args[0] // this
                       // the SelectBinding methods selects binding 
                       // matching location uri scheme
                       <@@ DefaultBinding.SelectBinding(location) @@>
@@ -113,11 +116,11 @@ module Provided =
                 let args = [ ProvidedParameter("remoteAddress", typeof<string>) ]
                 let c = ProvidedConstructor(args, (fun _ -> <@@ () @@>))
                 let parentCtorCall (args: Expr list) = 
-                    [ args.[0] // this
+                    [ args[0] // this
                       // the SelectBinding methods selects binding 
                       // matching location uri scheme
-                      <@@ DefaultBinding.SelectBinding(%%(args.[1])) @@>
-                      <@@ EndpointAddress( %%(args.[1]) ) @@> ]
+                      <@@ DefaultBinding.SelectBinding(%%(args[1])) @@>
+                      <@@ EndpointAddress( %%(args[1]) ) @@> ]
 
                 c.BaseConstructorCall <- (fun args -> parentCtor, parentCtorCall args )
 
@@ -148,18 +151,29 @@ module Provided =
           SoapInterface: ProvidedTypeDefinition
           Client: ProvidedTypeDefinition }
 
-    let defineOperationMethod (op: Operation,input, output) clientCtx =
-        let name = op.PortOperation.Name
-        let outputType =
-            if output = typeof<Unit> then
-                typeof<Void>
-            else
-                output
+    let rec getType (types: Dictionary<string, ProvidedTypeDefinition>) (tref: TRef) : Type =
+        match tref with
+        | TSimple t when t = typeof<unit> -> typeof<Void>
+        | TSimple t -> t
+        | TRef tr 
+        | TEnum tr -> types[tr]
+        | TRArray tr -> (getType types tr).MakeArrayType()
+        | TRNullable tr -> typedefof<Nullable<_>>.MakeGenericType(getType types tr)
 
+
+
+    let defineOperationMethod types  (op: OperationDef) clientCtx =
+        let name = op.Name
+        let outputType = getType types op.Output
+
+
+        let input =
+            [ for name, t in op.Input ->
+                ProvidedParameter(name, getType types t ) ]
 
         // method on the soap interface including soap attributes
         let soapItfMeth = ProvidedMethod(name, input , outputType)
-        soapItfMeth.AddCustomAttribute (mkOperationContractAttribute op.SoapAction "*")
+        soapItfMeth.AddCustomAttribute (mkOperationContractAttribute op.Action "*")
         soapItfMeth.AddCustomAttribute(mkXmlSerializerFormatAttribute())
        
         clientCtx.SoapInterface.AddMember(soapItfMeth)
@@ -170,29 +184,35 @@ module Provided =
 
         let code = 
             fun (args: Expr list) ->
-                Expr.Call(clientCtx.Channel args.[0], soapItfMeth, args.[1..])
+                Expr.Call(clientCtx.Channel args[0], soapItfMeth, args[1..])
 
         // method implementation
         let clientMeth = ProvidedMethod(name, input, outputType, code)
 
         clientCtx.Client.AddMember(clientMeth)
-        let itfImpl = ProvidedMethod(clientCtx.ClientInterface.FullName + "." + name, input , outputType, invokeCode = ( fun args -> Expr.Call(args.[0], clientMeth, args.[1..])))
+        let itfImpl = ProvidedMethod(clientCtx.ClientInterface.FullName + "." + name, input , outputType, invokeCode = ( fun args -> Expr.Call(args[0], clientMeth, args[1..])))
         itfImpl.SetMethodAttrs(MethodAttributes.Private ||| MethodAttributes.HideBySig ||| MethodAttributes.NewSlot ||| MethodAttributes.Virtual ||| MethodAttributes.Final)
         clientCtx.Client.DefineMethodOverride(itfImpl, itfMeth)
         clientCtx.Client.AddMember(itfImpl)
 
-    let defineAsyncOperationMethod (op: Operation,input, output) clientCtx =
-        let name = op.PortOperation.Name + "Async"
+    let defineAsyncOperationMethod types (op: OperationDef) clientCtx =
+        let name = op.Name + "Async"
 
         // method on soap interface alwasy use tasks (include soap attributes)
+        let output = getType types op.Output
+
         let taskOutput = 
-            if output = typeof<Unit> then
+            if output = typeof<Void> then
                 typeof<Task>
             else
                 ProvidedTypeBuilder.MakeGenericType(typedefof<Task<_>>, [ output ])
 
+        let input =
+            [ for name, t in op.Input ->
+                ProvidedParameter(name, getType types t ) ]
+
         let soapItfMeth = ProvidedMethod(name, input , taskOutput)
-        soapItfMeth.AddCustomAttribute (mkOperationContractAttribute op.SoapAction "*")
+        soapItfMeth.AddCustomAttribute (mkOperationContractAttribute op.Action "*")
         soapItfMeth.AddCustomAttribute(mkXmlSerializerFormatAttribute())
 
         clientCtx.SoapInterface.AddMember(soapItfMeth)
@@ -204,18 +224,18 @@ module Provided =
         // implementation of the task method
         let code = 
             fun (args: Expr list) ->
-                Expr.Call(clientCtx.Channel args.[0], soapItfMeth, args.[1..])
+                Expr.Call(clientCtx.Channel args[0], soapItfMeth, args[1..])
 
         let clientMeth = ProvidedMethod(name, input, taskOutput, code)
 
         clientCtx.Client.AddMember(clientMeth)
-        let itfImpl = ProvidedMethod(clientCtx.ClientInterface.FullName + "." + name, input , taskOutput, invokeCode = ( fun args -> Expr.Call(args.[0], clientMeth, args.[1..])))
+        let itfImpl = ProvidedMethod(clientCtx.ClientInterface.FullName + "." + name, input , taskOutput, invokeCode = ( fun args -> Expr.Call(args[0], clientMeth, args[1..])))
         itfImpl.SetMethodAttrs(MethodAttributes.Private ||| MethodAttributes.HideBySig ||| MethodAttributes.NewSlot ||| MethodAttributes.Virtual ||| MethodAttributes.Final)
         clientCtx.Client.DefineMethodOverride(itfImpl, itfTaskMeth)
         clientCtx.Client.AddMember(itfImpl)
 
         // method on front facing interface using Async
-        let asyncName = "Async" + op.PortOperation.Name
+        let asyncName = "Async" + op.Name
         let asyncOutput = ProvidedTypeBuilder.MakeGenericType(typedefof<Async<_>>, [ output ])
         let itfAsyncMeth = ProvidedMethod(asyncName, input , asyncOutput)
         clientCtx.ClientInterface.AddMember(itfAsyncMeth)
@@ -233,17 +253,17 @@ module Provided =
                             && m.IsGenericMethod 
                             && (let ps = m.GetParameters() 
                                 ps.Length = 1
-                                && ps.[0].ParameterType.IsGenericType
-                                && ps.[0].ParameterType.GetGenericTypeDefinition() = typedefof<Task<_>>) )
+                                && ps[0].ParameterType.IsGenericType
+                                && ps[0].ParameterType.GetGenericTypeDefinition() = typedefof<Task<_>>) )
                     ProvidedTypeBuilder.MakeGenericMethod(awaitTaskGen, [output])
 
             fun (args: Expr list) ->
-                Expr.Call(awaitTask, [ Expr.Call(clientCtx.Channel args.[0], soapItfMeth, args.[1..] ) ])
+                Expr.Call(awaitTask, [ Expr.Call(clientCtx.Channel args[0], soapItfMeth, args[1..] ) ])
 
         let clientMeth = ProvidedMethod(asyncName, input, asyncOutput, code)
 
         clientCtx.Client.AddMember(clientMeth)
-        let itfImpl = ProvidedMethod(clientCtx.ClientInterface.FullName + "." + asyncName, input , asyncOutput, invokeCode = ( fun args -> Expr.Call(args.[0], clientMeth, args.[1..])))
+        let itfImpl = ProvidedMethod(clientCtx.ClientInterface.FullName + "." + asyncName, input , asyncOutput, invokeCode = ( fun args -> Expr.Call(args[0], clientMeth, args[1..])))
         itfImpl.SetMethodAttrs(MethodAttributes.Private ||| MethodAttributes.HideBySig ||| MethodAttributes.NewSlot ||| MethodAttributes.Virtual ||| MethodAttributes.Final)
         clientCtx.Client.DefineMethodOverride(itfImpl, itfAsyncMeth)
         clientCtx.Client.AddMember(itfImpl)
@@ -264,311 +284,171 @@ module Provided =
             Expr.Sequential( makeSequential left, makeSequential right)
 
 
-    type CTChildKind =
-        | CTElement
-        | CTArray of string
-        | CTAttribute
+    let buildWsdlTypes nsp (asm: ProvidedAssembly) name (wsdl: Wsdl) =
+
+        let buildTypeDef (tdef: TypeDef) =
+            let pt =
+                match tdef with
+                | Contract t ->
+                    let pt = ProvidedTypeDefinition(asm, nsp, tdef.TypeName, Some typeof<obj>, isErased = false)
+                    pt.AddCustomAttribute(mkMessageContractAttribute(t.XmlName, true))
+                    pt
+                | ComplexType t ->
+                    let pt = ProvidedTypeDefinition(asm, nsp, tdef.TypeName, Some typeof<obj>, isErased = false)
+                    pt.AddCustomAttribute(mkXmlTypeAttribute(t.XmlName.NamespaceName, false))
+                    pt
+                | AnonymousType t ->
+                    let pt = ProvidedTypeDefinition(asm, nsp, tdef.TypeName, Some typeof<obj>, isErased = false)
+                    pt.AddCustomAttribute(mkXmlTypeAttribute(t.XmlName.NamespaceName, true))
+                    pt
+                | NoNameType t -> 
+                    let pt = ProvidedTypeDefinition(asm, nsp, tdef.TypeName, Some typeof<obj>, isErased = false)
+                    pt 
+                | EnumType e ->
+                    let pt = ProvidedTypeDefinition(asm, e.XmlName.NamespaceName , e.TypeName, Some typeof<Enum>, isErased = false)
+                    pt.AddCustomAttribute(mkXmlTypeAttribute(e.XmlName.NamespaceName,false))
+                    pt
+            tdef, pt
 
 
-    type CTXmlName =
-        | XmlType of XName
-        | Anonymous of XName
-        | NoName
-
-    let buildWsdlTypes nsp (asm: ProvidedAssembly) name wsdl =
-        let p = ProvidedTypeDefinition(asm, nsp, name, Some typeof<obj>, isSealed = false, isErased = false)
-        asm.AddTypes([p])
-
-        let types = Dictionary<XName,ProvidedTypeDefinition>()
-        let typeNames = Dictionary<string,int>()
-
-        // avoid name clashes by adding a number suffix to existing type names
-        let fixTypeName name =
-            match typeNames.TryGetValue(name) with
-            | false, _ ->
-                typeNames.[name] <- 0
-                name
-            | true, n ->
-                let newN = n + 1
-                typeNames.[name] <- newN
-                name + string newN
-
-        let rec buildComplexType contract name (xmlname: CTXmlName) (t: XsComplexType) = 
-            match xmlname with
-            | XmlType n 
-            | Anonymous n ->
-                match types.TryGetValue(n) with
-                | true, t -> t :> Type |> Some
-                | false, _ -> None
-
-            | _ -> None
-            |> function
-               | Some t -> t
-               | None ->
-            
-                let typeName = fixTypeName name 
-                let pt = ProvidedTypeDefinition(asm, nsp , typeName, Some typeof<obj>, isErased = false)
-                match xmlname with
-                | XmlType n ->
-                    if contract then
-                        pt.AddCustomAttribute(mkMessageContractAttribute(n, true))
-                    else
-                        pt.AddCustomAttribute(mkXmlTypeAttribute(n.NamespaceName, false))
-                    types.Add(n, pt)
-                | Anonymous n ->
-                    pt.AddCustomAttribute(mkXmlTypeAttribute(n.NamespaceName, true))
-                | NoName -> ()
-
-                p.AddMember(pt)
-
-
-                let elements = 
-                    match t.Elements with
-                    | Sequence elts ->
-                        [ for p in elts do
-                            match p with
-                            | XsElement ({ Type = TypeRef t } as e) 
-                            | XsElement ({ Type = InlineType (XsSimpleType { BaseType = t }) } as e) ->
-                                
-                                let innerType = 
-                                    if Schema.isBuiltInSimpleType t then
-                                        None
-                                    else
-                                        Some wsdl.Schemas.Types.[t]
-
-                                match innerType with
-                                | Some { Type = XsComplexType { Attributes = []; Elements = Sequence [ XsElement { Name = itemName; Occurs = { Max = max }; Type = TypeRef titem } ]}} when max > MaxOccurs 1 ->
-                                    // This is actually an array
-                                    let ref : Type = typeRef titem
-                                    let propType = ref.MakeArrayType()
-                                    yield (e.Name.LocalName, e.Name, propType, CTArray itemName.LocalName)
-                                | Some { Name = arrayName ; Type = XsComplexType { Attributes = []; Elements = Sequence [ XsElement { Name = itemName; Occurs = { Max = max }; Type = InlineType (XsComplexType ct) } ]}} when max > MaxOccurs 1 ->
-                                
-                                    let pt = buildComplexType false (String.PascalCase arrayName.LocalName + String.PascalCase itemName.LocalName) (Anonymous arrayName) ct
-                                    let propType = pt.MakeArrayType()
-                                    yield (e.Name.LocalName, e.Name, propType, CTArray itemName.LocalName)
-
-                                | _ ->
-
-                                    let propType = applyElementCardinality e (typeRef t) 
-                                    yield (e.Name.LocalName, e.Name, propType, CTElement)
-
-                                     
-                                      
-                            | XsElement ( { Type = InlineType (XsComplexType ct)} as e) ->
-                                let propType = 
-                                    let pt = buildComplexType false (name + String.PascalCase e.Name.LocalName) NoName ct
-                                    applyElementCardinality e pt
-                                    
-
-                                yield (e.Name.LocalName, e.Name, propType, CTElement)
-                            | XsAny _ -> () ]
-                    | _ -> []
-
-                let elementNames = set [ for (n,_,_,_) in elements -> n ]
-                let fixAttributeName name  = 
-                    if Set.contains name elementNames then
-                        name + "Attribute"
-                    else
-                        name
-
-                let attributes =
-                    [ for a in t.Attributes do
-                        let attrType = attributeTypeRef a.Type
-                        let name = fixAttributeName a.Name.LocalName
-
-                        name, a.Name, attrType, CTAttribute ]
-
-                let all = elements @ attributes
-
-                if not (List.isEmpty all) then
-
-                    let fields =
-                        [ for name, _, t, _ in all -> 
-                            ProvidedField( String.camlCase name, t ) ]
-
-                    let props =
-                        (all,fields)
-                        ||> List.mapi2 (fun i (name, xsname,t, kind) field ->
-                           let prop = ProvidedProperty(name, t, getterCode = (fun args -> Expr.FieldGet( args.[0], field) ), setterCode = (fun args -> Expr.FieldSet(args.[0], field, args.[1] ))) 
-                           match kind with
-                           | CTElement -> 
-                                if contract then
-                                    prop.AddCustomAttribute(mkMessageBodyMember(xsname.NamespaceName , i))
-                                else
-                                    prop.AddCustomAttribute(mkXmlElementAttribute i)
-                           | CTAttribute -> prop.AddCustomAttribute(mkXmlAttributeAttribute xsname)
-                           | CTArray itemName ->
-                                if contract then
-                                    prop.AddCustomAttribute(mkMessageBodyMember(xsname.NamespaceName , i))
-                                else
-                                    prop.AddCustomAttribute(mkXmlArrayAttribute i)
-                                prop.AddCustomAttribute(mkXmlArrayItemAttribute(itemName, false))
-                                
-                           prop
-                        )
-
-
-                    let ctor = 
-                        let ps =
-                            [ for name,_, t,_ in all ->
-                                ProvidedParameter(String.camlCase name, t) ]
-
-                        ProvidedConstructor(ps, fun args -> 
-                            let this = args.[0]
-                            let sets = 
-                                fields |> List.mapi (fun i field ->
-                                    Expr.FieldSet(this, field, args.[i+1] ))
-
-                            makeSequential sets
-                            
-                        )
-
-                    pt.AddMembers(fields)
-                    pt.AddMembers(props)
-                    pt.AddMember(ctor)
-                pt.AddMember(ProvidedConstructor([], fun _ -> <@@ () @@>))
-
-                (pt :> Type)
-        and applyElementCardinality e (ref: Type) =
-            if e.Occurs.Max > MaxOccurs 1 then
-                ref.MakeArrayType()
-            elif e.Nillable && ref.IsValueType then
-                typedefof<Nullable<_>>.MakeGenericType(ref)
-            else
-                ref
-
-
-        and buildEnum (name: XName) (t: XsSimpleType) =
-            match types.TryGetValue(name) with
-            | true, t -> t :> Type
-            | false, _ ->
-                let typeName = fixTypeName name.LocalName
-
-                let pt = ProvidedTypeDefinition(asm, nsp , typeName, Some typeof<Enum>, isErased = false)
+        let buildEnum (e: EnumTypeDef) (pt: ProvidedTypeDefinition) =
                 pt.SetEnumUnderlyingType(typeof<int>)
-                pt.AddCustomAttribute(mkXmlTypeAttribute(name.NamespaceName,false))
 
-                types.Add(name, pt)
-                p.AddMember(pt)
-
-                t.Enumeration
+                e.Values
                 |> List.mapi (fun i e ->
                     let f = ProvidedField.Literal(e.Name, pt, box i)
                     f.AddCustomAttribute(mkXmlEnumAttribute e.Value)
                     f )
                 |> pt.AddMembers
 
-                pt :> Type
-
-
-        and buildType contract (typeDef: XsTypeDef) =
-            match typeDef.Type with
-            | XsComplexType t ->
-                buildComplexType contract typeDef.Name.LocalName (XmlType typeDef.Name) t
-            | XsSimpleType ({ Enumeration = _ :: _ } as t)  ->
-                buildEnum typeDef.Name t
-
-            | XsSimpleType t ->
-                match  Schema.builtInSimpleType t.BaseType with
-                | Some ty -> ty
-                | None -> failwith "Unsupported simple type base type"
-            
-        and typeRef (name: XName) =
-            match Schema.builtInSimpleType name with
-            | Some t -> t
-            | None  ->
-                match types.TryGetValue(name) with
-                | true, t -> t :> Type
-                | false,_ ->                    
-                    buildType false wsdl.Schemas.Types.[name]
-
-
-        and attributeTypeRef (t: XsAttributeType) =
-            match t with
-            | XsSimple t -> typeRef t
-            | XsList t -> (typeRef t).MakeArrayType()
-
-        let buildMessage contract (name: XName) (typeRef: XsTypeRef) =
-            match typeRef with
-            | TypeRef name 
-            | InlineType (XsSimpleType { BaseType = name}) ->
-                match Schema.builtInSimpleType name with
-                | Some t -> t
-                | None  ->
-                    match types.TryGetValue(name) with
-                    | true, t -> t :> Type
-                    | false,_ ->                    
-                        buildType contract wsdl.Schemas.Types.[name]
-            | InlineType (XsComplexType t) ->
-                match types.TryGetValue(name) with
-                | true, t -> t :> Type
-                | false,_ ->                    
-                    buildComplexType contract name.LocalName (XmlType name) t
+        let buildComplexType types (tdef: ComplexTypeDef) (pt: ProvidedTypeDefinition) =
+            let fields = 
+                [ for m in tdef.Members ->
+                    let t = getType types m.TypeRef
+                    ProvidedField(m.FieldName, t) ]
                 
 
- 
-        let buildParameters contract (name: XName) (t: XsTypeRef) =
-            match t with
-            | InlineType (XsComplexType { Elements = NoContent; BaseType = None}) ->
-                // no content, this is a void method
-                []
-            | InlineType (XsComplexType { Elements = Sequence [ XsElement ({ Type = tn} as elt) ]}) ->
-                // No need for all this wrapping. Just use the element/type inside
-                [ ProvidedParameter(elt.Name.LocalName, buildMessage contract name tn) ]
-            | tn ->
-                [ ProvidedParameter(name.LocalName, buildMessage contract name tn ) ]
+            let props = 
+                [ for i,m in Seq.indexed tdef.Members do
+                    let field = fields[i]
+                    let t = field.FieldType
+                    let prop = ProvidedProperty(m.PropName , t, getterCode = (fun args -> Expr.FieldGet( args[0], field) ), setterCode = (fun args -> Expr.FieldSet(args[0], field, args[1] ))) 
+                    match m with
+                    | CTElement(_, xsname,_, index)  -> 
+                        prop.AddCustomAttribute(mkXmlElementAttribute index)
+                    | CTContract(_, xsname,_, index)  -> 
+                        prop.AddCustomAttribute(mkMessageBodyMember(xsname.NamespaceName , index))
 
-        let buildElement contract (e: XsElement) =
-            match e with
-            | { Type = t   ; Occurs = { Max = Unbounded }} ->
-                (buildMessage contract  e.Name t).MakeArrayType()
-            | { Type = InlineType (XsComplexType { Elements = Sequence [ XsElement { Type = TypeRef t} ] })} when not contract  ->
-                buildMessage contract e.Name (TypeRef t)
-            | { Type = InlineType (XsSimpleType { BaseType = t}) } when not contract ->
-                buildMessage contract e.Name (TypeRef t)
-            | { Type = InlineType (XsComplexType { BaseType = None; Elements = NoContent; Mixed = false; Attributes = []; AnyAttribute = false}) } ->
-                typeof<unit>
-            | { Type = ct } ->
-                buildMessage contract e.Name ct
-                
-            | _ -> failwithf "Canot build toplevel element %O" e.Name
+
+                    | CTAttribute(_, xsname,_,_) -> prop.AddCustomAttribute(mkXmlAttributeAttribute xsname)
+                    | CTArrayContract(_, xsname,_, itemName, index) ->
+                        prop.AddCustomAttribute(mkMessageBodyMember(xsname.NamespaceName , index))
+                        prop.AddCustomAttribute(mkXmlArrayItemAttribute(itemName, false))
+                    | CTArray(_, xsname,_, itemName, index) ->
+                        prop.AddCustomAttribute(mkXmlArrayAttribute index)
+                        prop.AddCustomAttribute(mkXmlArrayItemAttribute(itemName, false))
+                    | CTChoice (choices,i) ->
+                        for c in choices do
+                            match c with
+                            | CTElement(_,xsname,t, _)
+                            | CTContract(_,xsname,t, _) ->
+                                let t = getType types t
+                                prop.AddCustomAttribute(mkXmlElementNameAttribute(xsname,t,i))
+                            | CTAttribute(_,xsname,t,_) ->
+                                let t = getType types m.TypeRef
+                                prop.AddCustomAttribute(mkXmlAttributeNameAttribute(xsname,t))
+                            | CTArray _
+                            | CTArrayContract _
+                            | CTChoice _ -> ()
+                            | CTArrayChoice _ -> ()
+                            | CTAny _ -> ()
+                    | CTArrayChoice(choices,i) ->
+                        for c in choices do
+                            match c with
+                            | CTElement(_,xsname,t, _)
+                            | CTContract(_,xsname,t, _) ->
+                                let t = getType types t
+                                prop.AddCustomAttribute(mkXmlElementNameAttribute(xsname,t,i))
+                            | CTAttribute(_,xsname,t,_) ->
+                                let t = getType types m.TypeRef
+                                prop.AddCustomAttribute(mkXmlAttributeNameAttribute(xsname,t))
+                            | CTArray _
+                            | CTArrayContract _
+                            | CTChoice _ -> ()
+                            | CTArrayChoice _ -> ()
+                            | CTAny -> ()
+                    | CTAny -> ()
+
+                            
+                    prop ]
+
+
+
+
+            let ctor = 
+                match tdef.Members with
+                | [] -> None // ctor is empty, and we will define one by default
+                | _ ->
+                    let ps =
+                        [ for i,e in Seq.indexed tdef.Members do
+                            match e with
+                            | CTElement(name,_,_,_)
+                            | CTContract(name,_,_,_)
+                            | CTAttribute(name,_,_,_)
+                            | CTArray(name,_,_,_,_) 
+                            | CTArrayContract(name,_,_,_,_) ->
+                                let field = fields[i]  
+                                ProvidedParameter(String.camlCase name, field.FieldType)
+                            | CTChoice _ ->
+                                ProvidedParameter("item", typeof<obj>)
+                            | CTArrayChoice _ ->
+                                ProvidedParameter("items", typeof<obj[]>)
+                            | CTAny _ ->
+                                ProvidedParameter("item", typeof<obj>)
+                                
+                                ]
+
+                    ProvidedConstructor(ps, fun args -> 
+                        let this = args[0]
+                        let sets = 
+                            fields |> List.mapi (fun i field ->
+                                Expr.FieldSet(this, field, args[i+1] ))
+
+                        makeSequential sets ) |> Some
+
+            pt.AddMembers(fields)
+            pt.AddMembers(props)
+            Option.iter pt.AddMember ctor
+            pt.AddMember(ProvidedConstructor([], fun _ -> <@@ () @@>))
+
+        let buildType types (tdef: TypeDef) (tp: ProvidedTypeDefinition) =
+            match tdef with
+            | Contract td
+            | ComplexType td
+            | AnonymousType td 
+            | NoNameType td ->
+                buildComplexType types td tp
+            | EnumType e ->
+                buildEnum e tp
             
-        let buildOperation op clientCtx =
-            let contract = op.PortOperation.RequireContract
-            let input = 
-                match op.PortOperation.Input with
-                | None  -> []
-                | Some {Element = Element { Name = n; Type = t }} -> 
-                    buildParameters contract n t
-                | Some { Name = n; Element = SimpleType t } ->
-                    buildParameters contract (XName.Get n) (TypeRef t)
 
-            let output = 
-                match op.PortOperation.Output with
-                | Some {Element = Element e } ->
-                    buildElement contract e 
-                | Some {Element = SimpleType t } ->
-                    typeRef t
-                | None ->
-                    typeof<unit>
+        let buildOperation types (op: OperationDef) clientCtx =
 
             // synchronous method
-            defineOperationMethod (op,input,output) clientCtx
+            defineOperationMethod types op clientCtx
 
             // task method
-            defineAsyncOperationMethod (op,input, output) clientCtx
+            defineAsyncOperationMethod types op clientCtx
 
-            ()
 
-        let buildPort serviceName (port: Port) = 
+        let buildPort types serviceName (port: PortDef) = 
             try
 
 
-            let soapItf = ProvidedTypeDefinition(asm, nsp, "I" + port.Name.LocalName , None, isErased = false, isInterface = true)
-            soapItf.AddCustomAttribute(mkServiceContractAttribute (port.Name.NamespaceName, nsp + "." + serviceName))
+            let soapItf = ProvidedTypeDefinition(asm, nsp, "I" + port.Name , None, isErased = false, isInterface = true)
+            soapItf.AddCustomAttribute(mkServiceContractAttribute (port.Namespace, nsp + "." + serviceName))
 
-            let itf = ProvidedTypeDefinition(asm, nsp, port.Name.LocalName , None, isErased = false, isInterface = true)
+            let itf = ProvidedTypeDefinition(asm, nsp, port.Name , None, isErased = false, isInterface = true)
 
             let clientBase =
                 let def = typedefof<System.ServiceModel.ClientBase<_>>
@@ -578,7 +458,7 @@ module Provided =
                 ProvidedTypeDefinition(
                         asm,
                         nsp,
-                        port.Name.LocalName + "Client",
+                        port.Name + "Client",
                         Some clientBase,
                         isErased = false,
                         isSealed = false)
@@ -599,8 +479,8 @@ module Provided =
                   SoapInterface = soapItf
                   Client = client }
 
-            for op in port.Binding.Operations do
-                buildOperation op clientCtx
+            for op in port.Operations do
+                buildOperation types op clientCtx
 
             
             [itf; soapItf ; client]
@@ -608,13 +488,32 @@ module Provided =
             | ex -> failwithf "Failed while building ctor: %O" ex 
 
  
-        let buildService (service : Service)  = 
+        let buildService types (service : ServiceDef)  = 
             [ for port in service.Ports do
-                yield! buildPort service.Name port ]
+                yield! buildPort types service.Name port ]
 
-        p.AddMembers( wsdl.Services |> List.collect buildService)
 
+        let model = createModel wsdl
+        let types =
+            [ for tdef in model.Types do
+                buildTypeDef tdef ]
+        let typeNames = Dictionary<string,ProvidedTypeDefinition>()
+
+        for _,t in types do
+            typeNames.Add(t.Name, t)
+
+        for tdef, t in types do
+            buildType typeNames tdef t
+
+        let services = model.Services |> List.collect (buildService typeNames)
+
+        let p = ProvidedTypeDefinition(asm, nsp, name, Some typeof<obj>, isSealed = false, isErased = false)
+        p.AddMembers(List.map snd types)
+        p.AddMembers(services)
+
+        asm.AddTypes([p])
         p
+
 
 [<TypeProvider>]
 type WsdlProvider (config : TypeProviderConfig) as this =
@@ -622,6 +521,9 @@ type WsdlProvider (config : TypeProviderConfig) as this =
 
     let ns = "FSharp.Data"
     let selfAsm = Assembly.GetExecutingAssembly()
+
+
+
 
     // check we contain a copy of runtime files, and are not referencing the runtime DLL
     do assert (typeof<DefaultBinding>.Assembly.GetName().Name = selfAsm.GetName().Name)  
@@ -638,10 +540,10 @@ type WsdlProvider (config : TypeProviderConfig) as this =
           ProvidedStaticParameter("ForceUpdate", typeof<bool>, false)
           ProvidedStaticParameter("ResolutionFolder", typeof<string>, "")],
         fun name args ->
-            let uri = unbox<string> args.[0]
-            let localSchemaFile = unbox<string> args.[1]
-            let forceUpdate = unbox<bool> args.[2]
-            let resolutionFolder = unbox<string> args.[3]
+            let uri = unbox<string> args[0]
+            let localSchemaFile = unbox<string> args[1]
+            let forceUpdate = unbox<bool> args[2]
+            let resolutionFolder = unbox<string> args[3]
 
             match cache.TryGetValue(name) with
             | true, (existingUri, providedType)
@@ -653,7 +555,7 @@ type WsdlProvider (config : TypeProviderConfig) as this =
                         let basePath =
                             if String.IsNullOrEmpty resolutionFolder then
                                 Environment.CurrentDirectory
-                            elif resolutionFolder.[resolutionFolder.Length-1] = Path.DirectorySeparatorChar then
+                            elif resolutionFolder[resolutionFolder.Length-1] = Path.DirectorySeparatorChar then
                                 resolutionFolder
                             else
                                 resolutionFolder + string Path.DirectorySeparatorChar
@@ -682,9 +584,9 @@ type WsdlProvider (config : TypeProviderConfig) as this =
 
                 try
                     let asm = ProvidedAssembly()
-                    let providedType = Provided.buildWsdlTypes ns asm name wsdl 
+                    let providedType = Provided.buildWsdlTypes service.Namespace asm name wsdl 
 
-                    cache.[name] <- (uri, providedType)
+                    cache[name] <- (uri, providedType)
                     providedType
                 with
                 | ex -> failwithf "%O" ex 
@@ -694,6 +596,7 @@ type WsdlProvider (config : TypeProviderConfig) as this =
     do this.AddNamespace(
         ns, [service]
     )
+
 
 [<TypeProviderAssembly>]
 do ()

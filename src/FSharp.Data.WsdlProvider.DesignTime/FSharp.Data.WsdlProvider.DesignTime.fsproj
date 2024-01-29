@@ -19,9 +19,11 @@
       <Paket>True</Paket>
       <Link>paket-files/ProvidedTypes.fs</Link>
     </Compile>
+    <Compile Include="Prelude.fs" />
     <Compile Include="AssemblyInfo.fs" />
     <Compile Include="Xsd.fs" />
     <Compile Include="Wsdl.fs" />
+    <Compile Include="ClientModel.fs" />
     <Compile Include="..\FSharp.Data.WsdlProvider.Runtime\FSharp.Data.WsdlProvider.Runtime.fs" />
     <Compile Include="FSharp.Data.WsdlProvider.DesignTime.fs" />
     <None Include="paket.references" />

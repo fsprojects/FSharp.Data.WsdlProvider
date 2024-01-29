@@ -1,0 +1,970 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<wsdl:definitions xmlns:s="http://www.w3.org/2001/XMLSchema" xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/" xmlns:http="http://schemas.xmlsoap.org/wsdl/http/" xmlns:mime="http://schemas.xmlsoap.org/wsdl/mime/" xmlns:tns="http://ws.availpro.com/internal/schemas/planning/2012A" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:tm="http://microsoft.com/wsdl/mime/textMatching/" xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/" targetNamespace="http://ws.availpro.com/internal/schemas/planning/2012A" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">
+  <wsdl:documentation xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">Provides information concerning planning changesets.</wsdl:documentation>
+  <wsdl:types>
+    <s:schema elementFormDefault="qualified" targetNamespace="http://ws.availpro.com/internal/schemas/planning/2012A">
+      <s:element name="Test">
+        <s:complexType />
+      </s:element>
+      <s:element name="TestResponse">
+        <s:complexType />
+      </s:element>
+      <s:element name="GetChangeSetStatus">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="hotelId" type="s:int" />
+            <s:element minOccurs="0" maxOccurs="1" name="changeSetId" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetChangeSetStatusResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="GetChangeSetStatusResult" type="tns:PlanningResponseMessage" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetChangeSet">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="hotelId" type="s:int" />
+            <s:element minOccurs="0" maxOccurs="1" name="changeSetId" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetChangeSetResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="GetChangeSetResult" type="tns:PlanningResponseMessage" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="SearchChangeSets">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="startDate" type="s:dateTime" />
+            <s:element minOccurs="1" maxOccurs="1" name="endDate" type="s:dateTime" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="SearchChangeSetsResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="SearchChangeSetsResult" type="tns:PlanningResponseMessage" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="SearchHotelChangeSets">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="hotelId" type="s:int" />
+            <s:element minOccurs="1" maxOccurs="1" name="startDate" type="s:dateTime" />
+            <s:element minOccurs="1" maxOccurs="1" name="endDate" type="s:dateTime" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="SearchHotelChangeSetsResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="SearchHotelChangeSetsResult" type="tns:PlanningResponseMessage" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="SearchPendingHotelChangeSets">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="hotelId" type="s:int" />
+            <s:element minOccurs="1" maxOccurs="1" name="startDate" type="s:dateTime" />
+            <s:element minOccurs="1" maxOccurs="1" name="endDate" type="s:dateTime" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="SearchPendingHotelChangeSetsResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="SearchPendingHotelChangeSetsResult" type="tns:PlanningResponseMessage" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="SearchBookingChangeSets">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="bookingId" type="s:int" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="SearchBookingChangeSetsResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="SearchBookingChangeSetsResult" type="tns:PlanningResponseMessage" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="SearchBookingReferenceChangeSets">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="bookingReference" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="SearchBookingReferenceChangeSetsResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="SearchBookingReferenceChangeSetsResult" type="tns:PlanningResponseMessage" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="response" nillable="true" type="tns:PlanningResponseMessage" />
+      <s:element name="request" nillable="true" type="tns:PlanningRequestMessage" />
+      <s:element name="metadata" nillable="true" type="tns:Metadata" />
+      <s:simpleType name="DayOfWeek">
+        <s:restriction base="s:string">
+          <s:enumeration value="Monday" />
+          <s:enumeration value="Tuesday" />
+          <s:enumeration value="Wednesday" />
+          <s:enumeration value="Thursday" />
+          <s:enumeration value="Friday" />
+          <s:enumeration value="Saturday" />
+          <s:enumeration value="Sunday" />
+        </s:restriction>
+      </s:simpleType>
+      <s:simpleType name="ChangeAction">
+        <s:restriction base="s:string">
+          <s:enumeration value="Reset" />
+          <s:enumeration value="Set" />
+          <s:enumeration value="Offset" />
+        </s:restriction>
+      </s:simpleType>
+      <s:simpleType name="PropertyName">
+        <s:restriction base="s:string">
+          <s:enumeration value="InitialAvailability" />
+          <s:enumeration value="RemainingAvailability" />
+          <s:enumeration value="BookingCount" />
+          <s:enumeration value="Activation" />
+          <s:enumeration value="Price" />
+          <s:enumeration value="OverridingPrice" />
+          <s:enumeration value="MinimumStay" />
+          <s:enumeration value="OnArrivalMinimumStay" />
+          <s:enumeration value="OnDepartureMinimumStay" />
+          <s:enumeration value="MaximumStay" />
+          <s:enumeration value="OnArrivalMaximumStay" />
+          <s:enumeration value="OnDepartureMaximumStay" />
+          <s:enumeration value="CancelConditions" />
+        </s:restriction>
+      </s:simpleType>
+      <s:simpleType name="Id">
+        <s:restriction base="s:string">
+          <s:pattern value="[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}" />
+        </s:restriction>
+      </s:simpleType>
+      <s:simpleType name="Version">
+        <s:restriction base="s:string">
+          <s:pattern value="[0-9]{1,5}(\.[0-9]{1,5}(\.[0-9]{1,5})?(\.[0-9]{1,5})?)?" />
+        </s:restriction>
+      </s:simpleType>
+      <s:simpleType name="YYYY-MM-DDDate">
+        <s:restriction base="s:string">
+          <s:pattern value="(([0-9]{4})(-)((09|04|06|11)(-)((0[1-9])|(1[0-9])|(2[0-9])|30)|(02(-)((0[1-9])|(1[0-9])|(2[0-9]))|((01|03|05|07|08|10|12)(-)((0[1-9])|(1[0-9])|(2[0-9])|30|31)))))" />
+        </s:restriction>
+      </s:simpleType>
+      <s:complexType name="ChangeRequest">
+        <s:sequence>
+          <s:element minOccurs="1" maxOccurs="unbounded" name="entity">
+            <s:complexType>
+              <s:sequence>
+                <s:element minOccurs="1" maxOccurs="unbounded" name="property">
+                  <s:complexType>
+                    <s:sequence>
+                      <s:element minOccurs="1" maxOccurs="unbounded" name="change">
+                        <s:complexType>
+                          <s:sequence>
+                            <s:element minOccurs="1" maxOccurs="1" name="period">
+                              <s:complexType>
+                                <s:sequence>
+                                  <s:element minOccurs="0" maxOccurs="7" name="dayOfWeek">
+                                    <s:complexType>
+                                      <s:attribute name="day" type="tns:DayOfWeek" use="required" />
+                                    </s:complexType>
+                                  </s:element>
+                                </s:sequence>
+                                <s:attribute name="beginDate" type="tns:YYYY-MM-DDDate" use="required" />
+                                <s:attribute name="endDate" type="tns:YYYY-MM-DDDate" use="required" />
+                              </s:complexType>
+                            </s:element>
+                          </s:sequence>
+                          <s:attribute name="action" type="tns:ChangeAction" use="required" />
+                          <s:attribute name="value" type="s:string" use="optional" />
+                          <s:attribute name="dependency" type="tns:PropertyName" use="optional" />
+                        </s:complexType>
+                      </s:element>
+                    </s:sequence>
+                    <s:attribute name="name" type="tns:PropertyName" use="required" />
+                  </s:complexType>
+                </s:element>
+              </s:sequence>
+              <s:attribute name="type" type="tns:EntityType" use="required" />
+              <s:attribute name="hotelId" type="s:unsignedInt" use="optional" />
+              <s:attribute name="roomId" type="s:unsignedInt" use="optional" />
+              <s:attribute name="articleId" type="s:unsignedInt" use="optional" />
+              <s:attribute name="rateId" type="s:unsignedInt" use="optional" />
+              <s:attribute name="channelGroupId" type="tns:Id" use="optional" />
+            </s:complexType>
+          </s:element>
+        </s:sequence>
+        <s:attribute name="id" type="tns:Id" use="required" />
+        <s:attribute default="false" name="asynchronous" type="s:boolean" use="optional" />
+      </s:complexType>
+      <s:complexType name="Metadata">
+        <s:sequence>
+          <s:element minOccurs="1" maxOccurs="1" name="application">
+            <s:complexType>
+              <s:attribute name="name" type="s:string" use="required" />
+              <s:attribute name="version" type="tns:Version" use="required" />
+            </s:complexType>
+          </s:element>
+        </s:sequence>
+        <s:attribute name="groupId" type="s:unsignedInt" use="required" />
+        <s:attribute name="hotelId" type="s:unsignedInt" use="required" />
+        <s:attribute name="userId" type="s:unsignedInt" use="optional" />
+        <s:attribute name="sirionaUserId" type="tns:Id" use="optional" />
+        <s:attribute name="bookingReference" type="s:string" use="optional" />
+      </s:complexType>
+      <s:complexType name="PlanningRequestMessage">
+        <s:sequence>
+          <s:element minOccurs="1" maxOccurs="1" name="metadata" type="tns:Metadata" />
+          <s:element minOccurs="1" maxOccurs="1" name="changeRequest" type="tns:ChangeRequest" />
+        </s:sequence>
+      </s:complexType>
+      <s:simpleType name="EntityType">
+        <s:restriction base="s:string">
+          <s:enumeration value="Hotel" />
+          <s:enumeration value="Article" />
+          <s:enumeration value="Rate" />
+          <s:enumeration value="HotelChannelGroup" />
+          <s:enumeration value="ArticleChannelGroup" />
+          <s:enumeration value="RateChannelGroup" />
+        </s:restriction>
+      </s:simpleType>
+      <s:simpleType name="ChangeStatus">
+        <s:restriction base="s:string">
+          <s:enumeration value="None" />
+          <s:enumeration value="Pending" />
+          <s:enumeration value="Success" />
+          <s:enumeration value="Warning" />
+          <s:enumeration value="Failure" />
+        </s:restriction>
+      </s:simpleType>
+      <s:simpleType name="ChangeConstraint">
+        <s:restriction base="s:string">
+          <s:enumeration value="None" />
+          <s:enumeration value="Overbooking" />
+          <s:enumeration value="LowRemainingRoomAvailability" />
+          <s:enumeration value="RoomMaximumPriceExceeded" />
+          <s:enumeration value="RoomMinimumPriceExceeded" />
+          <s:enumeration value="RoomMaximumCountExceeded" />
+          <s:enumeration value="UnsaleableRoom" />
+          <s:enumeration value="UnsaleableRoomExpected" />
+          <s:enumeration value="ExtraMaximumPriceExpected" />
+          <s:enumeration value="ExtraMinimumPriceExpected" />
+          <s:enumeration value="StayLengthExceeded" />
+          <s:enumeration value="StayDatePassed" />
+          <s:enumeration value="ErrorOccurred" />
+        </s:restriction>
+      </s:simpleType>
+      <s:complexType name="ChangePropertyResult">
+        <s:sequence>
+          <s:element minOccurs="1" maxOccurs="unbounded" name="change">
+            <s:complexType>
+              <s:sequence>
+                <s:element minOccurs="1" maxOccurs="1" name="period">
+                  <s:complexType>
+                    <s:sequence>
+                      <s:element minOccurs="0" maxOccurs="7" name="dayOfWeek">
+                        <s:complexType>
+                          <s:attribute name="day" type="tns:DayOfWeek" use="required" />
+                        </s:complexType>
+                      </s:element>
+                    </s:sequence>
+                    <s:attribute name="beginDate" type="tns:YYYY-MM-DDDate" use="required" />
+                    <s:attribute name="endDate" type="tns:YYYY-MM-DDDate" use="required" />
+                  </s:complexType>
+                </s:element>
+                <s:element minOccurs="0" maxOccurs="1" name="dependencies">
+                  <s:complexType>
+                    <s:sequence minOccurs="1" maxOccurs="unbounded">
+                      <s:element minOccurs="0" maxOccurs="unbounded" name="property" type="tns:ChangePropertyResult" />
+                      <s:element minOccurs="0" maxOccurs="unbounded" name="entity" type="tns:ChangeEntityResult" />
+                    </s:sequence>
+                  </s:complexType>
+                </s:element>
+              </s:sequence>
+              <s:attribute name="action" type="tns:ChangeAction" use="required" />
+              <s:attribute name="automatic" type="s:boolean" use="optional" />
+              <s:attribute name="value" type="s:string" use="optional" />
+              <s:attribute name="status" type="tns:ChangeStatus" use="required" />
+              <s:attribute name="constraint" type="tns:ChangeConstraint" use="optional" />
+              <s:attribute name="conflictingValue" type="s:string" use="optional" />
+            </s:complexType>
+          </s:element>
+        </s:sequence>
+        <s:attribute name="name" type="tns:PropertyName" use="required" />
+      </s:complexType>
+      <s:complexType name="ChangeEntityResult">
+        <s:sequence>
+          <s:element minOccurs="1" maxOccurs="unbounded" name="property" type="tns:ChangePropertyResult" />
+        </s:sequence>
+        <s:attribute name="type" type="tns:EntityType" use="required" />
+        <s:attribute name="hotelId" type="s:unsignedInt" use="optional" />
+        <s:attribute name="roomId" type="s:unsignedInt" use="optional" />
+        <s:attribute name="articleId" type="s:unsignedInt" use="optional" />
+        <s:attribute name="rateId" type="s:unsignedInt" use="optional" />
+        <s:attribute name="channelGroupId" type="tns:Id" use="optional" />
+      </s:complexType>
+      <s:complexType name="Error">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="comment" type="s:string" />
+        </s:sequence>
+        <s:attribute name="type" type="s:string" use="required" />
+        <s:attribute name="message" type="s:string" use="required" />
+      </s:complexType>
+      <s:complexType name="ChangeResponse">
+        <s:attribute name="id" type="tns:Id" use="required" />
+        <s:attribute name="status" type="tns:ChangeStatus" use="required" />
+      </s:complexType>
+      <s:complexType name="ChangeSetResponse">
+        <s:sequence>
+          <s:element minOccurs="1" maxOccurs="1" name="metadata" type="tns:Metadata" />
+          <s:element minOccurs="1" maxOccurs="1" name="changes">
+            <s:complexType>
+              <s:sequence>
+                <s:element minOccurs="0" maxOccurs="unbounded" name="entity" type="tns:ChangeEntityResult" />
+              </s:sequence>
+            </s:complexType>
+          </s:element>
+        </s:sequence>
+        <s:attribute name="id" type="tns:Id" use="required" />
+        <s:attribute name="requestDate" type="s:dateTime" use="required" />
+        <s:attribute name="completionDate" type="s:dateTime" use="optional" />
+        <s:attribute name="status" type="tns:ChangeStatus" use="required" />
+        <s:attribute default="false" name="ignoreFailures" type="s:boolean" use="optional" />
+        <s:attribute default="false" name="legacyReload" type="s:boolean" use="optional" />
+      </s:complexType>
+      <s:complexType name="ChangeSetSearchResponse">
+        <s:sequence minOccurs="0" maxOccurs="unbounded">
+          <s:element name="changeSet">
+            <s:complexType>
+              <s:sequence>
+                <s:element minOccurs="1" maxOccurs="1" name="metadata" type="tns:Metadata" />
+              </s:sequence>
+              <s:attribute name="id" type="tns:Id" use="required" />
+              <s:attribute name="requestDate" type="s:dateTime" use="required" />
+              <s:attribute name="completionDate" type="s:dateTime" use="optional" />
+              <s:attribute name="status" type="tns:ChangeStatus" use="required" />
+              <s:attribute default="false" name="ignoreFailures" type="s:boolean" use="optional" />
+              <s:attribute default="false" name="legacyReload" type="s:boolean" use="optional" />
+            </s:complexType>
+          </s:element>
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="PlanningResponseMessage">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="success" />
+          <s:element minOccurs="0" maxOccurs="1" name="warning" type="tns:Error" />
+          <s:element minOccurs="0" maxOccurs="1" name="failure" type="tns:Error" />
+          <s:choice minOccurs="0" maxOccurs="1">
+            <s:element minOccurs="0" maxOccurs="1" name="changeResponse" type="tns:ChangeResponse" />
+            <s:element minOccurs="0" maxOccurs="1" name="changeSetResponse" type="tns:ChangeSetResponse" />
+            <s:element minOccurs="0" maxOccurs="1" name="changeSetSearchResponse" type="tns:ChangeSetSearchResponse" />
+          </s:choice>
+        </s:sequence>
+      </s:complexType>
+    </s:schema>
+  </wsdl:types>
+  <wsdl:message name="TestSoapIn">
+    <wsdl:part name="parameters" element="tns:Test" />
+  </wsdl:message>
+  <wsdl:message name="TestSoapOut">
+    <wsdl:part name="parameters" element="tns:TestResponse" />
+  </wsdl:message>
+  <wsdl:message name="GetChangeSetStatusSoapIn">
+    <wsdl:part name="parameters" element="tns:GetChangeSetStatus" />
+  </wsdl:message>
+  <wsdl:message name="GetChangeSetStatusSoapOut">
+    <wsdl:part name="parameters" element="tns:GetChangeSetStatusResponse" />
+  </wsdl:message>
+  <wsdl:message name="GetChangeSetSoapIn">
+    <wsdl:part name="parameters" element="tns:GetChangeSet" />
+  </wsdl:message>
+  <wsdl:message name="GetChangeSetSoapOut">
+    <wsdl:part name="parameters" element="tns:GetChangeSetResponse" />
+  </wsdl:message>
+  <wsdl:message name="SearchChangeSetsSoapIn">
+    <wsdl:part name="parameters" element="tns:SearchChangeSets" />
+  </wsdl:message>
+  <wsdl:message name="SearchChangeSetsSoapOut">
+    <wsdl:part name="parameters" element="tns:SearchChangeSetsResponse" />
+  </wsdl:message>
+  <wsdl:message name="SearchHotelChangeSetsSoapIn">
+    <wsdl:part name="parameters" element="tns:SearchHotelChangeSets" />
+  </wsdl:message>
+  <wsdl:message name="SearchHotelChangeSetsSoapOut">
+    <wsdl:part name="parameters" element="tns:SearchHotelChangeSetsResponse" />
+  </wsdl:message>
+  <wsdl:message name="SearchPendingHotelChangeSetsSoapIn">
+    <wsdl:part name="parameters" element="tns:SearchPendingHotelChangeSets" />
+  </wsdl:message>
+  <wsdl:message name="SearchPendingHotelChangeSetsSoapOut">
+    <wsdl:part name="parameters" element="tns:SearchPendingHotelChangeSetsResponse" />
+  </wsdl:message>
+  <wsdl:message name="SearchBookingChangeSetsSoapIn">
+    <wsdl:part name="parameters" element="tns:SearchBookingChangeSets" />
+  </wsdl:message>
+  <wsdl:message name="SearchBookingChangeSetsSoapOut">
+    <wsdl:part name="parameters" element="tns:SearchBookingChangeSetsResponse" />
+  </wsdl:message>
+  <wsdl:message name="SearchBookingReferenceChangeSetsSoapIn">
+    <wsdl:part name="parameters" element="tns:SearchBookingReferenceChangeSets" />
+  </wsdl:message>
+  <wsdl:message name="SearchBookingReferenceChangeSetsSoapOut">
+    <wsdl:part name="parameters" element="tns:SearchBookingReferenceChangeSetsResponse" />
+  </wsdl:message>
+  <wsdl:message name="TestHttpGetIn" />
+  <wsdl:message name="TestHttpGetOut" />
+  <wsdl:message name="GetChangeSetStatusHttpGetIn">
+    <wsdl:part name="hotelId" type="s:string" />
+    <wsdl:part name="changeSetId" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="GetChangeSetStatusHttpGetOut">
+    <wsdl:part name="Body" element="tns:response" />
+  </wsdl:message>
+  <wsdl:message name="GetChangeSetHttpGetIn">
+    <wsdl:part name="hotelId" type="s:string" />
+    <wsdl:part name="changeSetId" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="GetChangeSetHttpGetOut">
+    <wsdl:part name="Body" element="tns:response" />
+  </wsdl:message>
+  <wsdl:message name="SearchChangeSetsHttpGetIn">
+    <wsdl:part name="startDate" type="s:string" />
+    <wsdl:part name="endDate" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="SearchChangeSetsHttpGetOut">
+    <wsdl:part name="Body" element="tns:response" />
+  </wsdl:message>
+  <wsdl:message name="SearchHotelChangeSetsHttpGetIn">
+    <wsdl:part name="hotelId" type="s:string" />
+    <wsdl:part name="startDate" type="s:string" />
+    <wsdl:part name="endDate" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="SearchHotelChangeSetsHttpGetOut">
+    <wsdl:part name="Body" element="tns:response" />
+  </wsdl:message>
+  <wsdl:message name="SearchPendingHotelChangeSetsHttpGetIn">
+    <wsdl:part name="hotelId" type="s:string" />
+    <wsdl:part name="startDate" type="s:string" />
+    <wsdl:part name="endDate" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="SearchPendingHotelChangeSetsHttpGetOut">
+    <wsdl:part name="Body" element="tns:response" />
+  </wsdl:message>
+  <wsdl:message name="SearchBookingChangeSetsHttpGetIn">
+    <wsdl:part name="bookingId" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="SearchBookingChangeSetsHttpGetOut">
+    <wsdl:part name="Body" element="tns:response" />
+  </wsdl:message>
+  <wsdl:message name="SearchBookingReferenceChangeSetsHttpGetIn">
+    <wsdl:part name="bookingReference" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="SearchBookingReferenceChangeSetsHttpGetOut">
+    <wsdl:part name="Body" element="tns:response" />
+  </wsdl:message>
+  <wsdl:message name="TestHttpPostIn" />
+  <wsdl:message name="TestHttpPostOut" />
+  <wsdl:message name="GetChangeSetStatusHttpPostIn">
+    <wsdl:part name="hotelId" type="s:string" />
+    <wsdl:part name="changeSetId" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="GetChangeSetStatusHttpPostOut">
+    <wsdl:part name="Body" element="tns:response" />
+  </wsdl:message>
+  <wsdl:message name="GetChangeSetHttpPostIn">
+    <wsdl:part name="hotelId" type="s:string" />
+    <wsdl:part name="changeSetId" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="GetChangeSetHttpPostOut">
+    <wsdl:part name="Body" element="tns:response" />
+  </wsdl:message>
+  <wsdl:message name="SearchChangeSetsHttpPostIn">
+    <wsdl:part name="startDate" type="s:string" />
+    <wsdl:part name="endDate" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="SearchChangeSetsHttpPostOut">
+    <wsdl:part name="Body" element="tns:response" />
+  </wsdl:message>
+  <wsdl:message name="SearchHotelChangeSetsHttpPostIn">
+    <wsdl:part name="hotelId" type="s:string" />
+    <wsdl:part name="startDate" type="s:string" />
+    <wsdl:part name="endDate" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="SearchHotelChangeSetsHttpPostOut">
+    <wsdl:part name="Body" element="tns:response" />
+  </wsdl:message>
+  <wsdl:message name="SearchPendingHotelChangeSetsHttpPostIn">
+    <wsdl:part name="hotelId" type="s:string" />
+    <wsdl:part name="startDate" type="s:string" />
+    <wsdl:part name="endDate" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="SearchPendingHotelChangeSetsHttpPostOut">
+    <wsdl:part name="Body" element="tns:response" />
+  </wsdl:message>
+  <wsdl:message name="SearchBookingChangeSetsHttpPostIn">
+    <wsdl:part name="bookingId" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="SearchBookingChangeSetsHttpPostOut">
+    <wsdl:part name="Body" element="tns:response" />
+  </wsdl:message>
+  <wsdl:message name="SearchBookingReferenceChangeSetsHttpPostIn">
+    <wsdl:part name="bookingReference" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="SearchBookingReferenceChangeSetsHttpPostOut">
+    <wsdl:part name="Body" element="tns:response" />
+  </wsdl:message>
+  <wsdl:portType name="ChangeSetService2012ASoap">
+    <wsdl:operation name="Test">
+      <wsdl:documentation xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">Tests availability of the Web Service.</wsdl:documentation>
+      <wsdl:input message="tns:TestSoapIn" />
+      <wsdl:output message="tns:TestSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetChangeSetStatus">
+      <wsdl:documentation xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">Gets the status of a change set.</wsdl:documentation>
+      <wsdl:input message="tns:GetChangeSetStatusSoapIn" />
+      <wsdl:output message="tns:GetChangeSetStatusSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetChangeSet">
+      <wsdl:documentation xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">Gets the result of a change set.</wsdl:documentation>
+      <wsdl:input message="tns:GetChangeSetSoapIn" />
+      <wsdl:output message="tns:GetChangeSetSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="SearchChangeSets">
+      <wsdl:documentation xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">Search change sets.</wsdl:documentation>
+      <wsdl:input message="tns:SearchChangeSetsSoapIn" />
+      <wsdl:output message="tns:SearchChangeSetsSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="SearchHotelChangeSets">
+      <wsdl:documentation xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">Search change sets for a hotel.</wsdl:documentation>
+      <wsdl:input message="tns:SearchHotelChangeSetsSoapIn" />
+      <wsdl:output message="tns:SearchHotelChangeSetsSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="SearchPendingHotelChangeSets">
+      <wsdl:documentation xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">Search pending change sets for a hotel.</wsdl:documentation>
+      <wsdl:input message="tns:SearchPendingHotelChangeSetsSoapIn" />
+      <wsdl:output message="tns:SearchPendingHotelChangeSetsSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="SearchBookingChangeSets">
+      <wsdl:documentation xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">Search change sets for a booking.</wsdl:documentation>
+      <wsdl:input message="tns:SearchBookingChangeSetsSoapIn" />
+      <wsdl:output message="tns:SearchBookingChangeSetsSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="SearchBookingReferenceChangeSets">
+      <wsdl:documentation xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">Search change sets for a booking reference.</wsdl:documentation>
+      <wsdl:input message="tns:SearchBookingReferenceChangeSetsSoapIn" />
+      <wsdl:output message="tns:SearchBookingReferenceChangeSetsSoapOut" />
+    </wsdl:operation>
+  </wsdl:portType>
+  <wsdl:portType name="ChangeSetService2012AHttpGet">
+    <wsdl:operation name="Test">
+      <wsdl:documentation xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">Tests availability of the Web Service.</wsdl:documentation>
+      <wsdl:input message="tns:TestHttpGetIn" />
+      <wsdl:output message="tns:TestHttpGetOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetChangeSetStatus">
+      <wsdl:documentation xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">Gets the status of a change set.</wsdl:documentation>
+      <wsdl:input message="tns:GetChangeSetStatusHttpGetIn" />
+      <wsdl:output message="tns:GetChangeSetStatusHttpGetOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetChangeSet">
+      <wsdl:documentation xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">Gets the result of a change set.</wsdl:documentation>
+      <wsdl:input message="tns:GetChangeSetHttpGetIn" />
+      <wsdl:output message="tns:GetChangeSetHttpGetOut" />
+    </wsdl:operation>
+    <wsdl:operation name="SearchChangeSets">
+      <wsdl:documentation xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">Search change sets.</wsdl:documentation>
+      <wsdl:input message="tns:SearchChangeSetsHttpGetIn" />
+      <wsdl:output message="tns:SearchChangeSetsHttpGetOut" />
+    </wsdl:operation>
+    <wsdl:operation name="SearchHotelChangeSets">
+      <wsdl:documentation xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">Search change sets for a hotel.</wsdl:documentation>
+      <wsdl:input message="tns:SearchHotelChangeSetsHttpGetIn" />
+      <wsdl:output message="tns:SearchHotelChangeSetsHttpGetOut" />
+    </wsdl:operation>
+    <wsdl:operation name="SearchPendingHotelChangeSets">
+      <wsdl:documentation xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">Search pending change sets for a hotel.</wsdl:documentation>
+      <wsdl:input message="tns:SearchPendingHotelChangeSetsHttpGetIn" />
+      <wsdl:output message="tns:SearchPendingHotelChangeSetsHttpGetOut" />
+    </wsdl:operation>
+    <wsdl:operation name="SearchBookingChangeSets">
+      <wsdl:documentation xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">Search change sets for a booking.</wsdl:documentation>
+      <wsdl:input message="tns:SearchBookingChangeSetsHttpGetIn" />
+      <wsdl:output message="tns:SearchBookingChangeSetsHttpGetOut" />
+    </wsdl:operation>
+    <wsdl:operation name="SearchBookingReferenceChangeSets">
+      <wsdl:documentation xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">Search change sets for a booking reference.</wsdl:documentation>
+      <wsdl:input message="tns:SearchBookingReferenceChangeSetsHttpGetIn" />
+      <wsdl:output message="tns:SearchBookingReferenceChangeSetsHttpGetOut" />
+    </wsdl:operation>
+  </wsdl:portType>
+  <wsdl:portType name="ChangeSetService2012AHttpPost">
+    <wsdl:operation name="Test">
+      <wsdl:documentation xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">Tests availability of the Web Service.</wsdl:documentation>
+      <wsdl:input message="tns:TestHttpPostIn" />
+      <wsdl:output message="tns:TestHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetChangeSetStatus">
+      <wsdl:documentation xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">Gets the status of a change set.</wsdl:documentation>
+      <wsdl:input message="tns:GetChangeSetStatusHttpPostIn" />
+      <wsdl:output message="tns:GetChangeSetStatusHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetChangeSet">
+      <wsdl:documentation xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">Gets the result of a change set.</wsdl:documentation>
+      <wsdl:input message="tns:GetChangeSetHttpPostIn" />
+      <wsdl:output message="tns:GetChangeSetHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="SearchChangeSets">
+      <wsdl:documentation xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">Search change sets.</wsdl:documentation>
+      <wsdl:input message="tns:SearchChangeSetsHttpPostIn" />
+      <wsdl:output message="tns:SearchChangeSetsHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="SearchHotelChangeSets">
+      <wsdl:documentation xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">Search change sets for a hotel.</wsdl:documentation>
+      <wsdl:input message="tns:SearchHotelChangeSetsHttpPostIn" />
+      <wsdl:output message="tns:SearchHotelChangeSetsHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="SearchPendingHotelChangeSets">
+      <wsdl:documentation xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">Search pending change sets for a hotel.</wsdl:documentation>
+      <wsdl:input message="tns:SearchPendingHotelChangeSetsHttpPostIn" />
+      <wsdl:output message="tns:SearchPendingHotelChangeSetsHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="SearchBookingChangeSets">
+      <wsdl:documentation xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">Search change sets for a booking.</wsdl:documentation>
+      <wsdl:input message="tns:SearchBookingChangeSetsHttpPostIn" />
+      <wsdl:output message="tns:SearchBookingChangeSetsHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="SearchBookingReferenceChangeSets">
+      <wsdl:documentation xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">Search change sets for a booking reference.</wsdl:documentation>
+      <wsdl:input message="tns:SearchBookingReferenceChangeSetsHttpPostIn" />
+      <wsdl:output message="tns:SearchBookingReferenceChangeSetsHttpPostOut" />
+    </wsdl:operation>
+  </wsdl:portType>
+  <wsdl:binding name="ChangeSetService2012ASoap" type="tns:ChangeSetService2012ASoap">
+    <soap:binding transport="http://schemas.xmlsoap.org/soap/http" />
+    <wsdl:operation name="Test">
+      <soap:operation soapAction="http://ws.availpro.com/internal/schemas/planning/2012A/Test" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetChangeSetStatus">
+      <soap:operation soapAction="http://ws.availpro.com/internal/schemas/planning/2012A/GetChangeSetStatus" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetChangeSet">
+      <soap:operation soapAction="http://ws.availpro.com/internal/schemas/planning/2012A/GetChangeSet" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="SearchChangeSets">
+      <soap:operation soapAction="http://ws.availpro.com/internal/schemas/planning/2012A/SearchChangeSets" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="SearchHotelChangeSets">
+      <soap:operation soapAction="http://ws.availpro.com/internal/schemas/planning/2012A/SearchHotelChangeSets" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="SearchPendingHotelChangeSets">
+      <soap:operation soapAction="http://ws.availpro.com/internal/schemas/planning/2012A/SearchPendingHotelChangeSets" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="SearchBookingChangeSets">
+      <soap:operation soapAction="http://ws.availpro.com/internal/schemas/planning/2012A/SearchBookingChangeSets" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="SearchBookingReferenceChangeSets">
+      <soap:operation soapAction="http://ws.availpro.com/internal/schemas/planning/2012A/SearchBookingReferenceChangeSets" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+  </wsdl:binding>
+  <wsdl:binding name="ChangeSetService2012ASoap12" type="tns:ChangeSetService2012ASoap">
+    <soap12:binding transport="http://schemas.xmlsoap.org/soap/http" />
+    <wsdl:operation name="Test">
+      <soap12:operation soapAction="http://ws.availpro.com/internal/schemas/planning/2012A/Test" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetChangeSetStatus">
+      <soap12:operation soapAction="http://ws.availpro.com/internal/schemas/planning/2012A/GetChangeSetStatus" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetChangeSet">
+      <soap12:operation soapAction="http://ws.availpro.com/internal/schemas/planning/2012A/GetChangeSet" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="SearchChangeSets">
+      <soap12:operation soapAction="http://ws.availpro.com/internal/schemas/planning/2012A/SearchChangeSets" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="SearchHotelChangeSets">
+      <soap12:operation soapAction="http://ws.availpro.com/internal/schemas/planning/2012A/SearchHotelChangeSets" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="SearchPendingHotelChangeSets">
+      <soap12:operation soapAction="http://ws.availpro.com/internal/schemas/planning/2012A/SearchPendingHotelChangeSets" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="SearchBookingChangeSets">
+      <soap12:operation soapAction="http://ws.availpro.com/internal/schemas/planning/2012A/SearchBookingChangeSets" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="SearchBookingReferenceChangeSets">
+      <soap12:operation soapAction="http://ws.availpro.com/internal/schemas/planning/2012A/SearchBookingReferenceChangeSets" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+  </wsdl:binding>
+  <wsdl:binding name="ChangeSetService2012AHttpGet" type="tns:ChangeSetService2012AHttpGet">
+    <http:binding verb="GET" />
+    <wsdl:operation name="Test">
+      <http:operation location="/Test" />
+      <wsdl:input>
+        <http:urlEncoded />
+      </wsdl:input>
+      <wsdl:output />
+    </wsdl:operation>
+    <wsdl:operation name="GetChangeSetStatus">
+      <http:operation location="/GetChangeSetStatus" />
+      <wsdl:input>
+        <http:urlEncoded />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetChangeSet">
+      <http:operation location="/GetChangeSet" />
+      <wsdl:input>
+        <http:urlEncoded />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="SearchChangeSets">
+      <http:operation location="/SearchChangeSets" />
+      <wsdl:input>
+        <http:urlEncoded />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="SearchHotelChangeSets">
+      <http:operation location="/SearchHotelChangeSets" />
+      <wsdl:input>
+        <http:urlEncoded />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="SearchPendingHotelChangeSets">
+      <http:operation location="/SearchPendingHotelChangeSets" />
+      <wsdl:input>
+        <http:urlEncoded />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="SearchBookingChangeSets">
+      <http:operation location="/SearchBookingChangeSets" />
+      <wsdl:input>
+        <http:urlEncoded />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="SearchBookingReferenceChangeSets">
+      <http:operation location="/SearchBookingReferenceChangeSets" />
+      <wsdl:input>
+        <http:urlEncoded />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+  </wsdl:binding>
+  <wsdl:binding name="ChangeSetService2012AHttpPost" type="tns:ChangeSetService2012AHttpPost">
+    <http:binding verb="POST" />
+    <wsdl:operation name="Test">
+      <http:operation location="/Test" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output />
+    </wsdl:operation>
+    <wsdl:operation name="GetChangeSetStatus">
+      <http:operation location="/GetChangeSetStatus" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetChangeSet">
+      <http:operation location="/GetChangeSet" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="SearchChangeSets">
+      <http:operation location="/SearchChangeSets" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="SearchHotelChangeSets">
+      <http:operation location="/SearchHotelChangeSets" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="SearchPendingHotelChangeSets">
+      <http:operation location="/SearchPendingHotelChangeSets" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="SearchBookingChangeSets">
+      <http:operation location="/SearchBookingChangeSets" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="SearchBookingReferenceChangeSets">
+      <http:operation location="/SearchBookingReferenceChangeSets" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+  </wsdl:binding>
+  <wsdl:service name="ChangeSetService2012A">
+    <wsdl:documentation xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">Provides information concerning planning changesets.</wsdl:documentation>
+    <wsdl:port name="ChangeSetService2012ASoap" binding="tns:ChangeSetService2012ASoap">
+      <soap:address location="http://planning.internal-services.production.siriona.com/planning/2012A/changesetservice.asmx" />
+    </wsdl:port>
+    <wsdl:port name="ChangeSetService2012ASoap12" binding="tns:ChangeSetService2012ASoap12">
+      <soap12:address location="http://planning.internal-services.production.siriona.com/planning/2012A/changesetservice.asmx" />
+    </wsdl:port>
+    <wsdl:port name="ChangeSetService2012AHttpGet" binding="tns:ChangeSetService2012AHttpGet">
+      <http:address location="http://planning.internal-services.production.siriona.com/planning/2012A/changesetservice.asmx" />
+    </wsdl:port>
+    <wsdl:port name="ChangeSetService2012AHttpPost" binding="tns:ChangeSetService2012AHttpPost">
+      <http:address location="http://planning.internal-services.production.siriona.com/planning/2012A/changesetservice.asmx" />
+    </wsdl:port>
+  </wsdl:service>
+</wsdl:definitions>
