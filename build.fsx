@@ -1,7 +1,7 @@
 #r "paket:
 source https://api.nuget.org/v3/index.json
-framework: netstandard2.0
-nuget FSharp.Core < 5
+storage: none
+nuget FSharp.Core 8.0.301
 nuget Fake.Core 
 nuget Fake.Core.Target
 nuget Fake.Core.ReleaseNotes
