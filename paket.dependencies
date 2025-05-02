@@ -1,12 +1,11 @@
 storage: packages
 source https://api.nuget.org/v3/index.json
-
-frameworks: net48, net6.0, netstandard2.0
+storage: none
 
 # Add the nuget packages you use here
-nuget FSharp.Core 4.7.2
+nuget FSharp.Core 8.0.301
 nuget Microsoft.NETFramework.ReferenceAssemblies
-nuget System.ServiceModel.Duplex
+nuget System.ServiceModel.Duplex 4.10.3
 nuget System.ServiceModel.Http
 
 # These lines are used by Paket to get the latest version of the Type Provider SDK files
@@ -15,9 +14,8 @@ github fsprojects/FSharp.TypeProviders.SDK src/ProvidedTypes.fs
 
 group Test
   source https://api.nuget.org/v3/index.json
-  frameworks: net48, net6.0
 
-  nuget NUnit
+nuget Nunit 3.14
   nuget NUnit.Console
   nuget NUnit3TestAdapter version_in_path: true
   nuget FSharp.Core

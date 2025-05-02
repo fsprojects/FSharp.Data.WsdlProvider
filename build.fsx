@@ -51,6 +51,7 @@ Target.create "Clean" <| fun _ ->
 Target.create "Build" <| fun _ ->
     DotNet.build (fun p ->
         { p with 
+            MSBuildParams = { p.MSBuildParams with DisableInternalBinLog = true }
             Configuration = DotNet.BuildConfiguration.Release } )
         BuildPath.sln
 
@@ -64,6 +65,7 @@ Target.create "Test" <| fun _ ->
     
     DotNet.test (fun p ->
         { p with
+            MSBuildParams = { p.MSBuildParams with DisableInternalBinLog = true }
             Configuration = DotNet.BuildConfiguration.Release
             NoBuild = true
             Framework = fx

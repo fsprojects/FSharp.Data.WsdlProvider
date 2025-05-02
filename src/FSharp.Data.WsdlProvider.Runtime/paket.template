@@ -23,6 +23,10 @@ files
     bin/Release/netstandard2.0/FSharp.Data.WsdlProvider.*.pdb ==> lib/netstandard2.0
     bin/Release/typeproviders/fsharp41/netstandard2.0/*.dll ==> typeproviders/fsharp41/netstandard2.0
     bin/Release/typeproviders/fsharp41/netstandard2.0/*.pdb ==> typeproviders/fsharp41/netstandard2.0
+    bin/Release/net8.0/FSharp.Data.WsdlProvider.*.dll ==> lib/net8.0
+    bin/Release/net8.0/FSharp.Data.WsdlProvider.*.pdb ==> lib/net8.0
+    bin/Release/typeproviders/fsharp41/net8.0/*.dll ==> typeproviders/fsharp41/net8.0
+    bin/Release/typeproviders/fsharp41/net8.0/*.pdb ==> typeproviders/fsharp41/net8.0
 references
     FSharp.Data.WsdlProvider.Runtime.dll
 dependencies

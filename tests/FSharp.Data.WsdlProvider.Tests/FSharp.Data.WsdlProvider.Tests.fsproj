@@ -1,9 +1,10 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <Import Project="..\..\netfx.props" />
   <PropertyGroup>
-    <TargetFrameworks>net6.0;net48</TargetFrameworks>
+    <TargetFrameworks>net8.0;net48</TargetFrameworks>
     <DisableImplicitFSharpCoreReference>true</DisableImplicitFSharpCoreReference>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
+    <IsPackable>false</IsPackable>
   </PropertyGroup>
   <ItemGroup>
     <None Include="darwin_token_types_2013-11-28.wsdl" />

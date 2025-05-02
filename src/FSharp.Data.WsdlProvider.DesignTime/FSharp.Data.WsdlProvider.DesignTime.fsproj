@@ -3,12 +3,14 @@
   <Import Project="..\..\netfx.props" />
   <PropertyGroup>
     <OutputType>Library</OutputType>
-    <TargetFrameworks>netstandard2.0</TargetFrameworks>
+    <TargetFrameworks>netstandard2.0;net8.0</TargetFrameworks>
     <Optimize Condition="'$(Configuration)' == 'Release'">true</Optimize>
     <Tailcalls>true</Tailcalls>
+    <DefineConstants>DESIGNTIME</DefineConstants>
     <DisableImplicitFSharpCoreReference>true</DisableImplicitFSharpCoreReference>
     <RestoreProjectStyle>PackageReference</RestoreProjectStyle>
     <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
+    <ProduceReferenceAssembly>false</ProduceReferenceAssembly>
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="..\..\paket-files\fsprojects\FSharp.TypeProviders.SDK\src\ProvidedTypes.fsi">
