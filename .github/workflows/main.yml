@@ -15,16 +15,22 @@ jobs:
       fail-fast: false
       matrix:
         os: [windows-latest, macOS-latest, ubuntu-latest]
-        dotnet: [6.0.100]
+        dotnet6: [6.0.428]
+        dotnet8: [8.0.408]
     runs-on: ${{ matrix.os }}
 
     steps:
     - uses: actions/checkout@v1
 
-    - name: Setup .NET Core
+    - name: Setup .NET Core 6 (for build only)
       uses: actions/setup-dotnet@v1
       with:
-        dotnet-version: ${{ matrix.dotnet }}
+        dotnet-version: ${{ matrix.dotnet6 }}
+
+    - name: Setup .NET Core 8
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: ${{ matrix.dotnet8 }}
 
     - name: Build on Windows
       if: matrix.os == 'windows-latest'

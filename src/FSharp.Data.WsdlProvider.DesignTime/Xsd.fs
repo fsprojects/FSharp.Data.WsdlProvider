@@ -15,9 +15,12 @@ type XmlQualifiedName with
         XName.Get(this.Name, this.Namespace)
 
 
+[<Struct>]
 type MinOccurs = MinOccurs of int
+[<Struct>]
 type MaxOccurs = MaxOccurs of int  | Unbounded
 
+[<Struct>]
 type Occurs = 
     { Min: MinOccurs 
       Max: MaxOccurs}

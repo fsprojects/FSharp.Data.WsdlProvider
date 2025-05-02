@@ -5,8 +5,10 @@
   <Import Project="..\..\netfx.props" />
   <PropertyGroup>
     <OutputType>Library</OutputType>
-    <TargetFrameworks>netstandard2.0</TargetFrameworks>
+    <TargetFrameworks>netstandard2.0;net8.0</TargetFrameworks>
     <DisableImplicitFSharpCoreReference>true</DisableImplicitFSharpCoreReference>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <ProduceReferenceAssembly>false</ProduceReferenceAssembly>
   </PropertyGroup>
   <Import Project="Sdk.targets" Sdk="Microsoft.NET.Sdk" />
   <ItemGroup>
@@ -25,17 +27,17 @@
   </ItemGroup>
   <ItemGroup>
     <!-- Be explicit about the version of FSharp.Core since we mention it in the manual nuget package spec -->
-    <PackageReference Include="FSharp.Core" Version="4.7.2" />
+    <PackageReference Include="FSharp.Core" Version="8.0.301" />
   </ItemGroup>
   <Target Name="BeforeBuild">
     <MSBuild Projects="..\FSharp.Data.WsdlProvider.DesignTime\FSharp.Data.WsdlProvider.DesignTime.fsproj" Targets="Restore" />
-    <MSBuild Projects="..\FSharp.Data.WsdlProvider.DesignTime\FSharp.Data.WsdlProvider.DesignTime.fsproj" Targets="Build" Properties="Configuration=$(Configuration);TargetFramework=netstandard2.0" />
+    <MSBuild Projects="..\FSharp.Data.WsdlProvider.DesignTime\FSharp.Data.WsdlProvider.DesignTime.fsproj" Targets="Build" Properties="Configuration=$(Configuration);TargetFramework=$(TargetFramework)" />
   </Target>
   <Target Name="AfterBuild">
-    <CreateItem Include="..\FSharp.Data.WsdlProvider.DesignTime\bin\$(Configuration)\netstandard2.0\*.dll;..\FSharp.Data.WsdlProvider.DesignTime\bin\$(Configuration)\netstandard2.0\*.pdb">
+    <CreateItem Include="..\FSharp.Data.WsdlProvider.DesignTime\bin\$(Configuration)\$(TargetFramework)\*.dll;..\FSharp.Data.WsdlProvider.DesignTime\bin\$(Configuration)\$(TargetFramework)\*.pdb">
       <Output TaskParameter="Include" ItemName="DesignTimeBinaries3" />
     </CreateItem>
-    <Copy SourceFiles="@(DesignTimeBinaries3)" DestinationFolder="$(OutputPath)/../typeproviders/fsharp41/netstandard2.0" />
+    <Copy SourceFiles="@(DesignTimeBinaries3)" DestinationFolder="$(OutputPath)/../typeproviders/fsharp41/$(TargetFramework)" />
   </Target>
   <Import Project="..\..\.paket\Paket.Restore.targets" />
 </Project>
