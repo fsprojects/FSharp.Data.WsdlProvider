@@ -319,7 +319,7 @@ let nsName (ns: string) suffix =
 
 
 let writeLocalSchema (writer: IO.TextWriter) (imports: ((string * string) * XElement) list) (schemas: XmlSchemaSet) =
-    let w = new XmlTextWriter(writer)
+    let w = new XmlTextWriter(writer, Formatting = Formatting.Indented)
     w.WriteStartDocument()
     w.WriteStartElement("ServiceMetadataFiles")
 
