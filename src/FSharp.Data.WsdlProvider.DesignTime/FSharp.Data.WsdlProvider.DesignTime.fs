@@ -636,12 +636,14 @@ type WsdlProvider (config : TypeProviderConfig) as this =
         [ ProvidedStaticParameter("ServiceUri", typeof<string>)
           ProvidedStaticParameter("LocalSchemaFile", typeof<string>, "")
           ProvidedStaticParameter("ForceUpdate", typeof<bool>, false)
-          ProvidedStaticParameter("ResolutionFolder", typeof<string>, "")],
+          ProvidedStaticParameter("ResolutionFolder", typeof<string>, "")
+          ProvidedStaticParameter("IndentLocalSchemaFile", typeof<bool>, false) ],
         fun name args ->
             let uri = unbox<string> args.[0]
             let localSchemaFile = unbox<string> args.[1]
             let forceUpdate = unbox<bool> args.[2]
             let resolutionFolder = unbox<string> args.[3]
+            let indentLocalSchemaFile = unbox<bool> args.[4]
 
             match cache.TryGetValue(name) with
             | true, (existingUri, providedType)
@@ -675,7 +677,8 @@ type WsdlProvider (config : TypeProviderConfig) as this =
                                 
                                 Wsdl.parseWsdlSchema (System.Xml.Linq.XDocument.Load fullPath) (Uri fullPath)
                             else
-                                Wsdl.parse (System.Xml.Linq.XDocument.Load(string uri)) uri (saveLocalSchema fullPath)
+                                let saveLocalSchema = saveLocalSchema fullPath indentLocalSchemaFile
+                                Wsdl.parse (System.Xml.Linq.XDocument.Load(string uri)) uri saveLocalSchema
 
                     with
                     | ex -> failwithf "Error while loading wsdl:\n%O" ex
