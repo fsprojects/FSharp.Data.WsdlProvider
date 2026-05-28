@@ -318,8 +318,7 @@ let nsName (ns: string) suffix =
         uri.Authority + uri.LocalPath.Replace("/",".").TrimEnd('.') + suffix
 
 
-let writeLocalSchema (writer: IO.TextWriter) (imports: ((string * string) * XElement) list) (schemas: XmlSchemaSet) =
-    let w = new XmlTextWriter(writer)
+let writeLocalSchema (w: XmlTextWriter) (imports: ((string * string) * XElement) list) (schemas: XmlSchemaSet) =
     w.WriteStartDocument()
     w.WriteStartElement("ServiceMetadataFiles")
 
@@ -341,9 +340,10 @@ let writeLocalSchema (writer: IO.TextWriter) (imports: ((string * string) * XEle
             w.WriteEndElement()
     w.WriteEndElement()
 
-let saveLocalSchema file imports schemas =
+let saveLocalSchema file indent imports schemas =
     use writer = IO.File.CreateText(file)
-    writeLocalSchema writer imports schemas
+    let w = new XmlTextWriter(writer, Formatting = if indent then Formatting.Indented else Formatting.None)
+    writeLocalSchema w imports schemas
 
 let dontSave _ _ = ()
 
