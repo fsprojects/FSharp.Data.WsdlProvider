@@ -5,7 +5,6 @@ storage: none
 # Add the nuget packages you use here
 nuget FSharp.Core 8.0.301
 nuget Microsoft.NETFramework.ReferenceAssemblies
-nuget System.ServiceModel.Duplex 4.10.3
 nuget System.ServiceModel.Http
 
 # These lines are used by Paket to get the latest version of the Type Provider SDK files

@@ -3,6 +3,5 @@ File:ProvidedTypes.fs
 
 FSharp.Core
 
-System.ServiceModel.Duplex
 System.ServiceModel.Http
 

@@ -36,8 +36,6 @@ module Provided =
             override _.NamedArguments =  
                 upcast [| for p,v in namedArgs -> CustomAttributeNamedArgument(typeof<'t>.GetProperty(p), v ) |]
         
-
-
     let mkProvidedAttribute<'t> args namedArgs =
         ProvidedAttribute<'t>(args, namedArgs) :> CustomAttributeData
 
@@ -82,7 +80,10 @@ module Provided =
     let mkOperationContractAttribute (action: string) (replyAction: string) =
         mkProvidedAttribute<OperationContractAttribute> [] [ "Action", box action; "ReplyAction", box replyAction]
     
-    let defineCtors (client: ProvidedTypeDefinition) location =
+    let defineCtors
+        (client: ProvidedTypeDefinition)
+        (location: string)
+        (isSoap12: bool) =
             let parentCtor =
                 client.BaseType.GetConstructor(
                     BindingFlags.NonPublic ||| BindingFlags.Instance, 
@@ -91,7 +92,6 @@ module Provided =
                        typeof<System.ServiceModel.EndpointAddress> |],
                     null)
             
-
             let defaultCtor =
                 // this is the constructor with no parameters (default remote address)
                 let args = []
@@ -102,7 +102,7 @@ module Provided =
                     [ args.[0] // this
                       // the SelectBinding methods selects binding 
                       // matching location uri scheme
-                      <@@ DefaultBinding.SelectBinding(location) @@>
+                      <@@ DefaultBinding.SelectBinding(location, isSoap12) @@>
                       <@@ EndpointAddress(location) @@> ]
 
                 c.BaseConstructorCall <- (fun args -> parentCtor, parentCtorCall args )
@@ -116,7 +116,7 @@ module Provided =
                     [ args.[0] // this
                       // the SelectBinding methods selects binding 
                       // matching location uri scheme
-                      <@@ DefaultBinding.SelectBinding(%%(args.[1])) @@>
+                      <@@ DefaultBinding.SelectBinding(%%(args.[1]), isSoap12) @@>
                       <@@ EndpointAddress( %%(args.[1]) ) @@> ]
 
                 c.BaseConstructorCall <- (fun args -> parentCtor, parentCtorCall args )
@@ -134,7 +134,6 @@ module Provided =
 
             client.AddMembers([defaultCtor; addressCtor; fullCtor ])
 
-
     let defineLocation (client: ProvidedTypeDefinition) (location: string)=
     
         let location =
@@ -148,14 +147,17 @@ module Provided =
           SoapInterface: ProvidedTypeDefinition
           Client: ProvidedTypeDefinition }
 
-    let defineOperationMethod (op: Operation,input, output) clientCtx =
-        let name = op.PortOperation.Name
+    let defineOperationMethod
+        (methodName: string)
+        (op: Operation, input, output)
+        clientCtx =
+
+        let name = methodName
         let outputType =
             if output = typeof<Unit> then
                 typeof<Void>
             else
                 output
-
 
         // method on the soap interface including soap attributes
         let soapItfMeth = ProvidedMethod(name, input , outputType)
@@ -181,8 +183,12 @@ module Provided =
         clientCtx.Client.DefineMethodOverride(itfImpl, itfMeth)
         clientCtx.Client.AddMember(itfImpl)
 
-    let defineAsyncOperationMethod (op: Operation,input, output) clientCtx =
-        let name = op.PortOperation.Name + "Async"
+    let defineAsyncOperationMethod
+        (methodName: string)
+        (op: Operation, input, output)
+        clientCtx =
+
+        let name = methodName + "Async"
 
         // method on soap interface alwasy use tasks (include soap attributes)
         let taskOutput = 
@@ -215,7 +221,7 @@ module Provided =
         clientCtx.Client.AddMember(itfImpl)
 
         // method on front facing interface using Async
-        let asyncName = "Async" + op.PortOperation.Name
+        let asyncName = "Async" + methodName
         let asyncOutput = ProvidedTypeBuilder.MakeGenericType(typedefof<Async<_>>, [ output ])
         let itfAsyncMeth = ProvidedMethod(asyncName, input , asyncOutput)
         clientCtx.ClientInterface.AddMember(itfAsyncMeth)
@@ -248,7 +254,6 @@ module Provided =
         clientCtx.Client.DefineMethodOverride(itfImpl, itfAsyncMeth)
         clientCtx.Client.AddMember(itfImpl)
 
-
     // builds a log2 deep Sequential tree from expression list
     // this is required for constructors that take many arguments.
     // The output sequence is used by a non-tail call function that will
@@ -263,12 +268,10 @@ module Provided =
             let left, right = List.splitAt(exprs.Length / 2) exprs
             Expr.Sequential( makeSequential left, makeSequential right)
 
-
     type CTChildKind =
         | CTElement
         | CTArray of string
         | CTAttribute
-
 
     type CTXmlName =
         | XmlType of XName
@@ -283,7 +286,9 @@ module Provided =
         let typeNames = Dictionary<string,int>()
 
         // avoid name clashes by adding a number suffix to existing type names
-        let fixTypeName name =
+        let fixTypeName (originalName: string) =
+            let name = originalName.Replace('.', '_')
+
             match typeNames.TryGetValue(name) with
             | false, _ ->
                 typeNames.[name] <- 0
@@ -292,7 +297,6 @@ module Provided =
                 let newN = n + 1
                 typeNames.[name] <- newN
                 name + string newN
-
         let rec buildComplexType contract name (xmlname: CTXmlName) (t: XsComplexType) = 
             match xmlname with
             | XmlType n 
@@ -320,7 +324,6 @@ module Provided =
                 | NoName -> ()
 
                 p.AddMember(pt)
-
 
                 let elements = 
                     match t.Elements with
@@ -353,14 +356,11 @@ module Provided =
                                     let propType = applyElementCardinality e (typeRef t) 
                                     yield (e.Name.LocalName, e.Name, propType, CTElement)
 
-                                     
-                                      
                             | XsElement ( { Type = InlineType (XsComplexType ct)} as e) ->
                                 let propType = 
                                     let pt = buildComplexType false (name + String.PascalCase e.Name.LocalName) NoName ct
                                     applyElementCardinality e pt
                                     
-
                                 yield (e.Name.LocalName, e.Name, propType, CTElement)
                             | XsAny _ -> () ]
                     | _ -> []
@@ -408,7 +408,6 @@ module Provided =
                            prop
                         )
 
-
                     let ctor = 
                         let ps =
                             [ for name,_, t,_ in all ->
@@ -438,7 +437,6 @@ module Provided =
             else
                 ref
 
-
         and buildEnum (name: XName) (t: XsSimpleType) =
             match types.TryGetValue(name) with
             | true, t -> t :> Type
@@ -461,7 +459,6 @@ module Provided =
 
                 pt :> Type
 
-
         and buildType contract (typeDef: XsTypeDef) =
             match typeDef.Type with
             | XsComplexType t ->
@@ -482,7 +479,6 @@ module Provided =
                 | true, t -> t :> Type
                 | false,_ ->                    
                     buildType false wsdl.Schemas.Types.[name]
-
 
         and attributeTypeRef (t: XsAttributeType) =
             match t with
@@ -506,8 +502,6 @@ module Provided =
                 | false,_ ->                    
                     buildComplexType contract name.LocalName (XmlType name) t
                 
-
- 
         let buildParameters contract (name: XName) (t: XsTypeRef) =
             match t with
             | InlineType (XsComplexType { Elements = NoContent; BaseType = None}) ->
@@ -534,7 +528,7 @@ module Provided =
                 
             | _ -> failwithf "Canot build toplevel element %O" e.Name
             
-        let buildOperation op clientCtx =
+        let buildOperation (methodName: string) op clientCtx =
             let contract = op.PortOperation.RequireContract
             let input = 
                 match op.PortOperation.Input with
@@ -554,16 +548,15 @@ module Provided =
                     typeof<unit>
 
             // synchronous method
-            defineOperationMethod (op,input,output) clientCtx
+            defineOperationMethod methodName (op, input, output) clientCtx
 
             // task method
-            defineAsyncOperationMethod (op,input, output) clientCtx
+            defineAsyncOperationMethod methodName (op, input, output) clientCtx
 
             ()
 
         let buildPort serviceName (port: Port) = 
             try
-
 
             let soapItf = ProvidedTypeDefinition(asm, nsp, "I" + port.Name.LocalName , None, isErased = false, isInterface = true)
             soapItf.AddCustomAttribute(mkServiceContractAttribute (port.Name.NamespaceName, nsp + "." + serviceName))
@@ -583,7 +576,7 @@ module Provided =
                         isErased = false,
                         isSealed = false)
 
-            defineCtors client port.Location
+            defineCtors client port.Location (port.Binding.Version = SoapVersion.Soap12)
             defineLocation client port.Location
 
             client.AddInterfaceImplementation(itf)
@@ -598,16 +591,56 @@ module Provided =
                   ClientInterface = itf
                   SoapInterface = soapItf
                   Client = client }
+            let operationNameCounts =
+                port.Binding.Operations
+                |> List.countBy (fun operation -> operation.PortOperation.Name)
+                |> Map.ofList
 
-            for op in port.Binding.Operations do
-                buildOperation op clientCtx
+            let getMethodName (operation: Operation) =
+                let name = operation.PortOperation.Name
 
-            
+                if operationNameCounts.[name] = 1 then
+                    name
+                else
+                    let actionName =
+                        operation.SoapAction.Split('/')
+                        |> Array.last
+
+                    let prefix = name + "_"
+
+                    let position =
+                        actionName.LastIndexOf(
+                            prefix,
+                            StringComparison.Ordinal
+                        )
+
+                    if position < 0 then
+                        failwithf
+                            "Cannot distinguish overloaded operation %s from SOAP action %s"
+                            name
+                            operation.SoapAction
+
+                    actionName.Substring(position)
+
+            let namedOperations =
+                port.Binding.Operations
+                |> List.map (fun operation ->
+                    operation, getMethodName operation
+                )
+
+            let generatedNames =
+                namedOperations |> List.map snd
+
+            if generatedNames.Length <> (generatedNames |> List.distinct |> List.length) then
+                failwith "Generated SOAP method names are not unique."
+
+            for (operation, methodName) in namedOperations do
+                buildOperation methodName operation clientCtx
+
             [itf; soapItf ; client]
             with
             | ex -> failwithf "Failed while building ctor: %O" ex 
 
- 
         let buildService (service : Service)  = 
             [ for port in service.Ports do
                 yield! buildPort service.Name port ]
@@ -625,7 +658,6 @@ type WsdlProvider (config : TypeProviderConfig) as this =
 
     // check we contain a copy of runtime files, and are not referencing the runtime DLL
     do assert (typeof<DefaultBinding>.Assembly.GetName().Name = selfAsm.GetName().Name)  
-
 
     let service = ProvidedTypeDefinition(selfAsm, ns, "WsdlProvider", Some typeof<obj>, isErased = false )
 
@@ -692,7 +724,6 @@ type WsdlProvider (config : TypeProviderConfig) as this =
                 with
                 | ex -> failwithf "%O" ex 
         )
-
 
     do this.AddNamespace(
         ns, [service]
