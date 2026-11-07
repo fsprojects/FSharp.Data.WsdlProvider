@@ -9,7 +9,6 @@ type MessageElement =
     | SimpleType of XName
     | Element of XsElement 
 
-
 type Part =
     { Name: string
       Element: MessageElement }
@@ -17,10 +16,11 @@ type Part =
 type Message =
     { Name: XName
       Part: Part option }
-
 type PortOperation =
     { Name: string
       Documentation: string option
+      InputName: string option
+      OutputName: string option
       /// the operation input argument (as a complex type)
       Input: Part option
       /// the operation return type 
@@ -40,11 +40,16 @@ type BindingStyle =
     | RPC
 
 // A soap binding
+[<RequireQualifiedAccess>]
+type SoapVersion =
+    | Soap11
+    | Soap12
+
 type SoapBinding =
     { Name: XName
       Style: BindingStyle
+      Version: SoapVersion
       Operations: Operation list }
-
 // A wsdl port (a binding at a specific location)
 type Port =
     { Name : XName
@@ -60,11 +65,9 @@ type Wsdl =
     { Schemas: XsSet
       Services: Service list }
 
-
 module String =
     let split (char: char) (str: string) = 
         str.Split(char)
-
 
 module Xml =
     let xn = XName.Get
@@ -84,7 +87,6 @@ let (|XAtt|_|) name (e: XElement) =
     else
         Some a.Value
 
-
 let resolveXName (e: XElement) name =
     match String.split ':' name with
     | [| pfx; localName |] ->
@@ -102,11 +104,10 @@ module XmlSchema =
     let complexType = ns + "complexType" 
     let sequence = ns + "sequence"
 
-    module Attr =
-        let name = XName.Get "name"
-        let ``type`` = XName.Get "type"
-        let minOccurs = XName.Get "minOccurs"
-        let maxOccurs = XName.Get "maxOccurs"
+    let _name = XName.Get "name"
+    let _type = XName.Get "type"
+    let _minOccurs = XName.Get "minOccurs"
+    let _maxOccurs = XName.Get "maxOccurs"
 
 module Wsdl =
     let ns = XNamespace.Get "http://schemas.xmlsoap.org/wsdl/"
@@ -122,22 +123,54 @@ module Wsdl =
     let output = ns + "output"
     let binding = ns + "binding"
     let portType = ns + "portType"
-    
-    module Attr =
-        let name = XName.Get "name"
-        let location = XName.Get "location"
-        let binding = XName.Get "binding"
-        let targetNamespace = XName.Get "targetNamespace"
 
+    let _name = XName.Get "name"
+    let _location = XName.Get "location"
+    let _binding = XName.Get "binding"
+    let _targetNamespace = XName.Get "targetNamespace"
 
 module Soap =
     let ns = XNamespace.Get "http://schemas.xmlsoap.org/wsdl/soap/"
-
+    let binding = ns + "binding"
     let operation = ns + "operation"
+    let body = ns + "body"
+    let fault = ns + "fault"
+    let header = ns + "header"
+    let headerfault = ns + "headerfault"
     let address = ns + "address"
 
-    module Attr = 
-        let soapAction =  XName.Get "soapAction"
+    let _transport =  XName.Get "transport"
+    let _style =  XName.Get "style"
+    let _soapAction =  XName.Get "soapAction"
+    let _encodingStyle =  XName.Get "encodingStyle"
+    let _use =  XName.Get "use"
+    let _namespace =  XName.Get "namespace"
+    let _parts =  XName.Get "parts"
+    let _name =  XName.Get "name"
+    let _message =  XName.Get "message"
+    let _part =  XName.Get "part"
+    let _location =  XName.Get "location"
+module Soap12 =
+    let ns = XNamespace.Get "http://schemas.xmlsoap.org/wsdl/soap12/"
+    let binding = ns + "binding"
+    let operation = ns + "operation"
+    let body = ns + "body"
+    let fault = ns + "fault"
+    let header = ns + "header"
+    let headerfault = ns + "headerfault"
+    let address = ns + "address"
+
+    let _transport =  XName.Get "transport"
+    let _style =  XName.Get "style"
+    let _soapAction =  XName.Get "soapAction"
+    let _encodingStyle =  XName.Get "encodingStyle"
+    let _use =  XName.Get "use"
+    let _namespace =  XName.Get "namespace"
+    let _parts =  XName.Get "parts"
+    let _name =  XName.Get "name"
+    let _message =  XName.Get "message"
+    let _part =  XName.Get "part"
+    let _location =  XName.Get "location"
 
 let parseMessage (tns: XNamespace) (msg: XElement ) (schemas: XsSet) =
     let msgName = Xml.attr "name" msg
@@ -165,15 +198,16 @@ let parseMessage (tns: XNamespace) (msg: XElement ) (schemas: XsSet) =
     { Name = tns + msgName
       Part =  part }
             
-
 let parseMessages tns (wsdl: XElement) (schemas: XsSet) =
     [ for e in  wsdl.Elements(Wsdl.message) ->
         parseMessage tns e schemas ]
 
-
 let parseOperation (messages: Message list) (portOp: XElement) (*wsdlOp: XElement*)  =
-    let name = portOp.Attribute(Wsdl.Attr.name).Value
-
+    let name = portOp.Attribute(Wsdl._name).Value
+    let messageName (elementName: XName) =
+        portOp.Element(elementName)
+        |> Option.ofObj
+        |> Option.bind (Xml.tryAttr "name")
     let doc = 
         portOp.Element(Wsdl.documentation)
         |> Option.ofObj
@@ -186,9 +220,6 @@ let parseOperation (messages: Message list) (portOp: XElement) (*wsdlOp: XElemen
             |> List.find (fun m -> m.Name = name)
         | n -> failwithf "Could not parse input message name %s" n
 
-        
-
-
     let output =
         let outputElement = portOp.Element(Wsdl.output)
 
@@ -198,11 +229,14 @@ let parseOperation (messages: Message list) (portOp: XElement) (*wsdlOp: XElemen
             |> List.find (fun m -> m.Name = name)
         | n -> failwithf "Could not parse output message name %s" n
 
-
-    { Name = name
-      Documentation = doc
-      Input = input.Part
-      Output = output.Part  }
+    { 
+        Name = name
+        Documentation = doc
+        InputName = messageName Wsdl.input
+        OutputName = messageName Wsdl.output
+        Input = input.Part
+        Output = output.Part
+    }
 
 let parsePortTypes (tns: XNamespace) (wsdl: XElement) messages =
     [ for p in wsdl.Elements(Wsdl.portType) ->
@@ -214,56 +248,134 @@ let parsePortTypes (tns: XNamespace) (wsdl: XElement) messages =
         }
     ]
    
+let parseBinding
+    (tns: XNamespace)
+    (binding: XElement)
+    (portTypes: PortType list) =
 
-let parseBinding (tns: XNamespace) (binding: XElement) (portTypes: PortType list) =
+    // Identify the SOAP version declared by the WSDL binding.
+    let version, soapBindingElement =
+        match Xml.tryElt Soap12.binding binding with
+        | Some element ->
+            SoapVersion.Soap12, element
+
+        | None ->
+            match Xml.tryElt Soap.binding binding with
+            | Some element ->
+                SoapVersion.Soap11, element
+
+            | None ->
+                failwith "Unsupported SOAP binding."
+
+    // Resolve the QName referencing the abstract portType.
     let name = Xml.attr "name" binding
-    let t = 
-        match Xml.attr "type"  binding with
-        | XName binding t -> t
-        | t -> XName.Get t
 
-    let portType = 
+    let portTypeName =
+        match Xml.attr "type" binding with
+        | XName binding name -> name
+        | name -> XName.Get name
+
+    let portType =
         portTypes
-        |> List.find (fun e -> e.Name = t )
+        |> List.find (fun candidate ->
+            candidate.Name = portTypeName
+        )
 
-    let ops = 
-        [ for wsdlop in binding.Elements(Wsdl.operation) do
-            let opName = Xml.attr "name" wsdlop
-            let soapOp = wsdlop.Element(Soap.operation)
-            if not (isNull  soapOp) then
-                let action = Xml.attr "soapAction" soapOp
-                let pop = portType.Operations |> List.find (fun o -> o.Name = opName)
-                { SoapAction = action
-                  PortOperation = pop } ]
+    // SOAP operation elements must belong to the same
+    // SOAP extension vocabulary as the binding.
+    let soapOperationElementName =
+        match version with
+        | SoapVersion.Soap11 -> Soap.operation
+        | SoapVersion.Soap12 -> Soap12.operation
 
+    // Parse the concrete operation bindings.
+    let operations =
+        [
+            for wsdlOperation in binding.Elements(Wsdl.operation) do
+
+                let operationName =
+                    Xml.attr "name" wsdlOperation
+
+                let soapOperation =
+                    match Xml.tryElt soapOperationElementName wsdlOperation with
+                    | Some element -> element
+                    | None ->
+                        failwithf
+                            "Missing SOAP operation binding: %s"
+                            operationName
+
+                let messageName elementName =
+                    Xml.tryElt elementName wsdlOperation
+                    |> Option.bind (Xml.tryAttr "name")
+
+                let inputName = messageName Wsdl.input
+                let outputName = messageName Wsdl.output
+
+                let matchesWhenSpecified expected actual =
+                    match expected with
+                    | None -> true
+                    | Some name -> actual = Some name
+
+                // Resolve the abstract operation, including overload identity.
+                let portOperation =
+                    portType.Operations
+                    |> List.filter (fun candidate ->
+                        candidate.Name = operationName
+                        && matchesWhenSpecified inputName candidate.InputName
+                        && matchesWhenSpecified outputName candidate.OutputName
+                    )
+                    |> function
+                        | [operation] ->
+                            operation
+
+                        | [] ->
+                            failwithf
+                                "No matching portType operation: %s"
+                                operationName
+
+                        | _ ->
+                            failwithf
+                                "Ambiguous portType operation: %s"
+                                operationName
+
+                yield {
+                    SoapAction = Xml.attr "soapAction" soapOperation
+                    PortOperation = portOperation
+                }
+        ]
+
+    // Read SOAP-specific binding style from the SOAP binding element.
     let style =
-        match Xml.tryAttr "style" binding with
+        match Xml.tryAttr "style" soapBindingElement with
         | Some "rpc" -> RPC
         | _ -> Document
 
-        
-
-    { Name = tns + name
-      Operations = ops 
-      Style = style }
-
-
+    {
+        Name = tns + name
+        Style = style
+        Version = version
+        Operations = operations
+    }
 let parseBindings tns (wsdl: XElement) portTypes =
     [ for b in wsdl.Elements(Wsdl.binding) ->
         parseBinding tns b portTypes ]
 
-    
-    
 let parsePort (bindings: SoapBinding list) (tns: XNamespace) (e: XElement)  =
-    match e.Element(Soap.address) with
 
+    let address =
+        match e.Element(Soap.address) with
+        | null -> e.Element(Soap12.address)
+        | element -> element
+
+    match address with
     | null -> None
-    | address -> 
-        let name = e.Attribute(Wsdl.Attr.name).Value
-        let location = address.Attribute(Wsdl.Attr.location).Value
+    | address ->
+        let name = e.Attribute(Wsdl._name).Value
+        let location = address.Attribute(Wsdl._location).Value
         let bindingName =  
-            match e.Attribute(Wsdl.Attr.binding).Value with
+            match e.Attribute(Wsdl._binding).Value with
             | XName e n -> n
+
             | t -> XName.Get t
         let binding =
             bindings
@@ -276,13 +388,12 @@ let parsePort (bindings: SoapBinding list) (tns: XNamespace) (e: XElement)  =
 
 let parseServices bindings tns (wsdl: XElement)  = 
     [ for e in wsdl.Elements(Wsdl.service) ->
-        { Name = e.Attribute(Wsdl.Attr.name).Value
+        { Name = e.Attribute(Wsdl._name).Value
           Ports = 
             e.Elements(Wsdl.port)
             |> Seq.choose (parsePort bindings tns)
             |> Seq.toList }
     ]
-
 
 let rec parseWsdlImports (wsdl: XElement) baseUri (resolver: XmlResolver) docs =
     wsdl.Elements(Wsdl.ns + "import")
@@ -317,7 +428,6 @@ let nsName (ns: string) suffix =
     else
         uri.Authority + uri.LocalPath.Replace("/",".").TrimEnd('.') + suffix
 
-
 let writeLocalSchema (w: XmlTextWriter) (imports: ((string * string) * XElement) list) (schemas: XmlSchemaSet) =
     w.WriteStartDocument()
     w.WriteStartElement("ServiceMetadataFiles")
@@ -348,14 +458,13 @@ let saveLocalSchema file indent imports schemas =
 let dontSave _ _ = ()
 
 let parseWithLoader (wsdl: XElement) documentUri loader saveSchema =
-    let tns = wsdl.Attribute(Wsdl.Attr.targetNamespace).Value |> XNamespace.Get
+    let tns = wsdl.Attribute(Wsdl._targetNamespace).Value |> XNamespace.Get
 
     let imports = 
         Map.empty
         |> Map.add (tns.NamespaceName, string documentUri) wsdl
         |> parseWsdlImports wsdl documentUri loader
         |> Map.toList
-
 
     let schemas = XmlSchemaSet(XmlResolver = loader )
     for _,wsdl in imports  do
@@ -387,7 +496,6 @@ let parseWithLoader (wsdl: XElement) documentUri loader saveSchema =
     { Schemas = schemaSet
       Services = services }
 
-
 type XmlRelativeResolver(baseUri: Uri) =
     inherit XmlUrlResolver()
 
@@ -399,8 +507,6 @@ type XmlRelativeResolver(baseUri: Uri) =
         else
             Uri(baseUri, uri)
         
-      
-
 let parse (wsdl: XDocument) documentUri saveSchema =
     let resolver = XmlRelativeResolver(documentUri)
     parseWithLoader wsdl.Root documentUri resolver saveSchema
@@ -421,7 +527,6 @@ type XmlLocalResolver(files: Map<DocUri, byte[]>) =
             
         // api.microsofttranslator.com.V2.wsdl
         //"http://api.microsofttranslator.com/V2/soap.svc?wsdl=wsdl0"
-
 
 let parseWsdlSchema (schema: XDocument) documentUri =
     let root = 
